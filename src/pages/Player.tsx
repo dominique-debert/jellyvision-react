@@ -103,9 +103,12 @@ export default function Player() {
           return;
         }
 
-        // Create player instance
-        const player = new shaka.Player(videoRef.current);
+        // Create player instance without media element
+        const player = new shaka.Player();
         playerRef.current = player;
+
+        // Attach to video element
+        await player.attach(videoRef.current);
 
         // Set up event listeners
         player.addEventListener("error", (event: any) => {
@@ -135,6 +138,7 @@ export default function Player() {
 
     return () => {
       if (playerRef.current) {
+        playerRef.current.detach();
         playerRef.current.destroy();
         playerRef.current = null;
       }
