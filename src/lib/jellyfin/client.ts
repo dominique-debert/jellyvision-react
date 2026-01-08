@@ -445,6 +445,7 @@ export const getItem = async (
     const response = await client.userLibraryApi.getItem({
       userId,
       itemId,
+      enableUserData: true,
     });
 
     if (response.status !== 200 || !response.data) {

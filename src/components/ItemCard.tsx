@@ -39,12 +39,9 @@ export function ItemCard({ item, serverUrl, onPlayClick }: ItemCardProps) {
 
   const handlePlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("Play clicked for:", item.Name);
     if (onPlayClick) {
-      console.log("Calling onPlayClick for item:", item.Id);
       onPlayClick(e);
     } else {
-      console.log("Navigating to /play/", item.Id);
       navigate(`/play/${item.Id}`);
     }
   };
