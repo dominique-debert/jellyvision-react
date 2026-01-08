@@ -551,3 +551,45 @@ export const getEpisodes = async (
     };
   }
 };
+// Report playback progress to Jellyfin server
+export const reportPlaybackProgress = async (
+  baseURL: string,
+  userId: string,
+  itemId: string,
+  accessToken: string,
+  positionTicks: number,
+  isPaused: boolean = false
+): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+
+  try {
+    const response = await fetch(
+      `${proxiedURL}/Users/${userId}/PlayingItems/${itemId}/Progress?api_key=${accessToken}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          PositionTicks: positionTicks,
+          IsPaused: isPaused,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to report progress: ${response.statusText}`);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Report playback progress error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to report playback progress",
+    };
+  }
+};

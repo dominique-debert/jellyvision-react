@@ -1,7 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
-import { getItem, getImageUrl } from "@/lib/jellyfin/client";
+import {
+  getItem,
+  getImageUrl,
+  reportPlaybackProgress,
+} from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
 import {
   Play,
@@ -342,10 +346,18 @@ export default function Player() {
   };
 
   const handleLoadedMetadata = () => {
-    if (videoRef.current) {
+    if (videoRef.current && item) {
       videoRef.current.volume = volume;
       videoRef.current.muted = volume === 0;
       setDuration(videoRef.current.duration);
+
+      // Resume from saved position if available
+      if (item.UserData?.PlaybackPositionTicks) {
+        const resumeSeconds = item.UserData.PlaybackPositionTicks / 10000000;
+        videoRef.current.currentTime = resumeSeconds;
+        setCurrentTime(resumeSeconds);
+        console.log(`Resuming from ${formatTime(resumeSeconds)}`);
+      }
       // Don't call play() here - let autoPlay attribute handle it
     }
   };
@@ -415,6 +427,56 @@ export default function Player() {
     videoRef.current.muted = volume === 0;
   }, [volume]);
 
+  // Report playback progress periodically and when leaving
+  useEffect(() => {
+    if (!serverUrl || !userId || !accessToken || !itemId) return;
+
+    const reportProgress = async () => {
+      const positionTicks = Math.round(currentTime * 10000000);
+      await reportPlaybackProgress(
+        serverUrl,
+        userId,
+        itemId,
+        accessToken,
+        positionTicks,
+        !isPlaying
+      );
+    };
+
+    // Report progress every 10 seconds during playback
+    const progressInterval = setInterval(() => {
+      if (currentTime > 0 && duration > 0) {
+        reportProgress();
+      }
+    }, 10000);
+
+    // Report progress when leaving the page
+    const handleBeforeUnload = () => {
+      if (currentTime > 0) {
+        reportProgress();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      clearInterval(progressInterval);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      // Final report when component unmounts
+      if (currentTime > 0) {
+        reportProgress();
+      }
+    };
+  }, [
+    serverUrl,
+    userId,
+    accessToken,
+    itemId,
+    currentTime,
+    isPlaying,
+    duration,
+  ]);
+
   const handleSubtitleSelect = (index?: number) => {
     // Note: Subtitle reloading disabled due to CORS. Only update UI state.
     setSubtitleIndex(index);
@@ -446,6 +508,19 @@ export default function Player() {
   };
 
   const handleBack = () => {
+    // Report final progress before leaving
+    if (serverUrl && userId && accessToken && itemId && currentTime > 0) {
+      const positionTicks = Math.round(currentTime * 10000000);
+      reportPlaybackProgress(
+        serverUrl,
+        userId,
+        itemId,
+        accessToken,
+        positionTicks,
+        true
+      );
+    }
+    
     if (itemId) {
       navigate(`/item/${itemId}`);
     } else {
