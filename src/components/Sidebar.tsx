@@ -134,7 +134,9 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               title={isCollapsed ? item.label : undefined}
             >
               <Icon className="w-5 h-5 shrink-0" />
-              {!isCollapsed && <span className="font-medium">{item.label}</span>}
+              {!isCollapsed && (
+                <span className="font-medium">{item.label}</span>
+              )}
             </button>
           );
         })}
