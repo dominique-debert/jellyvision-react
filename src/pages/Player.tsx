@@ -195,45 +195,51 @@ export default function Player() {
             language: subtitle?.Language,
           });
 
-          // Note: Jellyfin's HTTP API doesn't expose external subtitle files directly.
-          // External subtitles (.srt, .sub, etc.) would need to be:
-          // 1. Served through a separate file server
-          // 2. Transcoded through Jellyfin's transcoding service (if enabled)
-          // 3. Retrieved through a custom backend proxy
-          // For now, we'll skip external subtitles and only handle embedded ones
+          // Construct the subtitle URL based on whether it's external or embedded
+          let subtitleUrl = "";
+
           if (subtitle?.IsExternal) {
+            // For external subtitles, use the proxy server
+            // The proxy will fetch from Jellyfin and return as VTT format
+            const jellyfginSubtitleUrl = `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/stream?api_key=${accessToken}`;
+            const proxyUrl = `http://localhost:3001/api/subtitles`;
+            subtitleUrl = `${proxyUrl}?url=${encodeURIComponent(
+              jellyfginSubtitleUrl
+            )}&format=vtt`;
+            console.log(`Using proxy for external subtitle: ${subtitle.Path}`);
+          } else {
+            // For embedded subtitles, try direct Jellyfin endpoints
+            const endpointFormats = [
+              `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/vtt?api_key=${accessToken}`,
+              `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/vtt?api_key=${accessToken}`,
+              `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/js?api_key=${accessToken}`,
+            ];
+
+            for (const url of endpointFormats) {
+              console.log(`Trying endpoint: ${url}`);
+              const testResponse = await fetch(url);
+              if (testResponse.ok) {
+                subtitleUrl = url;
+                console.log(`✓ Success with: ${url}`);
+                break;
+              }
+              console.log(`✗ Failed with status ${testResponse.status}`);
+            }
+          }
+
+          if (!subtitleUrl) {
             console.warn(
-              `Subtitle is external (${subtitle.Path}). External subtitles are not directly accessible through Jellyfin's HTTP API.`
+              `Unable to determine subtitle URL for index ${subtitleIndex}`
             );
             return;
           }
 
-          // Try multiple endpoint formats for embedded subtitles
-          const endpointFormats = [
-            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/vtt?api_key=${accessToken}`,
-            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/vtt?api_key=${accessToken}`,
-            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/js?api_key=${accessToken}`,
-          ];
+          // Fetch the subtitle content
+          const response = await fetch(subtitleUrl);
 
-          let response: Response | null = null;
-
-          for (const url of endpointFormats) {
-            console.log(`Trying endpoint: ${url}`);
-            try {
-              response = await fetch(url);
-              if (response.ok) {
-                console.log(`✓ Success with: ${url}`);
-                break;
-              }
-              console.log(`✗ Failed with status ${response.status}`);
-            } catch (e) {
-              console.log(`✗ Fetch error:`, e);
-            }
-          }
-
-          if (!response || !response.ok) {
+          if (!response.ok) {
             console.warn(
-              `Unable to fetch subtitles. Embedded subtitles may not be available.`
+              `Failed to fetch subtitles (${response.status}): ${response.statusText}`
             );
             return;
           }
