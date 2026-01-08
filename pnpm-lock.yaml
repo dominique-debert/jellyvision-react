@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@jellyfin/client-axios':
-        specifier: ^10.7.8
-        version: 10.7.8
+      '@jellyfin/sdk':
+        specifier: ^0.13.0
+        version: 0.13.0(axios@1.13.2)
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -397,9 +397,10 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@jellyfin/client-axios@10.7.8':
-    resolution: {integrity: sha512-CvY2TeCDIqqQSNRvR7BeK+S4vHvYQYVE9c4CS0U+Pi4r/prm6qBpD3AiYkmk2225/ZM63B23abPlx0BmTR1EaA==}
-    deprecated: Use the @jellyfin/sdk package instead.
+  '@jellyfin/sdk@0.13.0':
+    resolution: {integrity: sha512-oiBAOXH6s+dKdReSsYgNktBDzbxtg4JVWhEzIxZSxKcWMdSKmBtK41MhXRO7IWAC40DguKUm3nU/Z493qPAlWA==}
+    peerDependencies:
+      axios: ^1.12.0
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -756,9 +757,6 @@ packages:
     hasBin: true
     peerDependencies:
       postcss: ^8.1.0
-
-  axios@0.21.4:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
 
   axios@1.13.2:
     resolution: {integrity: sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==}
@@ -1782,11 +1780,9 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@jellyfin/client-axios@10.7.8':
+  '@jellyfin/sdk@0.13.0(axios@1.13.2)':
     dependencies:
-      axios: 0.21.4
-    transitivePeerDependencies:
-      - debug
+      axios: 1.13.2
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -2122,12 +2118,6 @@ snapshots:
       picocolors: 1.1.1
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
-
-  axios@0.21.4:
-    dependencies:
-      follow-redirects: 1.15.11
-    transitivePeerDependencies:
-      - debug
 
   axios@1.13.2:
     dependencies:
