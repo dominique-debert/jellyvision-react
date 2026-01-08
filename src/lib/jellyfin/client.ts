@@ -2,6 +2,8 @@ import { Jellyfin } from "@jellyfin/sdk";
 import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
 import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
 import { getImageApi } from "@jellyfin/sdk/lib/utils/api/image-api";
+import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
+import { getItemsApi } from "@jellyfin/sdk/lib/utils/api/items-api";
 
 // Generate a simple UUID v4
 const generateUUID = () => {
@@ -61,6 +63,8 @@ export const createJellyfinClient = ({
     systemApi: getSystemApi(api),
     userApi: getUserApi(api),
     imageApi: getImageApi(api),
+    userViewsApi: getUserViewsApi(api),
+    itemsApi: getItemsApi(api),
     baseURL: proxiedURL,
     jellyfin,
   };
@@ -152,4 +156,86 @@ export const getImageUrl = (
 ) => {
   const proxiedURL = getProxiedURL(baseURL);
   return `${proxiedURL}/Items/${itemId}/Images/${imageType}`;
+};
+
+export const getUserViews = async (
+  baseURL: string,
+  userId: string,
+  accessToken: string
+) => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.userViewsApi.getUserViews({ userId });
+
+    if (response.status !== 200 || !response.data) {
+      throw new Error("Failed to fetch user views");
+    }
+
+    return {
+      success: true,
+      data: response.data.Items || [],
+    };
+  } catch (error: any) {
+    console.error("Get user views error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch user views",
+      data: [],
+    };
+  }
+};
+
+export const getLibraryItems = async (
+  baseURL: string,
+  userId: string,
+  parentId: string,
+  accessToken: string,
+  startIndex: number = 0,
+  limit: number = 50
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  totalCount: number;
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.itemsApi.getItems({
+      userId,
+      parentId,
+      sortBy: ["SortName"],
+      sortOrder: ["Ascending"],
+      recursive: true,
+      startIndex,
+      limit,
+    });
+
+    if (response.status !== 200 || !response.data) {
+      throw new Error("Failed to fetch library items");
+    }
+
+    return {
+      success: true,
+      data: response.data.Items || [],
+      totalCount: response.data.TotalRecordCount || 0,
+    };
+  } catch (error: any) {
+    console.error("Get library items error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch library items",
+      data: [],
+      totalCount: 0,
+    };
+  }
 };
