@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -134,4 +133,9 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Subtitle styling for video player */
+::cue {
+  line-height: 1.4;
 }

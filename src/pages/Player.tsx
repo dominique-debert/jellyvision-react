@@ -24,22 +24,6 @@ if (typeof window !== "undefined") {
   (window as any).muxjs = muxjs;
 }
 
-// Helper function to parse VTT timestamp format (HH:MM:SS.mmm or MM:SS.mmm)
-function vttTimeToSeconds(timeStr: string): number {
-  const parts = timeStr.split(":");
-  if (parts.length === 3) {
-    const hours = parseInt(parts[0]);
-    const minutes = parseInt(parts[1]);
-    const seconds = parseFloat(parts[2]);
-    return hours * 3600 + minutes * 60 + seconds;
-  } else if (parts.length === 2) {
-    const minutes = parseInt(parts[0]);
-    const seconds = parseFloat(parts[1]);
-    return minutes * 60 + seconds;
-  }
-  return 0;
-}
-
 export default function Player() {
   const { itemId } = useParams<{ itemId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -184,115 +168,118 @@ export default function Player() {
             `Attempting to load subtitle: "${subtitleLabel}" (index=${subtitleIndex})`
           );
 
-          // Check the MediaStream info to understand subtitle type
-          const subtitle = item?.MediaStreams?.find(
-            (s) => s.Type === "Subtitle" && s.Index === subtitleIndex
-          );
-          console.log("Subtitle details:", {
-            isExternal: subtitle?.IsExternal,
-            codec: subtitle?.Codec,
-            path: subtitle?.Path,
-            language: subtitle?.Language,
-          });
-
-          // Construct the subtitle URL based on whether it's external or embedded
-          let subtitleUrl = "";
-
-          if (subtitle?.IsExternal) {
-            // For external subtitles, use the proxy server
-            // The proxy will fetch from Jellyfin and return as VTT format
-            const jellyfginSubtitleUrl = `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/stream?api_key=${accessToken}`;
-            const proxyUrl = `http://localhost:3001/api/subtitles`;
-            subtitleUrl = `${proxyUrl}?url=${encodeURIComponent(
-              jellyfginSubtitleUrl
-            )}&format=vtt`;
-            console.log(`Using proxy for external subtitle: ${subtitle.Path}`);
-          } else {
-            // For embedded subtitles, try direct Jellyfin endpoints
-            const endpointFormats = [
-              `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/vtt?api_key=${accessToken}`,
-              `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/vtt?api_key=${accessToken}`,
-              `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/js?api_key=${accessToken}`,
-            ];
-
-            for (const url of endpointFormats) {
-              console.log(`Trying endpoint: ${url}`);
-              const testResponse = await fetch(url);
-              if (testResponse.ok) {
-                subtitleUrl = url;
-                console.log(`✓ Success with: ${url}`);
-                break;
-              }
-              console.log(`✗ Failed with status ${testResponse.status}`);
+          // Get PlaybackInfo to fetch DeliveryUrl for the subtitle
+          // This is how jellyfin-web handles subtitles
+          console.log("Fetching PlaybackInfo to get subtitle DeliveryUrl...");
+          const playbackInfoResponse = await fetch(
+            `${serverUrl}/Items/${itemId}/PlaybackInfo?api_key=${accessToken}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                DeviceProfile: {
+                  SubtitleProfiles: [{ Format: "vtt", Method: "External" }],
+                },
+              }),
             }
-          }
+          );
 
-          if (!subtitleUrl) {
+          if (!playbackInfoResponse.ok) {
             console.warn(
-              `Unable to determine subtitle URL for index ${subtitleIndex}`
+              `Failed to fetch PlaybackInfo (${playbackInfoResponse.status})`
             );
             return;
           }
 
-          // Fetch the subtitle content
+          const playbackInfo = await playbackInfoResponse.json();
+          const playbackMediaStreams =
+            playbackInfo.MediaSources?.[0]?.MediaStreams || [];
+          const playbackSubtitle = playbackMediaStreams.find(
+            (s: any) => s.Type === "Subtitle" && s.Index === subtitleIndex
+          );
+
+          if (!playbackSubtitle?.DeliveryUrl) {
+            console.warn(
+              `No DeliveryUrl found for subtitle index ${subtitleIndex}`
+            );
+            return;
+          }
+
+          // Build the full subtitle URL from DeliveryUrl
+          let subtitleUrl = "";
+          const deliveryUrl = playbackSubtitle.DeliveryUrl;
+          // Use .js format (JSON) like jellyfin-web does, not .vtt
+          const jsonDeliveryUrl = deliveryUrl.replace(".vtt", ".js");
+
+          if (jsonDeliveryUrl.startsWith("http")) {
+            subtitleUrl = jsonDeliveryUrl;
+          } else if (jsonDeliveryUrl.startsWith("/")) {
+            subtitleUrl = `${serverUrl}${jsonDeliveryUrl}`;
+          } else {
+            subtitleUrl = `${serverUrl}/${jsonDeliveryUrl}`;
+          }
+
+          console.log(
+            `Fetching subtitle JSON from: ${subtitleUrl.substring(0, 100)}...`
+          );
+
+          // Fetch the subtitle JSON content (not VTT)
           const response = await fetch(subtitleUrl);
 
           if (!response.ok) {
             console.warn(
-              `Failed to fetch subtitles (${response.status}): ${response.statusText}`
+              `Failed to fetch subtitle (${response.status}): ${response.statusText}`
             );
             return;
           }
 
-          const vttContent = await response.text();
+          const subtitleData = await response.json();
+          const trackEvents = subtitleData.TrackEvents || [];
           console.log(
-            `Loaded subtitle data with ${vttContent.length} characters`
+            `✓ Successfully loaded ${trackEvents.length} subtitle events`
           );
+
+          if (trackEvents.length === 0) {
+            console.warn("No subtitle events found");
+            return;
+          }
+
+          // Remove any existing subtitle tracks to avoid duplicates
+          for (let i = videoRef.current!.textTracks.length - 1; i >= 0; i--) {
+            const track = videoRef.current!.textTracks[i];
+            if (track.kind === "subtitles") {
+              // Clear the cues from the track
+              for (let j = track.cues!.length - 1; j >= 0; j--) {
+                track.removeCue(track.cues![j]);
+              }
+            }
+          }
 
           // Create a track element
           const track = videoRef.current!.addTextTrack(
             "subtitles",
-            subtitleOptions[0].label
+            subtitleLabel
           );
 
-          // Parse VTT format
-          const lines = vttContent.split("\n");
-          let i = 0;
-          while (i < lines.length) {
-            const line = lines[i].trim();
+          // Add cues from TrackEvents JSON (like jellyfin-web does)
+          for (const trackEvent of trackEvents) {
+            // TrackEvents have StartPositionTicks and EndPositionTicks (in 10 million ticks per second)
+            const startSeconds = trackEvent.StartPositionTicks / 10000000;
+            const endSeconds = trackEvent.EndPositionTicks / 10000000;
+            const text = trackEvent.Text;
 
-            // Look for timestamp line (format: HH:MM:SS.mmm --> HH:MM:SS.mmm)
-            if (line.includes("-->")) {
-              const [startStr, endStr] = line.split("-->").map((s) => s.trim());
-              const start = vttTimeToSeconds(startStr);
-              const end = vttTimeToSeconds(endStr);
-
-              // Get the next line(s) as the cue text
-              i++;
-              let text = "";
-              while (
-                i < lines.length &&
-                lines[i].trim() &&
-                !lines[i].includes("-->")
-              ) {
-                if (text) text += "\n";
-                text += lines[i].trim();
-                i++;
-              }
-
-              if (text) {
-                const TrackCue = window.VTTCue || (window as any).TextTrackCue;
-                const cue = new TrackCue(start, end, text);
-                track.addCue(cue);
-              }
-              continue;
+            if (text) {
+              const TrackCue = window.VTTCue || (window as any).TextTrackCue;
+              const cue = new TrackCue(startSeconds, endSeconds, text);
+              // Position subtitles 20px higher by adjusting the line property
+              cue.line = -1;
+              track.addCue(cue);
             }
-            i++;
           }
 
           // Show the track
           track.mode = "showing";
-          console.log("Subtitles loaded and visible");
+          console.log("✓ Subtitles loaded and visible");
         } catch (e) {
           console.error("Error loading subtitles:", e);
         }
