@@ -88,43 +88,18 @@ export default function Player() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId, searchParams]);
 
-  // Initialize Shaka Player
+  // Initialize video player with stream
   useEffect(() => {
     const initializePlayer = async () => {
-      if (!videoRef.current) return;
+      if (!videoRef.current || !item || !itemId) return;
 
       try {
-        // Install polyfills
-        shaka.polyfill.installAll();
+        // Use native HTML5 video element instead of Shaka Player for simple MP4 streams
+        const streamUrl = getStreamUrl();
+        console.log("Loading stream:", streamUrl);
 
-        // Check if browser is supported
-        if (!shaka.Player.isBrowserSupported()) {
-          console.error("Browser not supported by Shaka Player");
-          return;
-        }
-
-        // Create player instance without media element
-        const player = new shaka.Player();
-        playerRef.current = player;
-
-        // Attach to video element
-        await player.attach(videoRef.current);
-
-        // Set up event listeners
-        player.addEventListener("error", (event: any) => {
-          console.error("Player error:", event.detail);
-        });
-
-        // Load initial stream
-        if (item && serverUrl && accessToken && itemId) {
-          const streamUrl = getStreamUrl(subtitleIndex);
-          try {
-            await player.load(streamUrl);
-            // Let autoPlay attribute handle playback
-          } catch (e) {
-            console.error("Error loading stream:", e);
-          }
-        }
+        videoRef.current.src = streamUrl;
+        videoRef.current.load();
       } catch (e) {
         console.error("Error initializing player:", e);
       }
@@ -133,15 +108,7 @@ export default function Player() {
     if (item && !loading) {
       initializePlayer();
     }
-
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.detach();
-        playerRef.current.destroy();
-        playerRef.current = null;
-      }
-    };
-  }, [item, loading, serverUrl, accessToken, itemId]);
+  }, [item, loading, itemId, serverUrl, accessToken]);
 
   // Unmute video once it starts playing (for autoplay)
   useEffect(() => {
@@ -165,8 +132,83 @@ export default function Player() {
     };
   }, [volume]);
 
-  // Note: Subtitle reloading disabled due to CORS issues when making direct requests
-  // Subtitles are loaded on initial stream with the first available subtitle
+  // Load subtitles by fetching track events and creating VTT cues (Jellyfin approach)
+  useEffect(() => {
+    if (!videoRef.current || !item || subtitleOptions.length === 0) return;
+
+    const loadSubtitles = async () => {
+      // Wait for video to be ready
+      await new Promise((resolve) => {
+        if (videoRef.current!.readyState >= 2) {
+          resolve(null);
+        } else {
+          videoRef.current!.addEventListener("canplay", () => resolve(null), {
+            once: true,
+          });
+        }
+      });
+
+      // Clear existing subtitle tracks
+      for (let i = videoRef.current!.textTracks.length - 1; i >= 0; i--) {
+        const track = videoRef.current!.textTracks[i];
+        if (track.kind === "subtitles") {
+          const trackElement = Array.from(
+            videoRef.current!.querySelectorAll("track")
+          ).find((t) => t.label === track.label);
+          trackElement?.remove();
+        }
+      }
+
+      // Load first subtitle track
+      if (subtitleOptions.length > 0 && serverUrl && itemId && accessToken) {
+        try {
+          const subtitleIndex = subtitleOptions[0].index;
+          console.log(`Loading subtitle ${subtitleIndex} for item ${itemId}`);
+
+          // Use direct server URL (subtitle endpoint doesn't work through proxy)
+          const subtitleUrl = `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/js?api_key=${accessToken}`;
+
+          const response = await fetch(subtitleUrl);
+
+          if (!response.ok) {
+            throw new Error(
+              `HTTP ${response.status}: Failed to fetch subtitles`
+            );
+          }
+
+          const subtitleData = await response.json();
+          console.log(
+            `Loaded ${subtitleData.TrackEvents?.length || 0} subtitle cues`
+          );
+
+          // Create a track element
+          const track = videoRef.current!.addTextTrack(
+            "subtitles",
+            subtitleOptions[0].label
+          );
+
+          // Add cues from track events (like Jellyfin does)
+          for (const event of subtitleData.TrackEvents || []) {
+            const TrackCue = window.VTTCue || (window as any).TextTrackCue;
+            const cue = new TrackCue(
+              event.StartPositionTicks / 10000000,
+              event.EndPositionTicks / 10000000,
+              event.Text
+            );
+            track.addCue(cue);
+          }
+
+          // Show the track
+          track.mode = "showing";
+          console.log("Subtitles loaded and visible");
+        } catch (e) {
+          console.error("Error loading subtitles:", e);
+        }
+      }
+    };
+
+    loadSubtitles();
+  }, [item, subtitleOptions, serverUrl, itemId, accessToken]);
 
   const getStreamUrl = (subtitle?: number) => {
     if (!serverUrl || !itemId || !accessToken) return "";
@@ -297,6 +339,23 @@ export default function Player() {
   const handleSubtitleSelect = (index?: number) => {
     // Note: Subtitle reloading disabled due to CORS. Only update UI state.
     setSubtitleIndex(index);
+
+    // Use HTML5 video element API to change subtitles
+    if (videoRef.current) {
+      if (index === undefined) {
+        // Hide all subtitles
+        for (let i = 0; i < videoRef.current.textTracks.length; i++) {
+          videoRef.current.textTracks[i].mode = "hidden";
+        }
+      } else if (index < videoRef.current.textTracks.length) {
+        // Hide all except selected
+        for (let i = 0; i < videoRef.current.textTracks.length; i++) {
+          videoRef.current.textTracks[i].mode =
+            i === index ? "showing" : "hidden";
+        }
+      }
+    }
+
     const nextParams = new URLSearchParams(searchParams);
     if (index === undefined) {
       nextParams.delete("subtitle");
