@@ -14,13 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  ArrowLeft,
   Play,
   Star,
   Clock,
   Calendar,
-  Music,
   Disc,
+  Film,
+  Bookmark,
+  Check,
+  Printer,
+  MoreHorizontal,
+  ArrowLeft,
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
@@ -54,7 +58,7 @@ export default function ItemDetail() {
   }, [serverUrl, userId, accessToken, itemId, item]);
 
   // Group tracks by disc number and format time (MusicAlbum only)
-  let tracksPerDisc: Record<number, BaseItemDto[]> = {};
+  const tracksPerDisc: Record<number, BaseItemDto[]> = {};
   function formatTrackTime(ticks?: number | null) {
     if (!ticks) return "";
     const totalSeconds = Math.floor(ticks / 10000000);
@@ -141,21 +145,6 @@ export default function ItemDetail() {
     return `${minutes}m`;
   };
 
-  const getBackdropUrl = () => {
-    if (!serverUrl || !item?.Id) return undefined;
-    if (item.BackdropImageTags && item.BackdropImageTags.length > 0) {
-      return getImageUrl(serverUrl, item.Id, "Backdrop");
-    }
-    if (
-      item.ParentBackdropImageTags &&
-      item.ParentBackdropImageTags.length > 0 &&
-      item.ParentBackdropItemId
-    ) {
-      return getImageUrl(serverUrl, item.ParentBackdropItemId, "Backdrop");
-    }
-    return undefined;
-  };
-
   const getPrimaryImageUrl = () => {
     if (!serverUrl || !item?.Id) return undefined;
     if (item.ImageTags?.Primary) {
@@ -191,37 +180,30 @@ export default function ItemDetail() {
     );
   }
 
-  const backdropUrl = getBackdropUrl();
   const primaryImageUrl = getPrimaryImageUrl();
-  const isMovie = item.Type === "Movie";
   const isSeries = item.Type === "Series";
   const isEpisode = item.Type === "Episode";
-  const isMusic = item.Type === "Audio" || item.Type === "MusicAlbum";
+
+  // Get directors, screenwriters, and actors
+  const directors = item.People?.filter((p) => p.Type === "Director") || [];
+  const writers = item.People?.filter((p) => p.Type === "Writer") || [];
+  const actors = item.People?.filter((p) => p.Type === "Actor") || [];
+
+  // Get quality badges
+  const has4K = item.MediaStreams?.some(
+    (s) => s.Type === "Video" && s.Width && s.Width >= 3800
+  );
+  const hasHDR = item.MediaStreams?.some(
+    (s) => s.Type === "Video" && s.VideoRangeType && s.VideoRangeType !== "SDR"
+  );
 
   return (
     <Layout>
-      <div className="min-h-screen">
-        {/* Backdrop */}
-        {backdropUrl && (
-          <div className="fixed inset-0 z-0">
-            <img
-              src={backdropUrl}
-              alt=""
-              className="w-full h-full object-cover opacity-20"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-black via-black/80 to-black/60" />
-          </div>
-        )}
-
-        <div className="relative z-10 container mx-auto p-6">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 to-black">
+        <div className="container mx-auto px-8 py-8 max-w-400">
+          <div className="flex gap-8">
             {/* Left Column - Poster */}
-            <div className="lg:col-span-1">
+            <div className="w-80 shrink-0">
               {primaryImageUrl ? (
                 <img
                   src={primaryImageUrl}
@@ -233,239 +215,328 @@ export default function ItemDetail() {
                   <span className="text-zinc-600">No Image</span>
                 </div>
               )}
-
-              {/* Action Buttons */}
-              <div className="mt-6 space-y-3">
-                <Button className="w-full" size="lg">
-                  <Play className="mr-2 h-5 w-5" />
-                  Play
-                </Button>
-              </div>
             </div>
 
             {/* Right Column - Details */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Title */}
-              <div>
-                <h1 className="text-4xl md:text-5xl font-bold mb-2">
+            <div className="flex-1 min-w-0 space-y-6">
+              {/* Header with title and action buttons */}
+              <div className="flex items-start justify-between">
+                <h1 className="text-5xl font-bold text-amber-500">
                   {item.Name}
                 </h1>
-                {item.OriginalTitle && item.OriginalTitle !== item.Name && (
-                  <p className="text-xl text-zinc-400">{item.OriginalTitle}</p>
-                )}
-              </div>
-
-              {/* Metadata Row */}
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                {item.ProductionYear && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-zinc-400" />
-                    <span>{item.ProductionYear}</span>
-                  </div>
-                )}
-                {item.OfficialRating && (
-                  <Badge variant="secondary">{item.OfficialRating}</Badge>
-                )}
-                {item.CommunityRating && (
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                    <span>{item.CommunityRating.toFixed(1)}</span>
-                  </div>
-                )}
-                {item.RunTimeTicks && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-zinc-400" />
-                    <span>{formatRuntime(item.RunTimeTicks)}</span>
-                  </div>
-                )}
-                {isMusic && item.ChildCount && (
-                  <div className="flex items-center gap-2">
-                    <Music className="h-4 w-4 text-zinc-400" />
-                    <span>{item.ChildCount} tracks</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Genres */}
-              {item.Genres && item.Genres.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {item.Genres.map((genre) => (
-                    <Badge key={genre} variant="outline">
-                      {genre}
-                    </Badge>
-                  ))}
+                <div className="flex gap-3">
+                  <Button
+                    size="icon"
+                    className="h-12 w-12 rounded-full bg-white hover:bg-gray-200"
+                  >
+                    <Play className="h-6 w-6 text-black fill-black" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-12 w-12 rounded-sm"
+                  >
+                    <Film className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-12 w-12 rounded-sm"
+                  >
+                    <Bookmark className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-12 w-12 rounded-sm"
+                  >
+                    <Check className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-12 w-12 rounded-sm"
+                  >
+                    <Printer className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-12 w-12 rounded-sm"
+                  >
+                    <MoreHorizontal className="h-6 w-6" />
+                  </Button>
                 </div>
-              )}
+              </div>
 
-              {/* Overview */}
+              {/* Quality Badges */}
+              <div className="flex gap-2">
+                {has4K && (
+                  <Badge className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3 py-1">
+                    4K
+                  </Badge>
+                )}
+                {hasHDR && (
+                  <Badge className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3 py-1">
+                    HDR
+                  </Badge>
+                )}
+              </div>
+
+              {/* Metadata Table */}
+              <div className="grid grid-cols-4 gap-6 text-sm">
+                <div>
+                  <div className="text-amber-500 font-medium mb-1">Date</div>
+                  <div className="text-white">
+                    {item.ProductionYear || item.PremiereDate
+                      ? new Date(
+                          item.PremiereDate || `${item.ProductionYear}-01-01`
+                        ).getFullYear()
+                      : "-"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-amber-500 font-medium mb-1">
+                    Duration
+                  </div>
+                  <div className="text-white">
+                    {item.RunTimeTicks ? formatRuntime(item.RunTimeTicks) : "-"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-amber-500 font-medium mb-1">
+                    Certification
+                  </div>
+                  <div className="text-white">{item.OfficialRating || "-"}</div>
+                </div>
+                <div>
+                  <div className="text-amber-500 font-medium mb-1">Genre</div>
+                  <div className="text-white">
+                    {item.Genres?.join(", ") || "-"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Synopsis */}
               {item.Overview && (
                 <div>
-                  <h2 className="text-2xl font-semibold mb-3">Overview</h2>
+                  <h2 className="text-amber-500 font-medium mb-2">Synopsis</h2>
                   <p className="text-zinc-300 leading-relaxed">
                     {item.Overview}
                   </p>
                 </div>
               )}
 
-              {/* Movie-specific Info */}
-              {isMovie && (
-                <div className="space-y-4">
-                  {item.Studios && item.Studios.length > 0 && (
+              {/* Cast and Crew Section */}
+              <div>
+                <div className="flex gap-8">
+                  {/* Left: Crew List (Vertical) */}
+                  <div className="w-56 shrink-0 space-y-6">
+                    {/* Directors */}
                     <div>
-                      <h3 className="text-lg font-semibold mb-2">Studios</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {item.Studios.map((studio) => (
-                          <Badge key={studio.Id} variant="secondary">
-                            {studio.Name}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Series-specific Info */}
-              {isSeries && (
-                <div className="space-y-4">
-                  {item.Status && (
-                    <div>
-                      <span className="text-zinc-400">Status: </span>
-                      <span className="capitalize">{item.Status}</span>
-                    </div>
-                  )}
-                  {item.CumulativeRunTimeTicks && (
-                    <div>
-                      <span className="text-zinc-400">Total Runtime: </span>
-                      <span>{formatRuntime(item.CumulativeRunTimeTicks)}</span>
-                    </div>
-                  )}
-
-                  {/* Episodes Section */}
-                  {seasons.length > 0 && (
-                    <div className="mt-8">
-                      <h3 className="text-2xl font-semibold mb-4">Episodes</h3>
-                      {loadingSeasons ? (
-                        <div className="animate-pulse space-y-4">
-                          <div className="h-10 w-full bg-zinc-800 rounded" />
-                          <div className="h-32 w-full bg-zinc-800 rounded" />
+                      <h3 className="text-amber-500 font-medium mb-3">
+                        Directors
+                      </h3>
+                      {directors.length > 0 ? (
+                        <div className="space-y-1">
+                          {directors.map((director) => (
+                            <div
+                              key={director.Id}
+                              className="text-white text-sm"
+                            >
+                              {director.Name}
+                            </div>
+                          ))}
                         </div>
                       ) : (
-                        <Tabs
-                          defaultValue={seasons[0]?.Id || ""}
-                          className="w-full"
-                        >
-                          <TabsList className="w-full justify-start overflow-x-auto">
-                            {seasons.map((season) => (
-                              <TabsTrigger
-                                key={season.Id}
-                                value={season.Id || ""}
-                              >
-                                {season.Name}
-                              </TabsTrigger>
-                            ))}
-                          </TabsList>
-                          {seasons.map((season) => (
-                            <TabsContent
-                              key={season.Id}
-                              value={season.Id || ""}
-                              className="mt-4"
+                        <div className="text-zinc-500 text-sm">
+                          No directors found
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Screenwriters */}
+                    <div>
+                      <h3 className="text-amber-500 font-medium mb-3">
+                        Screenwriters
+                      </h3>
+                      {writers.length > 0 ? (
+                        <div className="space-y-1">
+                          {writers.map((writer) => (
+                            <div key={writer.Id} className="text-white text-sm">
+                              {writer.Name}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-zinc-500 text-sm">
+                          No screenwriters found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right: Actors (Grid) */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-amber-500 font-medium mb-4">Actors</h3>
+                    {actors.filter((a) => a.PrimaryImageTag).length > 0 ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        {actors
+                          .filter(
+                            (actor) =>
+                              actor.PrimaryImageTag && serverUrl && actor.Id
+                          )
+                          .slice(0, 10)
+                          .map((actor) => (
+                            <div
+                              key={actor.Id}
+                              className="flex flex-col items-center"
                             >
-                              <div className="space-y-4">
-                                {seasonEpisodes[season.Id || ""]?.map(
-                                  (episode) => (
-                                    <Card
-                                      key={episode.Id}
-                                      className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer"
-                                      onClick={() =>
-                                        navigate(`/item/${episode.Id}`)
-                                      }
-                                    >
-                                      <CardContent className="p-0">
-                                        <div className="flex gap-4">
-                                          {/* Episode Thumbnail */}
-                                          <div className="relative w-64 h-36 shrink-0">
-                                            {episode.ImageTags?.Primary &&
-                                            serverUrl &&
-                                            episode.Id ? (
-                                              <img
-                                                src={getImageUrl(
-                                                  serverUrl,
-                                                  episode.Id,
-                                                  "Primary"
+                              <img
+                                src={getImageUrl(
+                                  serverUrl!,
+                                  actor.Id!,
+                                  "Primary"
+                                )}
+                                alt={actor.Name || "Actor"}
+                                className="w-20 h-20 rounded-full object-cover mb-2"
+                              />
+                              <p className="text-white text-xs font-medium text-center line-clamp-2">
+                                {actor.Name}
+                              </p>
+                              {actor.Role && (
+                                <p className="text-zinc-400 text-xs text-center line-clamp-1">
+                                  as {actor.Role}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="text-zinc-500 text-sm">
+                        No actors with images found
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Series Episodes Section */}
+              {isSeries && seasons.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-2xl font-semibold mb-4">Episodes</h3>
+                  {loadingSeasons ? (
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-10 w-full bg-zinc-800 rounded" />
+                      <div className="h-32 w-full bg-zinc-800 rounded" />
+                    </div>
+                  ) : (
+                    <Tabs
+                      defaultValue={seasons[0]?.Id || ""}
+                      className="w-full"
+                    >
+                      <TabsList className="w-full justify-start overflow-x-auto">
+                        {seasons.map((season) => (
+                          <TabsTrigger key={season.Id} value={season.Id || ""}>
+                            {season.Name}
+                          </TabsTrigger>
+                        ))}
+                      </TabsList>
+                      {seasons.map((season) => (
+                        <TabsContent
+                          key={season.Id}
+                          value={season.Id || ""}
+                          className="mt-4"
+                        >
+                          <div className="space-y-4">
+                            {seasonEpisodes[season.Id || ""]?.map((episode) => (
+                              <Card
+                                key={episode.Id}
+                                className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer"
+                                onClick={() => navigate(`/item/${episode.Id}`)}
+                              >
+                                <CardContent className="p-0">
+                                  <div className="flex gap-4">
+                                    {/* Episode Thumbnail */}
+                                    <div className="relative w-64 h-36 shrink-0">
+                                      {episode.ImageTags?.Primary &&
+                                      serverUrl &&
+                                      episode.Id ? (
+                                        <img
+                                          src={getImageUrl(
+                                            serverUrl,
+                                            episode.Id,
+                                            "Primary"
+                                          )}
+                                          alt={episode.Name || "Episode"}
+                                          className="w-full h-full object-cover rounded-l-lg"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-l-lg">
+                                          <Play className="h-12 w-12 text-zinc-600" />
+                                        </div>
+                                      )}
+                                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">
+                                        <Button
+                                          size="icon"
+                                          className="h-12 w-12 rounded-full"
+                                        >
+                                          <Play className="h-6 w-6" />
+                                        </Button>
+                                      </div>
+                                    </div>
+
+                                    {/* Episode Info */}
+                                    <div className="flex-1 p-4">
+                                      <div className="flex items-start justify-between mb-2">
+                                        <div>
+                                          <h4 className="text-lg font-semibold">
+                                            {episode.IndexNumber &&
+                                              `${episode.IndexNumber}. `}
+                                            {episode.Name}
+                                          </h4>
+                                          <div className="flex items-center gap-3 text-sm text-zinc-400 mt-1">
+                                            {episode.RunTimeTicks && (
+                                              <div className="flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                {formatRuntime(
+                                                  episode.RunTimeTicks
                                                 )}
-                                                alt={episode.Name || "Episode"}
-                                                className="w-full h-full object-cover rounded-l-lg"
-                                              />
-                                            ) : (
-                                              <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-l-lg">
-                                                <Play className="h-12 w-12 text-zinc-600" />
                                               </div>
                                             )}
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">
-                                              <Button
-                                                size="icon"
-                                                className="h-12 w-12 rounded-full"
-                                              >
-                                                <Play className="h-6 w-6" />
-                                              </Button>
-                                            </div>
-                                          </div>
-
-                                          {/* Episode Info */}
-                                          <div className="flex-1 p-4">
-                                            <div className="flex items-start justify-between mb-2">
-                                              <div>
-                                                <h4 className="text-lg font-semibold">
-                                                  {episode.IndexNumber &&
-                                                    `${episode.IndexNumber}. `}
-                                                  {episode.Name}
-                                                </h4>
-                                                <div className="flex items-center gap-3 text-sm text-zinc-400 mt-1">
-                                                  {episode.RunTimeTicks && (
-                                                    <div className="flex items-center gap-1">
-                                                      <Clock className="h-3 w-3" />
-                                                      {formatRuntime(
-                                                        episode.RunTimeTicks
-                                                      )}
-                                                    </div>
-                                                  )}
-                                                  {episode.PremiereDate && (
-                                                    <div className="flex items-center gap-1">
-                                                      <Calendar className="h-3 w-3" />
-                                                      {new Date(
-                                                        episode.PremiereDate
-                                                      ).toLocaleDateString()}
-                                                    </div>
-                                                  )}
-                                                  {episode.CommunityRating && (
-                                                    <div className="flex items-center gap-1">
-                                                      <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                                                      {episode.CommunityRating.toFixed(
-                                                        1
-                                                      )}
-                                                    </div>
-                                                  )}
-                                                </div>
+                                            {episode.PremiereDate && (
+                                              <div className="flex items-center gap-1">
+                                                <Calendar className="h-3 w-3" />
+                                                {new Date(
+                                                  episode.PremiereDate
+                                                ).toLocaleDateString()}
                                               </div>
-                                            </div>
-                                            {episode.Overview && (
-                                              <p className="text-sm text-zinc-400 line-clamp-2 mt-2">
-                                                {episode.Overview}
-                                              </p>
+                                            )}
+                                            {episode.CommunityRating && (
+                                              <div className="flex items-center gap-1">
+                                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                                                {episode.CommunityRating.toFixed(
+                                                  1
+                                                )}
+                                              </div>
                                             )}
                                           </div>
                                         </div>
-                                      </CardContent>
-                                    </Card>
-                                  )
-                                )}
-                              </div>
-                            </TabsContent>
-                          ))}
-                        </Tabs>
-                      )}
-                    </div>
+                                      </div>
+                                      {episode.Overview && (
+                                        <p className="text-sm text-zinc-400 line-clamp-2 mt-2">
+                                          {episode.Overview}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </TabsContent>
+                      ))}
+                    </Tabs>
                   )}
                 </div>
               )}
@@ -587,156 +658,6 @@ export default function ItemDetail() {
                         ))}
                       </div>
                     )}
-                  </div>
-                </div>
-              )}
-
-              {/* Cast */}
-              {item.People && item.People.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-semibold mb-4">Cast & Crew</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {item.People.filter((person) => person.PrimaryImageTag)
-                      .slice(0, 12)
-                      .map((person) => (
-                        <Card
-                          key={person.Id}
-                          className="bg-zinc-900 border-zinc-800"
-                        >
-                          <CardContent className="p-4">
-                            {person.PrimaryImageTag &&
-                              serverUrl &&
-                              person.Id && (
-                                <img
-                                  src={getImageUrl(
-                                    serverUrl,
-                                    person.Id,
-                                    "Primary"
-                                  )}
-                                  alt={person.Name || "Person"}
-                                  className="w-full aspect-square object-cover rounded-lg mb-2"
-                                />
-                              )}
-                            <p className="font-medium text-sm truncate">
-                              {person.Name}
-                            </p>
-                            {person.Role && (
-                              <p className="text-xs text-zinc-400 truncate">
-                                {person.Role}
-                              </p>
-                            )}
-                            {person.Type && !person.Role && (
-                              <p className="text-xs text-zinc-400 truncate">
-                                {person.Type}
-                              </p>
-                            )}
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Media Info */}
-              {item.MediaStreams && item.MediaStreams.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-semibold mb-4">Media Info</h2>
-                  <div className="space-y-3">
-                    {/* Video Streams */}
-                    {item.MediaStreams.filter((s) => s.Type === "Video").map(
-                      (stream, idx) => (
-                        <Card
-                          key={`video-${idx}`}
-                          className="bg-zinc-900 border-zinc-800"
-                        >
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Disc className="h-4 w-4 text-zinc-400" />
-                              <span className="font-medium">Video</span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-sm text-zinc-400">
-                              {stream.DisplayTitle && (
-                                <div>
-                                  <span className="text-zinc-500">Codec: </span>
-                                  {stream.DisplayTitle}
-                                </div>
-                              )}
-                              {stream.Width && stream.Height && (
-                                <div>
-                                  <span className="text-zinc-500">
-                                    Resolution:{" "}
-                                  </span>
-                                  {stream.Width}x{stream.Height}
-                                </div>
-                              )}
-                              {stream.BitRate && (
-                                <div>
-                                  <span className="text-zinc-500">
-                                    Bitrate:{" "}
-                                  </span>
-                                  {(stream.BitRate / 1000000).toFixed(2)} Mbps
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    )}
-
-                    {/* Audio Streams */}
-                    {item.MediaStreams.filter((s) => s.Type === "Audio").map(
-                      (stream, idx) => (
-                        <Card
-                          key={`audio-${idx}`}
-                          className="bg-zinc-900 border-zinc-800"
-                        >
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Music className="h-4 w-4 text-zinc-400" />
-                              <span className="font-medium">Audio</span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-sm text-zinc-400">
-                              {stream.DisplayTitle && (
-                                <div>
-                                  <span className="text-zinc-500">Track: </span>
-                                  {stream.DisplayTitle}
-                                </div>
-                              )}
-                              {stream.Language && (
-                                <div>
-                                  <span className="text-zinc-500">
-                                    Language:{" "}
-                                  </span>
-                                  {stream.Language}
-                                </div>
-                              )}
-                              {stream.Channels && (
-                                <div>
-                                  <span className="text-zinc-500">
-                                    Channels:{" "}
-                                  </span>
-                                  {stream.Channels}
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Tags */}
-              {item.Tags && item.Tags.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {item.Tags.map((tag) => (
-                      <Badge key={tag} variant="outline">
-                        {tag}
-                      </Badge>
-                    ))}
                   </div>
                 </div>
               )}
