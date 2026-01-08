@@ -25,6 +25,10 @@ export function ItemCard({ item, serverUrl }: ItemCardProps) {
     return item.ProductionYear?.toString() || "";
   };
 
+  const getSeriesBadges = () => {
+    return null;
+  };
+
   const primaryImageUrl = getPrimaryImageUrl();
 
   return (
@@ -32,31 +36,42 @@ export function ItemCard({ item, serverUrl }: ItemCardProps) {
       className="cursor-pointer group"
       onClick={() => navigate(`/item/${item.Id}`)}
     >
-      <div className="relative aspect-2/3 bg-zinc-800 rounded-lg overflow-hidden mb-2">
-        {primaryImageUrl ? (
-          <img
-            src={primaryImageUrl}
-            alt={item.Name || "Item"}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-zinc-600">
-            No Image
-          </div>
-        )}
-        {/* Progress bar for resume items */}
-        {item.UserData?.PlayedPercentage &&
-          item.UserData.PlayedPercentage > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-700">
-              <div
-                className="h-full bg-blue-500"
-                style={{ width: `${item.UserData.PlayedPercentage}%` }}
-              />
+      <div className="relative mb-2">
+        <div className="relative aspect-2/3 bg-zinc-800 rounded-lg overflow-hidden">
+          {primaryImageUrl ? (
+            <img
+              src={primaryImageUrl}
+              alt={item.Name || "Item"}
+              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-zinc-600">
+              No Image
             </div>
           )}
+          {/* Progress bar for resume items */}
+          {item.UserData?.PlayedPercentage &&
+            item.UserData.PlayedPercentage > 0 && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-700">
+                <div
+                  className="h-full bg-blue-500"
+                  style={{ width: `${item.UserData.PlayedPercentage}%` }}
+                />
+              </div>
+            )}
+        </div>
+        {/* Series badges - positioned outside overflow container */}
+        {getSeriesBadges()}
       </div>
       <h3 className="font-medium text-sm truncate">{item.Name}</h3>
-      <p className="text-xs text-zinc-400 truncate">{getSubtitle()}</p>
+      {item.Type === "Series" && item.ChildCount && (
+        <p className="text-xs text-amber-500 font-medium">
+          {item.ChildCount} {item.ChildCount === 1 ? "Season" : "Seasons"}
+        </p>
+      )}
+      {item.Type !== "Series" && (
+        <p className="text-xs text-zinc-400 truncate">{getSubtitle()}</p>
+      )}
     </div>
   );
 }

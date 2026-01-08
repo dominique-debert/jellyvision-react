@@ -227,10 +227,7 @@ export interface JellyfinClientConfig {
 
 // Helper to determine if we should use proxy
 const getProxiedURL = (baseURL: string) => {
-  // In dev mode, always use proxy for network addresses
-  if (import.meta.env.DEV && baseURL.includes("192.168.1.100")) {
-    return "/jellyfin";
-  }
+  // No proxy needed - use direct connection
   return baseURL;
 };
 
@@ -382,7 +379,8 @@ export const getLibraryItems = async (
   parentId: string,
   accessToken: string,
   startIndex: number = 0,
-  limit: number = 50
+  limit: number = 50,
+  includeItemTypes?: string[]
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -401,6 +399,10 @@ export const getLibraryItems = async (
       recursive: true,
       startIndex,
       limit,
+      enableTotalRecordCount: true,
+      enableImages: true,
+      fields: ["ChildCount", "RecursiveItemCount"],
+      ...(includeItemTypes && { includeItemTypes }),
     });
 
     if (response.status !== 200 || !response.data) {
@@ -483,11 +485,14 @@ export const getSeasons = async (
     const response = await client.tvShowsApi.getSeasons({
       userId,
       seriesId,
+      includeItemTypes: "Season",
     });
 
     if (response.status !== 200) {
       throw new Error("Failed to fetch seasons");
     }
+
+    console.log("getSeasons response for", seriesId, response.data);
 
     return {
       success: true,

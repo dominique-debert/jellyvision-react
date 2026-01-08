@@ -87,6 +87,12 @@ export default function Player() {
     return `${serverUrl}/Videos/${itemId}/stream?static=true${subtitleParam}&api_key=${accessToken}`;
   };
 
+  const getSubtitleUrl = (subtitleIndex?: number) => {
+    if (!serverUrl || !itemId || !accessToken || subtitleIndex === undefined)
+      return "";
+    return `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/stream.vtt?api_key=${accessToken}`;
+  };
+
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -269,7 +275,14 @@ export default function Player() {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onClick={togglePlayPause}
-      />
+      >
+        <track
+          kind="subtitles"
+          src={getSubtitleUrl(subtitleIndex)}
+          srcLang="en"
+          default={subtitleIndex !== undefined}
+        />
+      </video>
 
       {/* Controls Overlay */}
       <div

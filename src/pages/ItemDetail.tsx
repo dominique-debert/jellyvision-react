@@ -114,17 +114,27 @@ export default function ItemDetail() {
   useEffect(() => {
     const fetchSeasons = async () => {
       if (!serverUrl || !userId || !accessToken || !itemId || !item) return;
-      if (item.Type !== "Series") return;
+
+      // Handle case where item is a Season - use SeriesId to fetch seasons
+      let seriesIdToUse = itemId;
+      let isSeriesType = item.Type === "Series";
+
+      if (item.Type === "Season" && (item as any).SeriesId) {
+        seriesIdToUse = (item as any).SeriesId;
+        isSeriesType = true;
+      }
+
+      if (!isSeriesType) return;
 
       setLoadingSeasons(true);
       const seasonsResult = await getSeasons(
         serverUrl,
         userId,
-        itemId,
+        seriesIdToUse,
         accessToken
       );
 
-      if (seasonsResult.success) {
+      if (seasonsResult.success && seasonsResult.data) {
         setSeasons(seasonsResult.data);
 
         if (!selectedSeasonId && seasonsResult.data[0]?.Id) {
@@ -147,6 +157,9 @@ export default function ItemDetail() {
           }
         }
         setSeasonEpisodes(episodesMap);
+      } else {
+        console.warn("Failed to fetch seasons", seasonsResult);
+        setSeasons([]);
       }
 
       setLoadingSeasons(false);
@@ -187,7 +200,10 @@ export default function ItemDetail() {
   const [selectedSubtitle, setSelectedSubtitle] = useState<number | undefined>(
     subtitleStreams[0]?.Index
   );
-  const isSeries = item?.Type === "Series";
+  // Handle both Series and Season items (for shows like FBI that may be returned as Season)
+  const isSeries =
+    item?.Type === "Series" ||
+    (item?.Type === "Season" && (item as any).SeriesId);
   const isEpisode = item?.Type === "Episode";
 
   useEffect(() => {

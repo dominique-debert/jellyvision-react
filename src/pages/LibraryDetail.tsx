@@ -75,14 +75,16 @@ export default function LibraryDetail() {
           setTotalCount(albumsResult.totalCount);
         }
       } else {
-        // For movies, shows, and other libraries, fetch all items
+        // For TV libraries, fetch only Series items (avoid Season items)
+        const includeTypes = libraryType === "tvshows" ? ["Series"] : undefined;
         const itemsResult = await getLibraryItems(
           serverUrl,
           userId,
           libraryId,
           accessToken,
           startIndex,
-          ITEMS_PER_PAGE
+          ITEMS_PER_PAGE,
+          includeTypes
         );
         if (itemsResult.success) {
           setItems(itemsResult.data as MediaItem[]);
@@ -195,25 +197,41 @@ export default function LibraryDetail() {
                   onClick={() => navigate(`/item/${item.Id}`)}
                 >
                   <CardContent className="p-0">
-                    <div className="aspect-2/3 bg-muted rounded overflow-hidden">
-                      {item.Id && item.ImageTags?.["Primary"] && serverUrl ? (
-                        <img
-                          src={getImageUrl(serverUrl, item.Id, "Primary")}
-                          alt={item.Name || "Media item"}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-4xl">
-                          {item.Type === "Movie"
-                            ? "🎬"
-                            : item.Type === "Series"
-                            ? "📺"
-                            : item.Type === "Audio"
-                            ? "🎵"
-                            : "📁"}
+                    <div className="relative">
+                      <div className="aspect-2/3 bg-muted rounded overflow-hidden">
+                        {item.Id && item.ImageTags?.["Primary"] && serverUrl ? (
+                          <img
+                            src={getImageUrl(serverUrl, item.Id, "Primary")}
+                            alt={item.Name || "Media item"}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-4xl">
+                            {item.Type === "Movie"
+                              ? "🎬"
+                              : item.Type === "Series"
+                              ? "📺"
+                              : item.Type === "Audio"
+                              ? "🎵"
+                              : "📁"}
+                          </div>
+                        )}
+                      </div>
+                      {item.Type === "Series" && item.RecursiveItemCount && (
+                        <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full font-medium">
+                          {item.RecursiveItemCount}{" "}
+                          {item.RecursiveItemCount === 1
+                            ? "Episode"
+                            : "Episodes"}
+                        </div>
+                      )}
+                      {item.Type === "Series" && item.ChildCount && (
+                        <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full font-medium">
+                          {item.ChildCount}{" "}
+                          {item.ChildCount === 1 ? "Season" : "Seasons"}
                         </div>
                       )}
                     </div>
