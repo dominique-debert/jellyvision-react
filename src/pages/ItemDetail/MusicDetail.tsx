@@ -100,11 +100,7 @@ export default function MusicDetail() {
     <Layout>
       <div className="min-h-screen bg-linear-to-br from-gray-900 to-black">
         <div className="container mx-auto px-8 py-8 max-w-400">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-6"
-          >
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
@@ -168,7 +164,9 @@ export default function MusicDetail() {
                         {Object.keys(tracksPerDisc).length > 1 && (
                           <div className="flex items-center gap-2 mb-2">
                             <Disc className="h-4 w-4 text-zinc-400" />
-                            <span className="font-semibold">Disc {discNum}</span>
+                            <span className="font-semibold">
+                              Disc {discNum}
+                            </span>
                           </div>
                         )}
                         <table className="min-w-full text-sm border-separate border-spacing-y-1">

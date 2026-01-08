@@ -24,7 +24,9 @@ export default function MovieDetail() {
   const { serverUrl, accessToken, userId } = useAuthStore();
   const [item, setItem] = useState<BaseItemDto | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedSubtitle, setSelectedSubtitle] = useState<number | undefined>();
+  const [selectedSubtitle, setSelectedSubtitle] = useState<
+    number | undefined
+  >();
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -38,9 +40,10 @@ export default function MovieDetail() {
 
       if (result.success && result.data) {
         setItem(result.data);
-        const subtitleStreams = result.data.MediaStreams?.filter(
-          (s) => s.Type === "Subtitle" && s.Index !== undefined
-        ) || [];
+        const subtitleStreams =
+          result.data.MediaStreams?.filter(
+            (s) => s.Type === "Subtitle" && s.Index !== undefined
+          ) || [];
         setSelectedSubtitle(subtitleStreams[0]?.Index);
       }
 
@@ -59,11 +62,7 @@ export default function MovieDetail() {
     <Layout>
       <div className="min-h-screen bg-linear-to-br from-gray-900 to-black">
         <div className="container mx-auto px-8 py-8 max-w-400">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-6"
-          >
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>

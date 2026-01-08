@@ -16,6 +16,13 @@ import {
   Volume2,
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import * as shaka from "shaka-player";
+import muxjs from "mux.js";
+
+// Make mux.js available globally for shaka-player
+if (typeof window !== "undefined") {
+  (window as any).muxjs = muxjs;
+}
 
 export default function Player() {
   const { itemId } = useParams<{ itemId: string }>();
@@ -23,6 +30,7 @@ export default function Player() {
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<shaka.Player | null>(null);
 
   const [item, setItem] = useState<BaseItemDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,17 +88,90 @@ export default function Player() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId, searchParams]);
 
+  // Initialize Shaka Player
+  useEffect(() => {
+    const initializePlayer = async () => {
+      if (!videoRef.current) return;
+
+      try {
+        // Install polyfills
+        shaka.polyfill.installAll();
+
+        // Check if browser is supported
+        if (!shaka.Player.isBrowserSupported()) {
+          console.error("Browser not supported by Shaka Player");
+          return;
+        }
+
+        // Create player instance
+        const player = new shaka.Player(videoRef.current);
+        playerRef.current = player;
+
+        // Set up event listeners
+        player.addEventListener("error", (event: any) => {
+          console.error("Player error:", event.detail);
+        });
+
+        // Load initial stream
+        if (item && serverUrl && accessToken && itemId) {
+          const streamUrl = getStreamUrl(subtitleIndex);
+          try {
+            await player.load(streamUrl);
+            // Auto-play after loading
+            videoRef.current?.play();
+            setIsPlaying(true);
+          } catch (e) {
+            console.error("Error loading stream:", e);
+          }
+        }
+      } catch (e) {
+        console.error("Error initializing player:", e);
+      }
+    };
+
+    if (item && !loading) {
+      initializePlayer();
+    }
+
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+    };
+  }, [item, loading, serverUrl, accessToken, itemId]);
+
+  // Update stream when subtitle selection changes
+  useEffect(() => {
+    const updateStream = async () => {
+      if (!playerRef.current || !videoRef.current) return;
+
+      try {
+        const currentTime = videoRef.current.currentTime;
+        const streamUrl = getStreamUrl(subtitleIndex);
+        await playerRef.current.load(streamUrl, currentTime);
+        videoRef.current.play();
+        setIsPlaying(true);
+      } catch (e) {
+        console.error("Error updating stream:", e);
+      }
+    };
+
+    if (item && subtitleIndex !== undefined) {
+      updateStream();
+    }
+  }, [subtitleIndex]);
+
   const getStreamUrl = (subtitle?: number) => {
     if (!serverUrl || !itemId || !accessToken) return "";
-    const subtitleParam =
-      subtitle !== undefined ? `&SubtitleStreamIndex=${subtitle}` : "";
-    return `${serverUrl}/Videos/${itemId}/stream?static=true${subtitleParam}&api_key=${accessToken}`;
-  };
-
-  const getSubtitleUrl = (subtitleIndex?: number) => {
-    if (!serverUrl || !itemId || !accessToken || subtitleIndex === undefined)
-      return "";
-    return `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/stream.vtt?api_key=${accessToken}`;
+    // Use direct streaming with optional subtitle parameter
+    const params = new URLSearchParams();
+    params.set("static", "true");
+    params.set("api_key", accessToken);
+    if (subtitle !== undefined) {
+      params.set("SubtitleStreamIndex", String(subtitle));
+    }
+    return `${serverUrl}/Videos/${itemId}/stream?${params.toString()}`;
   };
 
   const formatTime = (seconds: number) => {
@@ -138,13 +219,17 @@ export default function Player() {
       videoRef.current.volume = volume;
       videoRef.current.muted = volume === 0;
       setDuration(videoRef.current.duration);
-      if (resumeTimeRef.current !== null) {
-        videoRef.current.currentTime = resumeTimeRef.current;
-        resumeTimeRef.current = null;
-      }
       videoRef.current.play();
       setIsPlaying(true);
     }
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
   };
 
   const handleSeek = (value: number[]) => {
@@ -216,15 +301,6 @@ export default function Player() {
     setShowSubtitleMenu(false);
   };
 
-  // Update stream when subtitle selection changes
-  useEffect(() => {
-    if (!videoRef.current) return;
-    const nextUrl = getStreamUrl(subtitleIndex);
-    resumeTimeRef.current = videoRef.current.currentTime;
-    videoRef.current.src = nextUrl;
-    videoRef.current.load();
-  }, [subtitleIndex]);
-
   const handleBack = () => {
     if (itemId) {
       navigate(`/item/${itemId}`);
@@ -270,19 +346,13 @@ export default function Player() {
       {/* Video Player */}
       <video
         ref={videoRef}
-        src={getStreamUrl(subtitleIndex)}
         className="w-full h-full object-contain"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onPlay={handlePlay}
+        onPause={handlePause}
         onClick={togglePlayPause}
-      >
-        <track
-          kind="subtitles"
-          src={getSubtitleUrl(subtitleIndex)}
-          srcLang="en"
-          default={subtitleIndex !== undefined}
-        />
-      </video>
+      />
 
       {/* Controls Overlay */}
       <div

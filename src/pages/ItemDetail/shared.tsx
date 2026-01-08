@@ -107,11 +107,7 @@ export const ItemHeader = ({
   );
 };
 
-export const MetadataTable = ({
-  item,
-}: {
-  item: BaseItemDto;
-}) => (
+export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
   <div className="grid grid-cols-4 gap-6 text-sm">
     <div>
       <div className="text-amber-500 font-medium mb-1">Date</div>
@@ -140,11 +136,7 @@ export const MetadataTable = ({
   </div>
 );
 
-export const QualityBadges = ({
-  item,
-}: {
-  item: BaseItemDto;
-}) => {
+export const QualityBadges = ({ item }: { item: BaseItemDto }) => {
   const has4K = item.MediaStreams?.some(
     (s) => s.Type === "Video" && s.Width && s.Width >= 3800
   );
@@ -168,11 +160,7 @@ export const QualityBadges = ({
   );
 };
 
-export const SynopsisSection = ({
-  item,
-}: {
-  item: BaseItemDto;
-}) => {
+export const SynopsisSection = ({ item }: { item: BaseItemDto }) => {
   if (!item.Overview) return null;
   return (
     <div>
@@ -240,8 +228,7 @@ export const CastAndCrewSection = ({
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {actors
                 .filter(
-                  (actor) =>
-                    actor.PrimaryImageTag && serverUrl && actor.Id
+                  (actor) => actor.PrimaryImageTag && serverUrl && actor.Id
                 )
                 .slice(0, 10)
                 .map((actor) => (

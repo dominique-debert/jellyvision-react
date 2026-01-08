@@ -45,7 +45,9 @@ export default function ShowDetail() {
   >({});
   const [loadingSeasons, setLoadingSeasons] = useState(false);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
-  const [selectedSubtitle, setSelectedSubtitle] = useState<number | undefined>();
+  const [selectedSubtitle, setSelectedSubtitle] = useState<
+    number | undefined
+  >();
   const seasonsRowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -60,9 +62,10 @@ export default function ShowDetail() {
 
       if (result.success && result.data) {
         setItem(result.data);
-        const subtitleStreams = result.data.MediaStreams?.filter(
-          (s) => s.Type === "Subtitle" && s.Index !== undefined
-        ) || [];
+        const subtitleStreams =
+          result.data.MediaStreams?.filter(
+            (s) => s.Type === "Subtitle" && s.Index !== undefined
+          ) || [];
         setSelectedSubtitle(subtitleStreams[0]?.Index);
       }
 
@@ -160,11 +163,7 @@ export default function ShowDetail() {
     <Layout>
       <div className="min-h-screen bg-linear-to-br from-gray-900 to-black">
         <div className="container mx-auto px-8 py-8 max-w-400">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-6"
-          >
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
