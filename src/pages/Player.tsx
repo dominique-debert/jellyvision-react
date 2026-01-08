@@ -538,11 +538,9 @@ export default function Player() {
     if (serverUrl && userId && accessToken && itemId && currentTime > 0) {
       const positionTicks = Math.round(currentTime * 10000000);
       console.log(
-        `Reporting final position: ${
-          formatTime(
-            currentTime
-          )
-        } (${positionTicks} ticks)`
+        `Reporting final position: ${formatTime(
+          currentTime
+        )} (${positionTicks} ticks)`
       );
       await reportPlaybackProgress(
         serverUrl,

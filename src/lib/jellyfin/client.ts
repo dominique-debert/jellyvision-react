@@ -569,11 +569,12 @@ export const reportPlaybackProgress = async (
 
   try {
     // Use the official Jellyfin API endpoint for playback progress
+    // Correct endpoint: /Sessions/Playing/Progress (not /Playback/Progress)
     console.log(
-      `Reporting progress to: /Playback/Progress (ItemId: ${itemId}, Position: ${positionTicks} ticks, SessionId: ${playSessionId})`
+      `Reporting progress to: /Sessions/Playing/Progress (ItemId: ${itemId}, Position: ${positionTicks} ticks, SessionId: ${playSessionId})`
     );
     const response = await fetch(
-      `${proxiedURL}/Playback/Progress?api_key=${accessToken}`,
+      `${proxiedURL}/Sessions/Playing/Progress?api_key=${accessToken}`,
       {
         method: "POST",
         headers: {
