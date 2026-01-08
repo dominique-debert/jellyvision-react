@@ -567,18 +567,19 @@ export const reportPlaybackProgress = async (
   const proxiedURL = getProxiedURL(baseURL);
 
   try {
-    // Try the standard playback progress endpoint
+    // Use the official Jellyfin API endpoint for playback progress
     console.log(
-      `Reporting progress to: /Users/${userId}/PlayingItems/${itemId}/Progress`
+      `Reporting progress to: /Playback/Progress (ItemId: ${itemId}, Position: ${positionTicks} ticks)`
     );
     const response = await fetch(
-      `${proxiedURL}/Users/${userId}/PlayingItems/${itemId}/Progress?api_key=${accessToken}`,
+      `${proxiedURL}/Playback/Progress?api_key=${accessToken}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          ItemId: itemId,
           PositionTicks: positionTicks,
           IsPaused: isPaused,
         }),
@@ -590,31 +591,7 @@ export const reportPlaybackProgress = async (
     );
 
     if (!response.ok) {
-      console.warn(
-        `Progress report failed: ${response.statusText}, trying alternate endpoint`
-      );
-      // Try alternate endpoint
-      const altResponse = await fetch(
-        `${proxiedURL}/Sessions/Playing/${itemId}/Progress?api_key=${accessToken}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            PositionTicks: positionTicks,
-            IsPaused: isPaused,
-          }),
-        }
-      );
-
-      console.log(
-        `Alternate endpoint response: ${altResponse.status} ${altResponse.statusText}`
-      );
-
-      if (!altResponse.ok) {
-        throw new Error(`Failed to report progress: ${altResponse.statusText}`);
-      }
+      throw new Error(`Failed to report progress: ${response.statusText}`);
     }
 
     console.log(`✓ Progress reported: ${itemId} at ${positionTicks} ticks`);
