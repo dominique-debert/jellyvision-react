@@ -21,10 +21,12 @@ import {
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import * as shaka from "shaka-player";
-import muxjs from "mux.js";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const muxjs = require("mux.js") as any;
 
 // Make mux.js available globally for shaka-player
 if (typeof window !== "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).muxjs = muxjs;
 }
 
@@ -34,7 +36,6 @@ export default function Player() {
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const playerRef = useRef<shaka.Player | null>(null);
 
   const [item, setItem] = useState<BaseItemDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,10 +53,13 @@ export default function Player() {
   const [volume, setVolume] = useState(1);
 
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
-  const resumeTimeRef = useRef<number | null>(null);
-  const playSessionIdRef = useRef<string>(
-    Date.now().toString() + Math.random().toString(36).substr(2, 9)
-  );
+  const playSessionIdRef = useRef<string>("");
+
+  // Initialize session ID on first render only
+  useEffect(() => {
+    playSessionIdRef.current =
+      Date.now().toString() + Math.random().toString(36).substr(2, 9);
+  }, []);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -95,7 +99,7 @@ export default function Player() {
     };
 
     fetchItem();
-  }, [serverUrl, userId, accessToken, itemId, searchParams]);
+  }, [serverUrl, userId, accessToken, itemId, searchParams, setSearchParams]);
 
   // Initialize video player with stream
   useEffect(() => {
@@ -140,6 +144,20 @@ export default function Player() {
       video.removeEventListener("canplay", handleCanPlay);
     };
   }, [volume]);
+
+  const getStreamUrl = (subtitle?: number) => {
+    if (!serverUrl || !itemId || !accessToken) return "";
+    // Use direct streaming with optional subtitle parameter
+    const params = new URLSearchParams();
+    params.set("static", "true");
+    params.set("api_key", accessToken);
+    // Add PlaySessionId to the stream URL so it's associated with the playback session
+    params.set("PlaySessionId", playSessionIdRef.current);
+    if (subtitle !== undefined) {
+      params.set("SubtitleStreamIndex", String(subtitle));
+    }
+    return `${serverUrl}/Videos/${itemId}/stream?${params.toString()}`;
+  };
 
   // Load subtitles by fetching track events and creating VTT cues (Jellyfin approach)
   useEffect(() => {
@@ -204,7 +222,8 @@ export default function Player() {
           const playbackMediaStreams =
             playbackInfo.MediaSources?.[0]?.MediaStreams || [];
           const playbackSubtitle = playbackMediaStreams.find(
-            (s: any) => s.Type === "Subtitle" && s.Index === subtitleIndex
+            (s: Record<string, unknown>) =>
+              s.Type === "Subtitle" && s.Index === subtitleIndex
           );
 
           if (!playbackSubtitle?.DeliveryUrl) {
@@ -278,7 +297,9 @@ export default function Player() {
             const text = trackEvent.Text;
 
             if (text) {
-              const TrackCue = window.VTTCue || (window as any).TextTrackCue;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const TrackCue =
+                (window as any).VTTCue || (window as any).TextTrackCue;
               const cue = new TrackCue(startSeconds, endSeconds, text);
               // Position subtitles 20px higher by adjusting the line property
               cue.line = -1;
@@ -296,21 +317,7 @@ export default function Player() {
     };
 
     loadSubtitles();
-  }, [item, subtitleOptions, serverUrl, itemId, accessToken]);
-
-  const getStreamUrl = (subtitle?: number) => {
-    if (!serverUrl || !itemId || !accessToken) return "";
-    // Use direct streaming with optional subtitle parameter
-    const params = new URLSearchParams();
-    params.set("static", "true");
-    params.set("api_key", accessToken);
-    // Add PlaySessionId to the stream URL so it's associated with the playback session
-    params.set("PlaySessionId", playSessionIdRef.current);
-    if (subtitle !== undefined) {
-      params.set("SubtitleStreamIndex", String(subtitle));
-    }
-    return `${serverUrl}/Videos/${itemId}/stream?${params.toString()}`;
-  };
+  }, [item, subtitleOptions, serverUrl, itemId, accessToken, getStreamUrl]);
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);

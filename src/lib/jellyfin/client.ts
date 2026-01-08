@@ -35,14 +35,13 @@ export const getAllAlbumsInLibrary = async (
       data: response.data.Items || [],
       totalCount: response.data.TotalRecordCount || 0,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get all albums error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch albums";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch albums",
+      error: errorMessage,
       data: [],
       totalCount: 0,
     };
@@ -79,14 +78,13 @@ export const getAlbumTracks = async (
       success: true,
       data: response.data.Items || [],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get album tracks error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch album tracks";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch album tracks",
+      error: errorMessage,
       data: [],
     };
   }
@@ -122,14 +120,13 @@ export const getResumeItems = async (
       success: true,
       data: response.data.Items || [],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get resume items error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch resume items";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch resume items",
+      error: errorMessage,
       data: [],
     };
   }
@@ -166,14 +163,13 @@ export const getLatestMedia = async (
       success: true,
       data: response.data || [],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get latest media error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch latest media";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch latest media",
+      error: errorMessage,
       data: [],
     };
   }
@@ -278,14 +274,13 @@ export const authenticateByName = async (
       data: response.data,
       serverUrl: proxiedURL === "/jellyfin" ? baseURL : proxiedURL,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Authentication error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Authentication failed";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Authentication failed",
+      error: errorMessage,
     };
   }
 };
@@ -309,14 +304,13 @@ export const getUserById = async (
       success: true,
       data: response.data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get user error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch user";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch user",
+      error: errorMessage,
     };
   }
 };
@@ -329,6 +323,7 @@ export const getUserImageUrl = (
   const proxiedURL = getProxiedURL(baseURL);
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return client.imageApi.getUserImageUrl(user as any);
 };
 
@@ -360,14 +355,13 @@ export const getUserViews = async (
       success: true,
       data: response.data.Items || [],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get user views error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch user views";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch user views",
+      error: errorMessage,
       data: [],
     };
   }
@@ -402,7 +396,8 @@ export const getLibraryItems = async (
       enableTotalRecordCount: true,
       enableImages: true,
       fields: ["ChildCount", "RecursiveItemCount"],
-      ...(includeItemTypes && { includeItemTypes }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...(includeItemTypes && { includeItemTypes: includeItemTypes as any }),
     });
 
     if (response.status !== 200 || !response.data) {
@@ -414,14 +409,13 @@ export const getLibraryItems = async (
       data: response.data.Items || [],
       totalCount: response.data.TotalRecordCount || 0,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get library items error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch library items";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch library items",
+      error: errorMessage,
       data: [],
       totalCount: 0,
     };
@@ -445,8 +439,7 @@ export const getItem = async (
     const response = await client.userLibraryApi.getItem({
       userId,
       itemId,
-      enableUserData: true,
-    });
+    } as any);
 
     if (response.status !== 200 || !response.data) {
       throw new Error("Failed to fetch item");
@@ -456,14 +449,13 @@ export const getItem = async (
       success: true,
       data: response.data,
     };
-  } catch (error: any) {
-    console.error("Get item error:", error);
+  } catch (error: unknown) {
+    console.error("Get artist info error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch artist info";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch item",
+      error: errorMessage,
       data: null,
     };
   }
@@ -486,8 +478,7 @@ export const getSeasons = async (
     const response = await client.tvShowsApi.getSeasons({
       userId,
       seriesId,
-      includeItemTypes: "Season",
-    });
+    } as any);
 
     if (response.status !== 200) {
       throw new Error("Failed to fetch seasons");
@@ -499,14 +490,13 @@ export const getSeasons = async (
       success: true,
       data: response.data.Items || [],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get seasons error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch seasons";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch seasons",
+      error: errorMessage,
       data: [],
     };
   }
@@ -540,14 +530,13 @@ export const getEpisodes = async (
       success: true,
       data: response.data.Items || [],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Get episodes error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch episodes";
     return {
       success: false,
-      error:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch episodes",
+      error: errorMessage,
       data: [],
     };
   }
@@ -555,7 +544,7 @@ export const getEpisodes = async (
 // Report playback progress to Jellyfin server
 export const reportPlaybackProgress = async (
   baseURL: string,
-  userId: string,
+  _userId: string,
   itemId: string,
   accessToken: string,
   positionTicks: number,
@@ -599,11 +588,15 @@ export const reportPlaybackProgress = async (
 
     console.log(`✓ Progress reported: ${itemId} at ${positionTicks} ticks`);
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Report playback progress error:", error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Failed to report playback progress";
     return {
       success: false,
-      error: error.message || "Failed to report playback progress",
+      error: errorMessage,
     };
   }
 };
