@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { UserProfile } from "@/components/UserProfile";
-import { LibraryList } from "@/components/LibraryList";
+import { Layout } from "@/components/Layout";
 import { ItemCard } from "@/components/ItemCard";
 import { getResumeItems, getLatestMedia } from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
@@ -68,16 +67,8 @@ export default function Home() {
   }, [serverUrl, userId, accessToken]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 to-black text-white">
-      <header className="border-b border-gray-800">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-3xl font-bold">Jellyfin</h1>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 space-y-12">
-        <UserProfile />
-
+    <Layout>
+      <main className="container mx-auto px-8 py-8 space-y-12">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section>
@@ -131,13 +122,7 @@ export default function Home() {
             </div>
           </section>
         )}
-
-        {/* Libraries Section */}
-        <section>
-          <h2 className="text-3xl font-bold mb-6">Your Media Library</h2>
-          <LibraryList />
-        </section>
       </main>
-    </div>
+    </Layout>
   );
 }
