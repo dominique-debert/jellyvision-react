@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
 import { ItemCard } from "@/components/ItemCard";
@@ -18,6 +19,7 @@ interface Library {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const [resumeItems, setResumeItems] = useState<BaseItemDto[]>([]);
   const [recentMovies, setRecentMovies] = useState<BaseItemDto[]>([]);

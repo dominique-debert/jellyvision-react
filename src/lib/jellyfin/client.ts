@@ -583,7 +583,9 @@ export const reportPlaybackProgress = async (
     );
 
     if (!response.ok) {
-      console.warn(`Progress report failed: ${response.statusText}, trying alternate endpoint`);
+      console.warn(
+        `Progress report failed: ${response.statusText}, trying alternate endpoint`
+      );
       // Try alternate endpoint
       const altResponse = await fetch(
         `${proxiedURL}/Sessions/Playing/${itemId}/Progress?api_key=${accessToken}`,
@@ -598,10 +600,19 @@ export const reportPlaybackProgress = async (
           }),
         }
       );
-      
+
       if (!altResponse.ok) {
         throw new Error(`Failed to report progress: ${altResponse.statusText}`);
       }
     }
 
     console.log(`✓ Progress reported: ${itemId} at ${positionTicks} ticks`);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Report playback progress error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to report playback progress",
+    };
+  }
+};
