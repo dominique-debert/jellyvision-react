@@ -24,6 +24,22 @@ if (typeof window !== "undefined") {
   (window as any).muxjs = muxjs;
 }
 
+// Helper function to parse VTT timestamp format (HH:MM:SS.mmm or MM:SS.mmm)
+function vttTimeToSeconds(timeStr: string): number {
+  const parts = timeStr.split(":");
+  if (parts.length === 3) {
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+    const seconds = parseFloat(parts[2]);
+    return hours * 3600 + minutes * 60 + seconds;
+  } else if (parts.length === 2) {
+    const minutes = parseInt(parts[0]);
+    const seconds = parseFloat(parts[1]);
+    return minutes * 60 + seconds;
+  }
+  return 0;
+}
+
 export default function Player() {
   const { itemId } = useParams<{ itemId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -165,20 +181,22 @@ export default function Player() {
           const subtitleIndex = subtitleOptions[0].index;
           console.log(`Loading subtitle ${subtitleIndex} for item ${itemId}`);
 
-          // Use direct server URL (subtitle endpoint doesn't work through proxy)
-          const subtitleUrl = `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/js?api_key=${accessToken}`;
+          // Try VTT format first (more compatible)
+          const subtitleUrl = `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/vtt?api_key=${accessToken}`;
+          console.log(`Attempting subtitle URL: ${subtitleUrl}`);
 
           const response = await fetch(subtitleUrl);
 
           if (!response.ok) {
-            throw new Error(
-              `HTTP ${response.status}: Failed to fetch subtitles`
+            console.warn(
+              `Subtitle fetch failed with status ${response.status}, skipping subtitles`
             );
+            return;
           }
 
-          const subtitleData = await response.json();
+          const vttContent = await response.text();
           console.log(
-            `Loaded ${subtitleData.TrackEvents?.length || 0} subtitle cues`
+            `Loaded VTT subtitle with ${vttContent.length} characters`
           );
 
           // Create a track element
@@ -187,15 +205,39 @@ export default function Player() {
             subtitleOptions[0].label
           );
 
-          // Add cues from track events (like Jellyfin does)
-          for (const event of subtitleData.TrackEvents || []) {
-            const TrackCue = window.VTTCue || (window as any).TextTrackCue;
-            const cue = new TrackCue(
-              event.StartPositionTicks / 10000000,
-              event.EndPositionTicks / 10000000,
-              event.Text
-            );
-            track.addCue(cue);
+          // Parse VTT format
+          const lines = vttContent.split("\n");
+          let i = 0;
+          while (i < lines.length) {
+            const line = lines[i].trim();
+
+            // Look for timestamp line (format: HH:MM:SS.mmm --> HH:MM:SS.mmm)
+            if (line.includes("-->")) {
+              const [startStr, endStr] = line.split("-->").map((s) => s.trim());
+              const start = vttTimeToSeconds(startStr);
+              const end = vttTimeToSeconds(endStr);
+
+              // Get the next line(s) as the cue text
+              i++;
+              let text = "";
+              while (
+                i < lines.length &&
+                lines[i].trim() &&
+                !lines[i].includes("-->")
+              ) {
+                if (text) text += "\n";
+                text += lines[i].trim();
+                i++;
+              }
+
+              if (text) {
+                const TrackCue = window.VTTCue || (window as any).TextTrackCue;
+                const cue = new TrackCue(start, end, text);
+                track.addCue(cue);
+              }
+              continue;
+            }
+            i++;
           }
 
           // Show the track
