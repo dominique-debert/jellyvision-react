@@ -567,7 +567,11 @@ export const reportPlaybackProgress = async (
   const proxiedURL = getProxiedURL(baseURL);
 
   try {
-    // Try the standard playback progress endpoint    console.log(`Reporting progress to: /Users/${userId}/PlayingItems/${itemId}/Progress`);    const response = await fetch(
+    // Try the standard playback progress endpoint
+    console.log(
+      `Reporting progress to: /Users/${userId}/PlayingItems/${itemId}/Progress`
+    );
+    const response = await fetch(
       `${proxiedURL}/Users/${userId}/PlayingItems/${itemId}/Progress?api_key=${accessToken}`,
       {
         method: "POST",
