@@ -458,9 +458,21 @@ export default function Player() {
     }, 10000);
 
     // Report progress when leaving the page
-    const handleBeforeUnload = () => {
+    const handleBeforeUnload = async () => {
       if (currentTime > 0) {
-        reportProgress();
+        const positionTicks = Math.round(currentTime * 10000000);
+        try {
+          await reportPlaybackProgress(
+            serverUrl,
+            userId,
+            itemId,
+            accessToken,
+            positionTicks,
+            false
+          );
+        } catch (e) {
+          console.error("Failed to report progress on unload:", e);
+        }
       }
     };
 
@@ -514,17 +526,18 @@ export default function Player() {
     setShowSubtitleMenu(false);
   };
 
-  const handleBack = () => {
+  const handleBack = async () => {
     // Report final progress before leaving
     if (serverUrl && userId && accessToken && itemId && currentTime > 0) {
       const positionTicks = Math.round(currentTime * 10000000);
-      reportPlaybackProgress(
+      console.log(`Reporting final position: ${formatTime(currentTime)} (${positionTicks} ticks)`);
+      await reportPlaybackProgress(
         serverUrl,
         userId,
         itemId,
         accessToken,
         positionTicks,
-        true
+        false  // Don't mark as paused, just report the position
       );
     }
 
