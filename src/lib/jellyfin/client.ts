@@ -91,6 +91,94 @@ export const getAlbumTracks = async (
     };
   }
 };
+
+// Get resume/continue watching items
+export const getResumeItems = async (
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+  limit: number = 12
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.itemsApi.getResumeItems({
+      userId,
+      limit,
+      mediaTypes: ["Video"],
+      enableImageTypes: ["Primary", "Backdrop", "Thumb"],
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch resume items");
+    }
+
+    return {
+      success: true,
+      data: response.data.Items || [],
+    };
+  } catch (error: any) {
+    console.error("Get resume items error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch resume items",
+      data: [],
+    };
+  }
+};
+
+// Get latest media items (recently added)
+export const getLatestMedia = async (
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+  parentId?: string,
+  limit: number = 16
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.userLibraryApi.getLatestMedia({
+      userId,
+      limit,
+      parentId,
+      enableImageTypes: ["Primary", "Backdrop", "Thumb"],
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch latest media");
+    }
+
+    return {
+      success: true,
+      data: response.data || [],
+    };
+  } catch (error: any) {
+    console.error("Get latest media error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch latest media",
+      data: [],
+    };
+  }
+};
+
 import { Jellyfin } from "@jellyfin/sdk";
 import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
 import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
