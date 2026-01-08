@@ -179,48 +179,68 @@ export default function Player() {
       if (subtitleOptions.length > 0 && serverUrl && itemId && accessToken) {
         try {
           const subtitleIndex = subtitleOptions[0].index;
-          console.log(`Loading subtitle index ${subtitleIndex} for item ${itemId}`);
+          const subtitleLabel = subtitleOptions[0].label;
           console.log(
-            `Available subtitles:`,
-            subtitleOptions.map((s) => `${s.label} (index=${s.index})`)
+            `Attempting to load subtitle: "${subtitleLabel}" (index=${subtitleIndex})`
           );
 
-          // Try multiple endpoint formats
+          // Check the MediaStream info to understand subtitle type
+          const subtitle = item?.MediaStreams?.find(
+            (s) => s.Type === "Subtitle" && s.Index === subtitleIndex
+          );
+          console.log("Subtitle details:", {
+            isExternal: subtitle?.IsExternal,
+            codec: subtitle?.Codec,
+            path: subtitle?.Path,
+            language: subtitle?.Language,
+          });
+
+          // Note: Jellyfin's HTTP API doesn't expose external subtitle files directly.
+          // External subtitles (.srt, .sub, etc.) would need to be:
+          // 1. Served through a separate file server
+          // 2. Transcoded through Jellyfin's transcoding service (if enabled)
+          // 3. Retrieved through a custom backend proxy
+          // For now, we'll skip external subtitles and only handle embedded ones
+          if (subtitle?.IsExternal) {
+            console.warn(
+              `Subtitle is external (${subtitle.Path}). External subtitles are not directly accessible through Jellyfin's HTTP API.`
+            );
+            return;
+          }
+
+          // Try multiple endpoint formats for embedded subtitles
           const endpointFormats = [
             `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/vtt?api_key=${accessToken}`,
             `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/vtt?api_key=${accessToken}`,
-            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}.vtt?api_key=${accessToken}`,
-            `${serverUrl}/Items/${itemId}/Subtitles/${subtitleIndex}?api_key=${accessToken}`,
+            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/js?api_key=${accessToken}`,
           ];
 
           let response: Response | null = null;
-          let vttUrl = "";
 
           for (const url of endpointFormats) {
-            console.log(`Trying subtitle URL: ${url}`);
+            console.log(`Trying endpoint: ${url}`);
             try {
               response = await fetch(url);
               if (response.ok) {
-                vttUrl = url;
-                console.log(`Success with URL: ${url}`);
+                console.log(`✓ Success with: ${url}`);
                 break;
               }
-              console.log(`Failed with status ${response.status}`);
+              console.log(`✗ Failed with status ${response.status}`);
             } catch (e) {
-              console.log(`Fetch error:`, e);
+              console.log(`✗ Fetch error:`, e);
             }
           }
 
           if (!response || !response.ok) {
             console.warn(
-              `All subtitle endpoints failed, skipping subtitles`
+              `Unable to fetch subtitles. Embedded subtitles may not be available.`
             );
             return;
           }
 
           const vttContent = await response.text();
           console.log(
-            `Loaded VTT subtitle with ${vttContent.length} characters`
+            `Loaded subtitle data with ${vttContent.length} characters`
           );
 
           // Create a track element
