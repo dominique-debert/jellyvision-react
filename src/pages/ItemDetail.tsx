@@ -44,17 +44,31 @@ export default function ItemDetail() {
   const [loadingTracks, setLoadingTracks] = useState(false);
   // Fetch album tracks for MusicAlbum
   useEffect(() => {
+    let cancelled = false;
     if (!serverUrl || !userId || !accessToken || !itemId || !item) return;
     if (item.Type !== "MusicAlbum") return;
-    setLoadingTracks(true);
-    getAlbumTracks(serverUrl, userId, itemId, accessToken).then((result) => {
+
+    const loadTracks = async () => {
+      setLoadingTracks(true);
+      const result = await getAlbumTracks(
+        serverUrl,
+        userId,
+        itemId,
+        accessToken
+      );
+      if (cancelled) return;
       if (result.success && result.data) {
         setAlbumTracks(result.data);
       } else {
         setAlbumTracks([]);
       }
       setLoadingTracks(false);
-    });
+    };
+
+    loadTracks();
+    return () => {
+      cancelled = true;
+    };
   }, [serverUrl, userId, accessToken, itemId, item]);
 
   // Group tracks by disc number and format time (MusicAlbum only)
@@ -228,6 +242,7 @@ export default function ItemDetail() {
                   <Button
                     size="icon"
                     className="h-12 w-12 rounded-full bg-white hover:bg-gray-200"
+                    onClick={() => navigate(`/play/${itemId}`)}
                   >
                     <Play className="h-6 w-6 text-black fill-black" />
                   </Button>
