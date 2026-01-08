@@ -553,7 +553,11 @@ export default function Player() {
       );
     }
 
-    if (itemId) {
+    // Check if we came from home resume section
+    const fromHome = searchParams.get("from") === "home";
+    if (fromHome) {
+      navigate("/");
+    } else if (itemId) {
       navigate(`/item/${itemId}`);
     } else {
       navigate(-1);

@@ -145,7 +145,7 @@ export default function Home() {
                   key={item.Id}
                   item={item}
                   serverUrl={serverUrl!}
-                  onPlayClick={() => navigate(`/play/${item.Id}`)}
+                  onPlayClick={() => navigate(`/play/${item.Id}?from=home`)}
                 />
               ))}
             </div>
