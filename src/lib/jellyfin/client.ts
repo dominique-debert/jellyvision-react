@@ -559,7 +559,8 @@ export const reportPlaybackProgress = async (
   itemId: string,
   accessToken: string,
   positionTicks: number,
-  isPaused: boolean = false
+  isPaused: boolean = false,
+  playSessionId?: string
 ): Promise<{
   success: boolean;
   error?: string;
@@ -569,7 +570,7 @@ export const reportPlaybackProgress = async (
   try {
     // Use the official Jellyfin API endpoint for playback progress
     console.log(
-      `Reporting progress to: /Playback/Progress (ItemId: ${itemId}, Position: ${positionTicks} ticks)`
+      `Reporting progress to: /Playback/Progress (ItemId: ${itemId}, Position: ${positionTicks} ticks, SessionId: ${playSessionId})`
     );
     const response = await fetch(
       `${proxiedURL}/Playback/Progress?api_key=${accessToken}`,
@@ -582,6 +583,7 @@ export const reportPlaybackProgress = async (
           ItemId: itemId,
           PositionTicks: positionTicks,
           IsPaused: isPaused,
+          PlaySessionId: playSessionId,
         }),
       }
     );

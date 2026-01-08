@@ -53,6 +53,9 @@ export default function Player() {
 
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
   const resumeTimeRef = useRef<number | null>(null);
+  const playSessionIdRef = useRef<string>(
+    Date.now().toString() + Math.random().toString(36).substr(2, 9)
+  );
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -301,6 +304,8 @@ export default function Player() {
     const params = new URLSearchParams();
     params.set("static", "true");
     params.set("api_key", accessToken);
+    // Add PlaySessionId to the stream URL so it's associated with the playback session
+    params.set("PlaySessionId", playSessionIdRef.current);
     if (subtitle !== undefined) {
       params.set("SubtitleStreamIndex", String(subtitle));
     }
@@ -446,7 +451,8 @@ export default function Player() {
         itemId,
         accessToken,
         positionTicks,
-        !isPlaying
+        !isPlaying,
+        playSessionIdRef.current
       );
     };
 
@@ -468,7 +474,8 @@ export default function Player() {
             itemId,
             accessToken,
             positionTicks,
-            false
+            false,
+            playSessionIdRef.current
           );
         } catch (e) {
           console.error("Failed to report progress on unload:", e);
@@ -531,9 +538,11 @@ export default function Player() {
     if (serverUrl && userId && accessToken && itemId && currentTime > 0) {
       const positionTicks = Math.round(currentTime * 10000000);
       console.log(
-        `Reporting final position: ${formatTime(
-          currentTime
-        )} (${positionTicks} ticks)`
+        `Reporting final position: ${
+          formatTime(
+            currentTime
+          )
+        } (${positionTicks} ticks)`
       );
       await reportPlaybackProgress(
         serverUrl,
@@ -541,7 +550,8 @@ export default function Player() {
         itemId,
         accessToken,
         positionTicks,
-        false // Don't mark as paused, just report the position
+        false, // Don't mark as paused, just report the position
+        playSessionIdRef.current
       );
     }
 
