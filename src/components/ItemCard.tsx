@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "@/lib/jellyfin/client";
+import { Play } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 interface ItemCardProps {
   item: BaseItemDto;
   serverUrl: string;
+  onPlayClick?: (e: React.MouseEvent) => void;
 }
 
-export function ItemCard({ item, serverUrl }: ItemCardProps) {
+export function ItemCard({ item, serverUrl, onPlayClick }: ItemCardProps) {
   const navigate = useNavigate();
 
   const getPrimaryImageUrl = () => {
@@ -31,10 +33,23 @@ export function ItemCard({ item, serverUrl }: ItemCardProps) {
 
   const primaryImageUrl = getPrimaryImageUrl();
 
+  const handleCardClick = () => {
+    navigate(`/item/${item.Id}`);
+  };
+
+  const handlePlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onPlayClick) {
+      onPlayClick(e);
+    } else {
+      navigate(`/play/${item.Id}`);
+    }
+  };
+
   return (
     <div
       className="cursor-pointer group"
-      onClick={() => navigate(`/item/${item.Id}`)}
+      onClick={onPlayClick ? handlePlayClick : handleCardClick}
     >
       <div className="relative mb-2">
         <div className="relative aspect-2/3 bg-zinc-800 rounded-lg overflow-hidden">
@@ -49,6 +64,10 @@ export function ItemCard({ item, serverUrl }: ItemCardProps) {
               No Image
             </div>
           )}
+          {/* Play icon overlay on hover */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+            <Play className="h-12 w-12 text-white fill-white" />
+          </div>
           {/* Progress bar for resume items */}
           {item.UserData?.PlayedPercentage &&
             item.UserData.PlayedPercentage > 0 && (

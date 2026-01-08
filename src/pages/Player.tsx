@@ -520,7 +520,7 @@ export default function Player() {
         true
       );
     }
-    
+
     if (itemId) {
       navigate(`/item/${itemId}`);
     } else {
