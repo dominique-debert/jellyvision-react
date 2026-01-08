@@ -588,35 +588,37 @@ export default function ItemDetail() {
               <div>
                 <h2 className="text-2xl font-semibold mb-4">Cast & Crew</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {item.People.slice(0, 12).map((person) => (
-                    <Card
-                      key={person.Id}
-                      className="bg-zinc-900 border-zinc-800"
-                    >
-                      <CardContent className="p-4">
-                        {person.PrimaryImageTag && serverUrl && person.Id && (
-                          <img
-                            src={getImageUrl(serverUrl, person.Id, "Primary")}
-                            alt={person.Name || "Person"}
-                            className="w-full aspect-square object-cover rounded-lg mb-2"
-                          />
-                        )}
-                        <p className="font-medium text-sm truncate">
-                          {person.Name}
-                        </p>
-                        {person.Role && (
-                          <p className="text-xs text-zinc-400 truncate">
-                            {person.Role}
+                  {item.People.filter((person) => person.PrimaryImageTag)
+                    .slice(0, 12)
+                    .map((person) => (
+                      <Card
+                        key={person.Id}
+                        className="bg-zinc-900 border-zinc-800"
+                      >
+                        <CardContent className="p-4">
+                          {person.PrimaryImageTag && serverUrl && person.Id && (
+                            <img
+                              src={getImageUrl(serverUrl, person.Id, "Primary")}
+                              alt={person.Name || "Person"}
+                              className="w-full aspect-square object-cover rounded-lg mb-2"
+                            />
+                          )}
+                          <p className="font-medium text-sm truncate">
+                            {person.Name}
                           </p>
-                        )}
-                        {person.Type && !person.Role && (
-                          <p className="text-xs text-zinc-400 truncate">
-                            {person.Type}
-                          </p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                          {person.Role && (
+                            <p className="text-xs text-zinc-400 truncate">
+                              {person.Role}
+                            </p>
+                          )}
+                          {person.Type && !person.Role && (
+                            <p className="text-xs text-zinc-400 truncate">
+                              {person.Type}
+                            </p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
               </div>
             )}
