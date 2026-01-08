@@ -151,6 +151,7 @@ export default function LibraryDetail() {
               <Card
                 key={item.Id}
                 className="cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                onClick={() => navigate(`/item/${item.Id}`)}
               >
                 <CardContent className="p-0">
                   <div className="aspect-2/3 bg-muted rounded overflow-hidden">

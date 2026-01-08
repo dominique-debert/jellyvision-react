@@ -3,7 +3,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import LibraryDetail from "./pages/LibraryDetail";
-
+import ItemDetail from "@/pages/ItemDetail";
 function App() {
   const { isAuthenticated } = useAuthStore();
 
@@ -17,6 +17,7 @@ function App() {
         <>
           <Route path="/" element={<Home />} />
           <Route path="/library/:libraryId" element={<LibraryDetail />} />
+          <Route path="/item/:itemId" element={<ItemDetail />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
       ) : (

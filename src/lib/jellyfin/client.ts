@@ -4,6 +4,8 @@ import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
 import { getImageApi } from "@jellyfin/sdk/lib/utils/api/image-api";
 import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
 import { getItemsApi } from "@jellyfin/sdk/lib/utils/api/items-api";
+import { getUserLibraryApi } from "@jellyfin/sdk/lib/utils/api/user-library-api";
+import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 // Generate a simple UUID v4
 const generateUUID = () => {
@@ -65,6 +67,7 @@ export const createJellyfinClient = ({
     imageApi: getImageApi(api),
     userViewsApi: getUserViewsApi(api),
     itemsApi: getItemsApi(api),
+    userLibraryApi: getUserLibraryApi(api),
     baseURL: proxiedURL,
     jellyfin,
   };
@@ -236,6 +239,46 @@ export const getLibraryItems = async (
         "Failed to fetch library items",
       data: [],
       totalCount: 0,
+    };
+  }
+};
+
+export const getItem = async (
+  baseURL: string,
+  userId: string,
+  itemId: string,
+  accessToken: string
+): Promise<{
+  success: boolean;
+  data: BaseItemDto | null;
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.userLibraryApi.getItem({
+      userId,
+      itemId,
+    });
+
+    if (response.status !== 200 || !response.data) {
+      throw new Error("Failed to fetch item");
+    }
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    console.error("Get item error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch item",
+      data: null,
     };
   }
 };
