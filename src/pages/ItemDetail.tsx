@@ -167,6 +167,30 @@ export default function ItemDetail() {
     return undefined;
   };
 
+  const subtitleStreams =
+    item?.MediaStreams?.filter(
+      (s) => s.Type === "Subtitle" && s.Index !== undefined
+    ) || [];
+  const [selectedSubtitle, setSelectedSubtitle] = useState<number | undefined>(
+    subtitleStreams[0]?.Index
+  );
+  const isSeries = item?.Type === "Series";
+  const isEpisode = item?.Type === "Episode";
+
+  useEffect(() => {
+    if (subtitleStreams.length === 0) {
+      setSelectedSubtitle(undefined);
+      return;
+    }
+
+    setSelectedSubtitle((prev) => {
+      if (prev !== undefined && subtitleStreams.some((s) => s.Index === prev)) {
+        return prev;
+      }
+      return subtitleStreams[0]?.Index;
+    });
+  }, [subtitleStreams]);
+
   if (loading) {
     return (
       <Layout>
@@ -195,8 +219,6 @@ export default function ItemDetail() {
   }
 
   const primaryImageUrl = getPrimaryImageUrl();
-  const isSeries = item.Type === "Series";
-  const isEpisode = item.Type === "Episode";
 
   // Get directors, screenwriters, and actors
   const directors = item.People?.filter((p) => p.Type === "Director") || [];
@@ -242,7 +264,13 @@ export default function ItemDetail() {
                   <Button
                     size="icon"
                     className="h-12 w-12 rounded-full bg-white hover:bg-gray-200"
-                    onClick={() => navigate(`/play/${itemId}`)}
+                    onClick={() => {
+                      const subtitleQuery =
+                        selectedSubtitle !== undefined
+                          ? `?subtitle=${selectedSubtitle}`
+                          : "";
+                      navigate(`/play/${itemId}${subtitleQuery}`);
+                    }}
                   >
                     <Play className="h-6 w-6 text-black fill-black" />
                   </Button>
@@ -283,6 +311,32 @@ export default function ItemDetail() {
                   </Button>
                 </div>
               </div>
+
+              {/* Subtitle pre-selection */}
+              {subtitleStreams.length > 0 && (
+                <div className="flex items-center gap-3 text-sm text-white">
+                  <span className="text-amber-500 font-medium">Subtitles:</span>
+                  <select
+                    value={selectedSubtitle ?? "none"}
+                    onChange={(e) =>
+                      setSelectedSubtitle(
+                        e.target.value === "none"
+                          ? undefined
+                          : Number(e.target.value)
+                      )
+                    }
+                    className="bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white text-sm"
+                  >
+                    <option value="none">None</option>
+                    {subtitleStreams.map((s) => (
+                      <option key={s.Index} value={s.Index}>
+                        {s.Language || s.DisplayTitle || `Subtitle ${s.Index}`}
+                        {s.IsForced ? " (Forced)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Quality Badges */}
               <div className="flex gap-2">

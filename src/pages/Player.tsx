@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getItem, getImageUrl } from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,16 @@ import {
   MessageSquare,
   Maximize,
   Users,
+  Check,
+  ArrowLeft,
+  Volume2,
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function Player() {
   const { itemId } = useParams<{ itemId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -25,8 +30,17 @@ export default function Player() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
+  const [subtitleOptions, setSubtitleOptions] = useState<
+    { index: number; label: string }[]
+  >([]);
+  const [subtitleIndex, setSubtitleIndex] = useState<number | undefined>(
+    undefined
+  );
+  const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
+  const [volume, setVolume] = useState(1);
 
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
+  const resumeTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -40,17 +54,37 @@ export default function Player() {
 
       if (result.success && result.data) {
         setItem(result.data);
+        const subs =
+          result.data.MediaStreams?.filter(
+            (s) => s.Type === "Subtitle" && s.Index !== undefined
+          ) || [];
+        const options = subs.map((s) => ({
+          index: s.Index!,
+          label: s.Language || s.DisplayTitle || `Subtitle ${s.Index}`,
+        }));
+        setSubtitleOptions(options);
+        const initial = searchParams.get("subtitle");
+        if (initial) {
+          setSubtitleIndex(Number(initial));
+        } else if (options.length > 0) {
+          setSubtitleIndex(options[0].index);
+          const nextParams = new URLSearchParams(searchParams);
+          nextParams.set("subtitle", String(options[0].index));
+          setSearchParams(nextParams, { replace: true });
+        }
       }
 
       setLoading(false);
     };
 
     fetchItem();
-  }, [serverUrl, userId, accessToken, itemId]);
+  }, [serverUrl, userId, accessToken, itemId, searchParams]);
 
-  const getStreamUrl = () => {
+  const getStreamUrl = (subtitle?: number) => {
     if (!serverUrl || !itemId || !accessToken) return "";
-    return `${serverUrl}/Videos/${itemId}/stream?static=true&api_key=${accessToken}`;
+    const subtitleParam =
+      subtitle !== undefined ? `&SubtitleStreamIndex=${subtitle}` : "";
+    return `${serverUrl}/Videos/${itemId}/stream?static=true${subtitleParam}&api_key=${accessToken}`;
   };
 
   const formatTime = (seconds: number) => {
@@ -95,7 +129,13 @@ export default function Player() {
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
+      videoRef.current.volume = volume;
+      videoRef.current.muted = volume === 0;
       setDuration(videoRef.current.duration);
+      if (resumeTimeRef.current !== null) {
+        videoRef.current.currentTime = resumeTimeRef.current;
+        resumeTimeRef.current = null;
+      }
       videoRef.current.play();
       setIsPlaying(true);
     }
@@ -152,6 +192,49 @@ export default function Player() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!videoRef.current) return;
+    videoRef.current.volume = volume;
+    videoRef.current.muted = volume === 0;
+  }, [volume]);
+
+  const handleSubtitleSelect = (index?: number) => {
+    setSubtitleIndex(index);
+    const nextParams = new URLSearchParams(searchParams);
+    if (index === undefined) {
+      nextParams.delete("subtitle");
+    } else {
+      nextParams.set("subtitle", String(index));
+    }
+    setSearchParams(nextParams, { replace: true });
+    setShowSubtitleMenu(false);
+  };
+
+  // Update stream when subtitle selection changes
+  useEffect(() => {
+    if (!videoRef.current) return;
+    const nextUrl = getStreamUrl(subtitleIndex);
+    resumeTimeRef.current = videoRef.current.currentTime;
+    videoRef.current.src = nextUrl;
+    videoRef.current.load();
+  }, [subtitleIndex]);
+
+  const handleBack = () => {
+    if (itemId) {
+      navigate(`/item/${itemId}`);
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const handleVolumeChange = (value: number) => {
+    setVolume(value);
+    if (videoRef.current) {
+      videoRef.current.volume = value;
+      videoRef.current.muted = value === 0;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -181,7 +264,7 @@ export default function Player() {
       {/* Video Player */}
       <video
         ref={videoRef}
-        src={getStreamUrl()}
+        src={getStreamUrl(subtitleIndex)}
         className="w-full h-full object-contain"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
@@ -194,6 +277,17 @@ export default function Player() {
           showControls ? "opacity-100" : "opacity-0"
         }`}
       >
+        <div className="absolute top-6 left-6">
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/20"
+            onClick={handleBack}
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back
+          </Button>
+        </div>
+
         {/* Top Left - Movie Info */}
         <div className="absolute top-8 left-8 flex items-start gap-4">
           {posterUrl && (
@@ -257,9 +351,22 @@ export default function Player() {
                 size="icon"
                 variant="ghost"
                 className="text-white hover:bg-white/20"
+                onClick={() => setShowSubtitleMenu((v) => !v)}
               >
                 <MessageSquare className="h-6 w-6" />
               </Button>
+              <div className="flex items-center gap-2 text-white w-36">
+                <Volume2 className="h-5 w-5" />
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={volume}
+                  onChange={(e) => handleVolumeChange(Number(e.target.value))}
+                  className="w-28 h-2 rounded-full bg-white/20 accent-emerald-400"
+                />
+              </div>
               <Button
                 size="icon"
                 variant="ghost"
@@ -316,6 +423,40 @@ export default function Player() {
             </div>
           </div>
         </div>
+
+        {showSubtitleMenu && (
+          <div className="absolute bottom-32 left-8 w-64 bg-black/90 border border-white/10 rounded-lg shadow-2xl p-3 space-y-2">
+            <div className="text-xs uppercase tracking-wide text-zinc-400">
+              Subtitles
+            </div>
+            <button
+              className={`flex w-full items-center justify-between rounded px-3 py-2 text-sm text-white hover:bg-white/10 ${
+                subtitleIndex === undefined ? "bg-white/10" : ""
+              }`}
+              onClick={() => handleSubtitleSelect(undefined)}
+            >
+              <span>None</span>
+              {subtitleIndex === undefined && <Check className="h-4 w-4" />}
+            </button>
+            {subtitleOptions.length === 0 && (
+              <div className="text-sm text-zinc-400 px-3 py-2">
+                No subtitles
+              </div>
+            )}
+            {subtitleOptions.map((opt) => (
+              <button
+                key={opt.index}
+                className={`flex w-full items-center justify-between rounded px-3 py-2 text-sm text-white hover:bg-white/10 ${
+                  subtitleIndex === opt.index ? "bg-white/10" : ""
+                }`}
+                onClick={() => handleSubtitleSelect(opt.index)}
+              >
+                <span>{opt.label}</span>
+                {subtitleIndex === opt.index && <Check className="h-4 w-4" />}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
