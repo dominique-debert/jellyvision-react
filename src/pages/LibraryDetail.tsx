@@ -24,6 +24,8 @@ interface MediaItem {
   Type?: string;
   ImageTags?: { [key: string]: string } | null;
   ProductionYear?: number | null;
+  ChildCount?: number;
+  RecursiveItemCount?: number;
 }
 
 export default function LibraryDetail() {
