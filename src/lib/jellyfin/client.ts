@@ -582,6 +582,8 @@ export const reportPlaybackProgress = async (
       }
     );
 
+    console.log(`Progress report response: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
       console.warn(
         `Progress report failed: ${response.statusText}, trying alternate endpoint`
@@ -600,6 +602,8 @@ export const reportPlaybackProgress = async (
           }),
         }
       );
+
+      console.log(`Alternate endpoint response: ${altResponse.status} ${altResponse.statusText}`);
 
       if (!altResponse.ok) {
         throw new Error(`Failed to report progress: ${altResponse.statusText}`);

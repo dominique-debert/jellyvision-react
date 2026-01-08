@@ -530,14 +530,18 @@ export default function Player() {
     // Report final progress before leaving
     if (serverUrl && userId && accessToken && itemId && currentTime > 0) {
       const positionTicks = Math.round(currentTime * 10000000);
-      console.log(`Reporting final position: ${formatTime(currentTime)} (${positionTicks} ticks)`);
+      console.log(
+        `Reporting final position: ${formatTime(
+          currentTime
+        )} (${positionTicks} ticks)`
+      );
       await reportPlaybackProgress(
         serverUrl,
         userId,
         itemId,
         accessToken,
         positionTicks,
-        false  // Don't mark as paused, just report the position
+        false // Don't mark as paused, just report the position
       );
     }
 
