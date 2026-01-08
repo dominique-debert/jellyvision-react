@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
@@ -12,7 +12,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Play,
   Star,
@@ -25,6 +24,8 @@ import {
   Printer,
   MoreHorizontal,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
@@ -39,6 +40,8 @@ export default function ItemDetail() {
     Record<string, BaseItemDto[]>
   >({});
   const [loadingSeasons, setLoadingSeasons] = useState(false);
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
+  const seasonsRowRef = useRef<HTMLDivElement>(null);
   // Album tracks state (MusicAlbum only)
   const [albumTracks, setAlbumTracks] = useState<BaseItemDto[]>([]);
   const [loadingTracks, setLoadingTracks] = useState(false);
@@ -124,6 +127,10 @@ export default function ItemDetail() {
       if (seasonsResult.success) {
         setSeasons(seasonsResult.data);
 
+        if (!selectedSeasonId && seasonsResult.data[0]?.Id) {
+          setSelectedSeasonId(seasonsResult.data[0].Id || null);
+        }
+
         // Fetch episodes for each season
         const episodesMap: Record<string, BaseItemDto[]> = {};
         for (const season of seasonsResult.data) {
@@ -147,6 +154,12 @@ export default function ItemDetail() {
 
     fetchSeasons();
   }, [serverUrl, userId, accessToken, itemId, item]);
+
+  useEffect(() => {
+    if (seasons.length > 0 && !selectedSeasonId) {
+      setSelectedSeasonId(seasons[0]?.Id || null);
+    }
+  }, [seasons, selectedSeasonId]);
 
   const formatRuntime = (ticks?: number) => {
     if (!ticks) return null;
@@ -219,6 +232,18 @@ export default function ItemDetail() {
   }
 
   const primaryImageUrl = getPrimaryImageUrl();
+  const nextUpSeasonId =
+    selectedSeasonId || (seasons.length > 0 ? seasons[0]?.Id || null : null);
+  const nextUpEpisode = nextUpSeasonId
+    ? seasonEpisodes[nextUpSeasonId]?.[0]
+    : undefined;
+
+  const scrollSeasons = (direction: number) => {
+    if (!seasonsRowRef.current) return;
+    const containerWidth = seasonsRowRef.current.clientWidth;
+    const scrollAmount = containerWidth * direction;
+    seasonsRowRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+  };
 
   // Get directors, screenwriters, and actors
   const directors = item.People?.filter((p) => p.Type === "Director") || [];
@@ -396,6 +421,242 @@ export default function ItemDetail() {
                 </div>
               )}
 
+              {/* Next Up */}
+              {isSeries && nextUpEpisode && (
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-semibold">Next Up</h3>
+                  <Card
+                    className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer max-w-120"
+                    onClick={() => navigate(`/play/${nextUpEpisode.Id}`)}
+                  >
+                    <CardContent className="p-0">
+                      <div className="relative w-full h-44 rounded-lg overflow-hidden">
+                        {nextUpEpisode.ImageTags?.Primary && serverUrl ? (
+                          <img
+                            src={getImageUrl(
+                              serverUrl,
+                              nextUpEpisode.Id!,
+                              "Primary"
+                            )}
+                            alt={nextUpEpisode.Name || "Next up"}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                            <Play className="h-10 w-10 text-zinc-600" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/30" />
+                      </div>
+                      <div className="p-3 space-y-1">
+                        <div className="text-sm text-zinc-400">
+                          {nextUpEpisode.SeriesName}
+                        </div>
+                        <div className="text-white font-semibold line-clamp-1">
+                          {nextUpEpisode.IndexNumber &&
+                            `${nextUpEpisode.IndexNumber}. `}
+                          {nextUpEpisode.Name}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Seasons & Episodes */}
+              {isSeries && seasons.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-2xl font-semibold mb-4">Seasons</h3>
+                  {loadingSeasons ? (
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-10 w-full bg-zinc-800 rounded" />
+                      <div className="h-32 w-full bg-zinc-800 rounded" />
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="relative">
+                        <div
+                          className="flex gap-3 overflow-hidden scroll-smooth pb-2 pr-12 w-full"
+                          ref={seasonsRowRef}
+                          style={{
+                            scrollbarWidth: "none",
+                            msOverflowStyle: "none",
+                            maxWidth: "calc((100% / 6) * 6)",
+                          }}
+                        >
+                          {seasons.map((season) => (
+                            <Button
+                              key={season.Id}
+                              variant="ghost"
+                              className={`relative flex flex-1 h-auto min-h-0 flex-col items-start p-0 text-left rounded-lg overflow-hidden border ${
+                                selectedSeasonId === season.Id
+                                  ? "border-amber-500"
+                                  : "border-transparent"
+                              } bg-zinc-900 hover:border-amber-500 transition-colors snap-start`}
+                              onClick={() =>
+                                setSelectedSeasonId(season.Id || null)
+                              }
+                            >
+                              <div
+                                className="w-full bg-zinc-800 relative"
+                                style={{ aspectRatio: "2 / 3" }}
+                              >
+                                {season.ImageTags?.Primary &&
+                                serverUrl &&
+                                season.Id ? (
+                                  <img
+                                    src={getImageUrl(
+                                      serverUrl,
+                                      season.Id,
+                                      "Primary"
+                                    )}
+                                    alt={season.Name || "Season"}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                                    <Play className="h-8 w-8" />
+                                  </div>
+                                )}
+                                <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                                  {seasonEpisodes[season.Id || ""]?.length || 0}
+                                </div>
+                              </div>
+                              <div className="w-full p-3 text-left">
+                                <div className="text-white font-semibold line-clamp-1">
+                                  {season.Name}
+                                </div>
+                              </div>
+                            </Button>
+                          ))}
+                        </div>
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="pointer-events-auto bg-black/60 text-white hover:bg-black/80"
+                            onClick={() => scrollSeasons(-1)}
+                          >
+                            <ChevronLeft className="h-5 w-5" />
+                          </Button>
+                        </div>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="pointer-events-auto bg-black/60 text-white hover:bg-black/80"
+                            onClick={() => scrollSeasons(1)}
+                          >
+                            <ChevronRight className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {selectedSeasonId && (
+                        <div className="space-y-4">
+                          {seasonEpisodes[selectedSeasonId]?.map((episode) => (
+                            <Card
+                              key={episode.Id}
+                              className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors"
+                            >
+                              <CardContent className="p-0">
+                                <div className="flex gap-4">
+                                  {/* Episode Thumbnail */}
+                                  <div className="relative w-64 h-36 shrink-0">
+                                    {episode.ImageTags?.Primary &&
+                                    serverUrl &&
+                                    episode.Id ? (
+                                      <img
+                                        src={getImageUrl(
+                                          serverUrl,
+                                          episode.Id,
+                                          "Primary"
+                                        )}
+                                        alt={episode.Name || "Episode"}
+                                        className="w-full h-full object-cover rounded-l-lg"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-l-lg">
+                                        <Play className="h-12 w-12 text-zinc-600" />
+                                      </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">
+                                      <Button
+                                        size="icon"
+                                        className="h-12 w-12 rounded-full"
+                                        onClick={() =>
+                                          navigate(`/play/${episode.Id}`)
+                                        }
+                                      >
+                                        <Play className="h-6 w-6" />
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  {/* Episode Info */}
+                                  <div className="flex-1 p-4">
+                                    <div className="flex items-start justify-between mb-2">
+                                      <div>
+                                        <h4 className="text-lg font-semibold">
+                                          {episode.IndexNumber &&
+                                            `${episode.IndexNumber}. `}
+                                          {episode.Name}
+                                        </h4>
+                                        <div className="flex items-center gap-3 text-sm text-zinc-400 mt-1">
+                                          {episode.RunTimeTicks && (
+                                            <div className="flex items-center gap-1">
+                                              <Clock className="h-3 w-3" />
+                                              {formatRuntime(
+                                                episode.RunTimeTicks
+                                              )}
+                                            </div>
+                                          )}
+                                          {episode.PremiereDate && (
+                                            <div className="flex items-center gap-1">
+                                              <Calendar className="h-3 w-3" />
+                                              {new Date(
+                                                episode.PremiereDate
+                                              ).toLocaleDateString()}
+                                            </div>
+                                          )}
+                                          {episode.CommunityRating && (
+                                            <div className="flex items-center gap-1">
+                                              <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                                              {episode.CommunityRating.toFixed(
+                                                1
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        className="bg-white text-black hover:bg-gray-200"
+                                        onClick={() =>
+                                          navigate(`/play/${episode.Id}`)
+                                        }
+                                      >
+                                        <Play className="h-4 w-4 mr-2" />
+                                        Play
+                                      </Button>
+                                    </div>
+                                    {episode.Overview && (
+                                      <p className="text-sm text-zinc-400 line-clamp-2 mt-2">
+                                        {episode.Overview}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Cast and Crew Section */}
               <div>
                 <div className="flex gap-8">
@@ -489,126 +750,6 @@ export default function ItemDetail() {
                   </div>
                 </div>
               </div>
-
-              {/* Series Episodes Section */}
-              {isSeries && seasons.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="text-2xl font-semibold mb-4">Episodes</h3>
-                  {loadingSeasons ? (
-                    <div className="animate-pulse space-y-4">
-                      <div className="h-10 w-full bg-zinc-800 rounded" />
-                      <div className="h-32 w-full bg-zinc-800 rounded" />
-                    </div>
-                  ) : (
-                    <Tabs
-                      defaultValue={seasons[0]?.Id || ""}
-                      className="w-full"
-                    >
-                      <TabsList className="w-full justify-start overflow-x-auto">
-                        {seasons.map((season) => (
-                          <TabsTrigger key={season.Id} value={season.Id || ""}>
-                            {season.Name}
-                          </TabsTrigger>
-                        ))}
-                      </TabsList>
-                      {seasons.map((season) => (
-                        <TabsContent
-                          key={season.Id}
-                          value={season.Id || ""}
-                          className="mt-4"
-                        >
-                          <div className="space-y-4">
-                            {seasonEpisodes[season.Id || ""]?.map((episode) => (
-                              <Card
-                                key={episode.Id}
-                                className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer"
-                                onClick={() => navigate(`/item/${episode.Id}`)}
-                              >
-                                <CardContent className="p-0">
-                                  <div className="flex gap-4">
-                                    {/* Episode Thumbnail */}
-                                    <div className="relative w-64 h-36 shrink-0">
-                                      {episode.ImageTags?.Primary &&
-                                      serverUrl &&
-                                      episode.Id ? (
-                                        <img
-                                          src={getImageUrl(
-                                            serverUrl,
-                                            episode.Id,
-                                            "Primary"
-                                          )}
-                                          alt={episode.Name || "Episode"}
-                                          className="w-full h-full object-cover rounded-l-lg"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-l-lg">
-                                          <Play className="h-12 w-12 text-zinc-600" />
-                                        </div>
-                                      )}
-                                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">
-                                        <Button
-                                          size="icon"
-                                          className="h-12 w-12 rounded-full"
-                                        >
-                                          <Play className="h-6 w-6" />
-                                        </Button>
-                                      </div>
-                                    </div>
-
-                                    {/* Episode Info */}
-                                    <div className="flex-1 p-4">
-                                      <div className="flex items-start justify-between mb-2">
-                                        <div>
-                                          <h4 className="text-lg font-semibold">
-                                            {episode.IndexNumber &&
-                                              `${episode.IndexNumber}. `}
-                                            {episode.Name}
-                                          </h4>
-                                          <div className="flex items-center gap-3 text-sm text-zinc-400 mt-1">
-                                            {episode.RunTimeTicks && (
-                                              <div className="flex items-center gap-1">
-                                                <Clock className="h-3 w-3" />
-                                                {formatRuntime(
-                                                  episode.RunTimeTicks
-                                                )}
-                                              </div>
-                                            )}
-                                            {episode.PremiereDate && (
-                                              <div className="flex items-center gap-1">
-                                                <Calendar className="h-3 w-3" />
-                                                {new Date(
-                                                  episode.PremiereDate
-                                                ).toLocaleDateString()}
-                                              </div>
-                                            )}
-                                            {episode.CommunityRating && (
-                                              <div className="flex items-center gap-1">
-                                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                                                {episode.CommunityRating.toFixed(
-                                                  1
-                                                )}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                      {episode.Overview && (
-                                        <p className="text-sm text-zinc-400 line-clamp-2 mt-2">
-                                          {episode.Overview}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        </TabsContent>
-                      ))}
-                    </Tabs>
-                  )}
-                </div>
-              )}
 
               {/* Episode-specific Info */}
               {isEpisode && (
