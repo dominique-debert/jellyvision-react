@@ -179,17 +179,41 @@ export default function Player() {
       if (subtitleOptions.length > 0 && serverUrl && itemId && accessToken) {
         try {
           const subtitleIndex = subtitleOptions[0].index;
-          console.log(`Loading subtitle ${subtitleIndex} for item ${itemId}`);
+          console.log(`Loading subtitle index ${subtitleIndex} for item ${itemId}`);
+          console.log(
+            `Available subtitles:`,
+            subtitleOptions.map((s) => `${s.label} (index=${s.index})`)
+          );
 
-          // Try VTT format first (more compatible)
-          const subtitleUrl = `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/vtt?api_key=${accessToken}`;
-          console.log(`Attempting subtitle URL: ${subtitleUrl}`);
+          // Try multiple endpoint formats
+          const endpointFormats = [
+            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/vtt?api_key=${accessToken}`,
+            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}/0/vtt?api_key=${accessToken}`,
+            `${serverUrl}/Videos/${itemId}/Subtitles/${subtitleIndex}.vtt?api_key=${accessToken}`,
+            `${serverUrl}/Items/${itemId}/Subtitles/${subtitleIndex}?api_key=${accessToken}`,
+          ];
 
-          const response = await fetch(subtitleUrl);
+          let response: Response | null = null;
+          let vttUrl = "";
 
-          if (!response.ok) {
+          for (const url of endpointFormats) {
+            console.log(`Trying subtitle URL: ${url}`);
+            try {
+              response = await fetch(url);
+              if (response.ok) {
+                vttUrl = url;
+                console.log(`Success with URL: ${url}`);
+                break;
+              }
+              console.log(`Failed with status ${response.status}`);
+            } catch (e) {
+              console.log(`Fetch error:`, e);
+            }
+          }
+
+          if (!response || !response.ok) {
             console.warn(
-              `Subtitle fetch failed with status ${response.status}, skipping subtitles`
+              `All subtitle endpoints failed, skipping subtitles`
             );
             return;
           }
