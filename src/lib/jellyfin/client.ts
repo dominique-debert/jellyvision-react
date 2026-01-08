@@ -567,8 +567,7 @@ export const reportPlaybackProgress = async (
   const proxiedURL = getProxiedURL(baseURL);
 
   try {
-    // Try the standard playback progress endpoint
-    const response = await fetch(
+    // Try the standard playback progress endpoint    console.log(`Reporting progress to: /Users/${userId}/PlayingItems/${itemId}/Progress`);    const response = await fetch(
       `${proxiedURL}/Users/${userId}/PlayingItems/${itemId}/Progress?api_key=${accessToken}`,
       {
         method: "POST",
@@ -582,7 +581,9 @@ export const reportPlaybackProgress = async (
       }
     );
 
-    console.log(`Progress report response: ${response.status} ${response.statusText}`);
+    console.log(
+      `Progress report response: ${response.status} ${response.statusText}`
+    );
 
     if (!response.ok) {
       console.warn(
@@ -603,7 +604,9 @@ export const reportPlaybackProgress = async (
         }
       );
 
-      console.log(`Alternate endpoint response: ${altResponse.status} ${altResponse.statusText}`);
+      console.log(
+        `Alternate endpoint response: ${altResponse.status} ${altResponse.statusText}`
+      );
 
       if (!altResponse.ok) {
         throw new Error(`Failed to report progress: ${altResponse.statusText}`);

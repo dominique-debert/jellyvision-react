@@ -543,6 +543,8 @@ export default function Player() {
         positionTicks,
         false // Don't mark as paused, just report the position
       );
+      // Wait a moment for the server to process the update
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     if (itemId) {
