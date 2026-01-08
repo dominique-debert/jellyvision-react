@@ -66,6 +66,8 @@ export default function Player() {
 
       if (result.success && result.data) {
         setItem(result.data);
+        console.log("Item loaded:", result.data.Name);
+        console.log("Item UserData:", result.data.UserData);
         const subs =
           result.data.MediaStreams?.filter(
             (s) => s.Type === "Subtitle" && s.Index !== undefined
@@ -356,7 +358,12 @@ export default function Player() {
         const resumeSeconds = item.UserData.PlaybackPositionTicks / 10000000;
         videoRef.current.currentTime = resumeSeconds;
         setCurrentTime(resumeSeconds);
-        console.log(`Resuming from ${formatTime(resumeSeconds)}`);
+        console.log(`✓ Resuming from ${formatTime(resumeSeconds)}`);
+      } else {
+        console.log(
+          "No PlaybackPositionTicks found in UserData:",
+          item.UserData
+        );
       }
       // Don't call play() here - let autoPlay attribute handle it
     }
