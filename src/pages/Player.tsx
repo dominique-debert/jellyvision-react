@@ -120,9 +120,7 @@ export default function Player() {
           const streamUrl = getStreamUrl(subtitleIndex);
           try {
             await player.load(streamUrl);
-            // Auto-play after loading
-            videoRef.current?.play();
-            setIsPlaying(true);
+            // Let autoPlay attribute handle playback
           } catch (e) {
             console.error("Error loading stream:", e);
           }
@@ -145,26 +143,30 @@ export default function Player() {
     };
   }, [item, loading, serverUrl, accessToken, itemId]);
 
-  // Update stream when subtitle selection changes
+  // Unmute video once it starts playing (for autoplay)
   useEffect(() => {
-    const updateStream = async () => {
-      if (!playerRef.current || !videoRef.current) return;
+    if (!videoRef.current) return;
 
-      try {
-        const currentTime = videoRef.current.currentTime;
-        const streamUrl = getStreamUrl(subtitleIndex);
-        await playerRef.current.load(streamUrl, currentTime);
-        videoRef.current.play();
-        setIsPlaying(true);
-      } catch (e) {
-        console.error("Error updating stream:", e);
-      }
+    const handleCanPlay = () => {
+      // Unmute after a brief delay to allow autoplay to start
+      setTimeout(() => {
+        if (videoRef.current && videoRef.current.muted) {
+          videoRef.current.muted = false;
+          videoRef.current.volume = volume;
+        }
+      }, 100);
     };
 
-    if (item && subtitleIndex !== undefined) {
-      updateStream();
-    }
-  }, [subtitleIndex]);
+    const video = videoRef.current;
+    video.addEventListener("canplay", handleCanPlay);
+
+    return () => {
+      video.removeEventListener("canplay", handleCanPlay);
+    };
+  }, [volume]);
+
+  // Note: Subtitle reloading disabled due to CORS issues when making direct requests
+  // Subtitles are loaded on initial stream with the first available subtitle
 
   const getStreamUrl = (subtitle?: number) => {
     if (!serverUrl || !itemId || !accessToken) return "";
@@ -223,16 +225,15 @@ export default function Player() {
       videoRef.current.volume = volume;
       videoRef.current.muted = volume === 0;
       setDuration(videoRef.current.duration);
-      videoRef.current.play();
-      setIsPlaying(true);
+      // Don't call play() here - let autoPlay attribute handle it
     }
   };
 
-  const handlePlay = () => {
+  const handlePlayEvent = () => {
     setIsPlaying(true);
   };
 
-  const handlePause = () => {
+  const handlePauseEvent = () => {
     setIsPlaying(false);
   };
 
@@ -294,6 +295,7 @@ export default function Player() {
   }, [volume]);
 
   const handleSubtitleSelect = (index?: number) => {
+    // Note: Subtitle reloading disabled due to CORS. Only update UI state.
     setSubtitleIndex(index);
     const nextParams = new URLSearchParams(searchParams);
     if (index === undefined) {
@@ -351,10 +353,12 @@ export default function Player() {
       <video
         ref={videoRef}
         className="w-full h-full object-contain"
+        autoPlay
+        muted
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
-        onPlay={handlePlay}
-        onPause={handlePause}
+        onPlay={handlePlayEvent}
+        onPause={handlePauseEvent}
         onClick={togglePlayPause}
       />
 

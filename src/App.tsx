@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import LibraryDetail from "./pages/LibraryDetail";
 import ItemDetail from "@/pages/ItemDetail";
 import Player from "@/pages/Player";
+import AudioPlayer from "@/pages/AudioPlayer";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -21,6 +22,7 @@ function App() {
           <Route path="/library/:libraryId" element={<LibraryDetail />} />
           <Route path="/item/:itemId" element={<ItemDetail />} />
           <Route path="/play/:itemId" element={<Player />} />
+          <Route path="/audio/:itemId" element={<AudioPlayer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
       ) : (
