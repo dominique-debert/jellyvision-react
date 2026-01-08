@@ -43,6 +43,7 @@ npm install
 **Option A: In Separate Terminals**
 
 Terminal 1 - Subtitle Proxy Server:
+
 ```bash
 cd server
 node index.js
@@ -50,12 +51,14 @@ node index.js
 ```
 
 Terminal 2 - React Frontend:
+
 ```bash
 pnpm dev
 # Listens on http://localhost:5175 (or next available port)
 ```
 
 **Option B: Concurrently (requires concurrently package)**
+
 ```bash
 npm install -D concurrently
 npm run dev:with-proxy
@@ -64,6 +67,7 @@ npm run dev:with-proxy
 ### 3. Verify Setup
 
 Check proxy health:
+
 ```bash
 curl http://localhost:3001/health
 # Response: {"status":"ok","timestamp":"..."}
@@ -74,6 +78,7 @@ curl http://localhost:3001/health
 ### When playing a video with external subtitles:
 
 1. **Player detects external subtitle:**
+
    ```
    {
      "IsExternal": true,
@@ -84,15 +89,18 @@ curl http://localhost:3001/health
    ```
 
 2. **Player constructs proxy URL:**
+
    ```
    http://localhost:3001/api/subtitles?url=http%3A%2F%2F192.168.1.100%3A8096%2FVideos%2F...&format=vtt
    ```
 
 3. **Proxy fetches from Jellyfin:**
+
    - Calls: `http://192.168.1.100:8096/Videos/{id}/Subtitles/{index}/stream?api_key=...`
    - Receives SRT content from file server
 
 4. **Proxy processes:**
+
    - Reads SRT file content
    - Adds `WEBVTT` header (SRT → VTT conversion)
    - Sets CORS headers: `Access-Control-Allow-Origin: *`
@@ -110,6 +118,7 @@ curl http://localhost:3001/health
 Default: `3001`
 
 To change:
+
 ```bash
 PORT=4000 node server/index.js
 ```
@@ -117,6 +126,7 @@ PORT=4000 node server/index.js
 ### Player Proxy URL
 
 In `src/pages/Player.tsx`, the proxy URL is hardcoded:
+
 ```typescript
 const proxyUrl = `http://localhost:3001/api/subtitles`;
 ```
@@ -128,6 +138,7 @@ To change server address/port, modify this line.
 ### Proxy server won't start
 
 1. **Check port not in use:**
+
    ```bash
    lsof -i :3001
    # Kill the process if needed: kill -9 <PID>
@@ -164,15 +175,18 @@ To change server address/port, modify this line.
 Proxy endpoint for subtitle files
 
 **Parameters:**
+
 - `url` (required): URL-encoded Jellyfin subtitle endpoint
 - `format` (optional): Output format (default: `vtt`)
 
 **Response:**
+
 - Content-Type: `text/vtt; charset=utf-8`
 - Cache-Control: `public, max-age=86400`
 - Body: VTT subtitle content
 
 **Example:**
+
 ```bash
 curl "http://localhost:3001/api/subtitles?url=http%3A%2F%2F192.168.1.100%3A8096%2FVideos%2F15038b52760ef12369c91e7bdd42a496%2FSubtitles%2F0%2Fstream%3Fapi_key%3D..."
 ```
@@ -182,8 +196,9 @@ curl "http://localhost:3001/api/subtitles?url=http%3A%2F%2F192.168.1.100%3A8096%
 Health check endpoint
 
 **Response:**
+
 ```json
-{"status":"ok","timestamp":"2026-01-08T16:35:00.000Z"}
+{ "status": "ok", "timestamp": "2026-01-08T16:35:00.000Z" }
 ```
 
 ## Files Modified
@@ -208,6 +223,7 @@ Health check endpoint
 ### Testing
 
 Try playing a video with external subtitles:
+
 1. Navigate to library
 2. Click a movie with SRT subtitles
 3. Check console for subtitle loading logs
@@ -216,6 +232,7 @@ Try playing a video with external subtitles:
 ## Support
 
 For issues or questions:
+
 1. Check server logs
 2. Check browser console (DevTools)
 3. Verify Jellyfin connection
