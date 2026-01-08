@@ -5,6 +5,7 @@ import {
   getLibraryItems,
   getImageUrl,
   getAllAlbumsInLibrary,
+  getItem,
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,20 @@ export default function LibraryDetail() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [libraryType, setLibraryType] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 60;
+
+  // Fetch library info to determine type
+  useEffect(() => {
+    const fetchLibraryInfo = async () => {
+      if (!serverUrl || !userId || !accessToken || !libraryId) return;
+      const result = await getItem(serverUrl, userId, libraryId, accessToken);
+      if (result.success && result.data) {
+        setLibraryType(result.data.CollectionType || null);
+      }
+    };
+    fetchLibraryInfo();
+  }, [serverUrl, userId, accessToken, libraryId]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -44,26 +58,44 @@ export default function LibraryDetail() {
       setLoading(true);
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
-      // Try to fetch all albums recursively for music libraries
-      const albumsResult = await getAllAlbumsInLibrary(
-        serverUrl,
-        userId,
-        libraryId,
-        accessToken,
-        startIndex,
-        ITEMS_PER_PAGE
-      );
-
-      if (albumsResult.success) {
-        setItems(albumsResult.data as MediaItem[]);
-        setTotalCount(albumsResult.totalCount);
+      // Use different fetch strategy based on library type
+      if (libraryType === "music") {
+        // For music libraries, fetch albums recursively
+        const albumsResult = await getAllAlbumsInLibrary(
+          serverUrl,
+          userId,
+          libraryId,
+          accessToken,
+          startIndex,
+          ITEMS_PER_PAGE
+        );
+        if (albumsResult.success) {
+          setItems(albumsResult.data as MediaItem[]);
+          setTotalCount(albumsResult.totalCount);
+        }
+      } else {
+        // For movies, shows, and other libraries, fetch all items
+        const itemsResult = await getLibraryItems(
+          serverUrl,
+          userId,
+          libraryId,
+          accessToken,
+          startIndex,
+          ITEMS_PER_PAGE
+        );
+        if (itemsResult.success) {
+          setItems(itemsResult.data as MediaItem[]);
+          setTotalCount(itemsResult.totalCount);
+        }
       }
 
       setLoading(false);
     };
 
-    fetchItems();
-  }, [serverUrl, userId, accessToken, libraryId, currentPage]);
+    if (libraryType !== null) {
+      fetchItems();
+    }
+  }, [serverUrl, userId, accessToken, libraryId, currentPage, libraryType]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
