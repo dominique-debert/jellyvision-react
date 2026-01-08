@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
-import { getLibraryItems, getImageUrl } from "@/lib/jellyfin/client";
+import {
+  getLibraryItems,
+  getImageUrl,
+  getAllAlbumsInLibrary,
+} from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +44,8 @@ export default function LibraryDetail() {
       setLoading(true);
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
-      const result = await getLibraryItems(
+      // Try to fetch all albums recursively for music libraries
+      const albumsResult = await getAllAlbumsInLibrary(
         serverUrl,
         userId,
         libraryId,
@@ -49,9 +54,9 @@ export default function LibraryDetail() {
         ITEMS_PER_PAGE
       );
 
-      if (result.success) {
-        setItems(result.data as MediaItem[]);
-        setTotalCount(result.totalCount);
+      if (albumsResult.success) {
+        setItems(albumsResult.data as MediaItem[]);
+        setTotalCount(albumsResult.totalCount);
       }
 
       setLoading(false);

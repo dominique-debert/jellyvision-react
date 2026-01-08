@@ -1,3 +1,96 @@
+export const getAllAlbumsInLibrary = async (
+  baseURL: string,
+  userId: string,
+  libraryId: string,
+  accessToken: string,
+  startIndex: number = 0,
+  limit: number = 60
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  totalCount: number;
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.itemsApi.getItems({
+      userId,
+      parentId: libraryId,
+      includeItemTypes: ["MusicAlbum"],
+      recursive: true,
+      sortBy: ["SortName"],
+      sortOrder: ["Ascending"],
+      startIndex,
+      limit,
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch albums");
+    }
+
+    return {
+      success: true,
+      data: response.data.Items || [],
+      totalCount: response.data.TotalRecordCount || 0,
+    };
+  } catch (error: any) {
+    console.error("Get all albums error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch albums",
+      data: [],
+      totalCount: 0,
+    };
+  }
+};
+export const getAlbumTracks = async (
+  baseURL: string,
+  userId: string,
+  albumId: string,
+  accessToken: string
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.itemsApi.getItems({
+      userId,
+      parentId: albumId,
+      includeItemTypes: ["Audio"],
+      sortBy: ["ParentIndexNumber", "IndexNumber"],
+      sortOrder: ["Ascending"],
+      recursive: false,
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch album tracks");
+    }
+
+    return {
+      success: true,
+      data: response.data.Items || [],
+    };
+  } catch (error: any) {
+    console.error("Get album tracks error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch album tracks",
+      data: [],
+    };
+  }
+};
 import { Jellyfin } from "@jellyfin/sdk";
 import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
 import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
@@ -5,6 +98,7 @@ import { getImageApi } from "@jellyfin/sdk/lib/utils/api/image-api";
 import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
 import { getItemsApi } from "@jellyfin/sdk/lib/utils/api/items-api";
 import { getUserLibraryApi } from "@jellyfin/sdk/lib/utils/api/user-library-api";
+import { getTvShowsApi } from "@jellyfin/sdk/lib/utils/api/tv-shows-api";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 // Generate a simple UUID v4
@@ -68,6 +162,7 @@ export const createJellyfinClient = ({
     userViewsApi: getUserViewsApi(api),
     itemsApi: getItemsApi(api),
     userLibraryApi: getUserLibraryApi(api),
+    tvShowsApi: getTvShowsApi(api),
     baseURL: proxiedURL,
     jellyfin,
   };
@@ -279,6 +374,87 @@ export const getItem = async (
         error.message ||
         "Failed to fetch item",
       data: null,
+    };
+  }
+};
+
+export const getSeasons = async (
+  baseURL: string,
+  userId: string,
+  seriesId: string,
+  accessToken: string
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.tvShowsApi.getSeasons({
+      userId,
+      seriesId,
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch seasons");
+    }
+
+    return {
+      success: true,
+      data: response.data.Items || [],
+    };
+  } catch (error: any) {
+    console.error("Get seasons error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch seasons",
+      data: [],
+    };
+  }
+};
+
+export const getEpisodes = async (
+  baseURL: string,
+  userId: string,
+  seasonId: string,
+  accessToken: string
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.itemsApi.getItems({
+      userId,
+      parentId: seasonId,
+      fields: ["Overview"],
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch episodes");
+    }
+
+    return {
+      success: true,
+      data: response.data.Items || [],
+    };
+  } catch (error: any) {
+    console.error("Get episodes error:", error);
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch episodes",
+      data: [],
     };
   }
 };
