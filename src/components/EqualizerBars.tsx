@@ -26,8 +26,10 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
+    console.log("[EqualizerBars] mounted, isPlaying:", isPlaying);
     const run = () => {
       const analyser = getAnalyser();
+      console.log("[EqualizerBars RAF] analyser:", !!analyser, "isPlaying:", isPlaying);
       if (analyser && isPlaying) {
         const fftSize = analyser.frequencyBinCount;
         const data = new Uint8Array(fftSize);
@@ -70,7 +72,7 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   return (
     <div
       className={
-        "flex items-end gap-0.5 h-6" + (className ? ` ${className}` : "")
+        "flex items-end gap-0.5 h-6 w-16" + (className ? ` ${className}` : "")
       }
     >
       {bands.map((_, i) => {
@@ -85,9 +87,9 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
           <div
             key={i}
             ref={(el) => {
-              if (el) barsRef.current[i] = el;
+              barsRef.current[i] = el;
             }}
-            className={`flex-1 min-w-2 rounded-sm ${colorClass}`}
+            className={`flex-1 rounded-sm ${colorClass}`}
             style={{ minHeight: "4%" }}
           />
         );
