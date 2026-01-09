@@ -135,7 +135,7 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 mt-10">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section className="mr-10">

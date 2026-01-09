@@ -211,3 +211,21 @@ main {
     0px -2px 0 rgba(0, 0, 0, 0.5), 0px 2px 0 rgba(0, 0, 0, 0.5),
     -2px 0px 0 rgba(0, 0, 0, 0.5), 2px 0px 0 rgba(0, 0, 0, 0.5);
 }
+
+@layer components {
+  /* Apply a consistent, thin primary ring to all form fields */
+  .input:focus,
+  .input:focus-visible,
+  .select:focus,
+  .select:focus-visible,
+  .textarea:focus,
+  .textarea:focus-visible,
+  input:focus,
+  input:focus-visible,
+  select:focus,
+  select:focus-visible,
+  textarea:focus,
+  textarea:focus-visible {
+    @apply ring-1 ring-primary outline-none ring-offset-0;
+  }
+}

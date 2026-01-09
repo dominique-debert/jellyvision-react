@@ -30,7 +30,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
     >
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       <div
-        className={`fixed right-0 top-10 bottom-10 overflow-auto transition-all duration-300 ${
+        className={`fixed right-0 top-0 bottom-10 overflow-auto transition-all duration-300 ${
           isCollapsed ? "left-20" : "left-64"
         }`}
       >
