@@ -231,24 +231,19 @@ export default function Player() {
         }
       }
 
-      // Load first subtitle track
+      // Load ALL subtitle tracks (not just the first one)
       if (subtitleOptions.length > 0 && serverUrl && itemId && accessToken) {
-        try {
-          const subtitleIndex = subtitleOptions[0].index;
-          const subtitleLabel = subtitleOptions[0].label;
-          console.log(
-            `Attempting to load subtitle: "${subtitleLabel}" (index=${subtitleIndex})`
-          );
+        // Get PlaybackInfo once for all subtitles
+        console.log(
+          "Fetching PlaybackInfo to get all subtitle DeliveryUrls..."
+        );
+        const baseUrl =
+          typeof window !== "undefined" &&
+          window.location.hostname === "localhost"
+            ? "/jellyfin"
+            : serverUrl;
 
-          // Get PlaybackInfo to fetch DeliveryUrl for the subtitle
-          // This is how jellyfin-web handles subtitles
-          console.log("Fetching PlaybackInfo to get subtitle DeliveryUrl...");
-          // In development (localhost), use the Vite proxy; otherwise use the server URL
-          const baseUrl =
-            typeof window !== "undefined" &&
-            window.location.hostname === "localhost"
-              ? "/jellyfin"
-              : serverUrl;
+        try {
           const playbackInfoResponse = await fetch(
             `${baseUrl}/Items/${itemId}/PlaybackInfo?api_key=${accessToken}`,
             {
@@ -272,96 +267,109 @@ export default function Player() {
           const playbackInfo = await playbackInfoResponse.json();
           const playbackMediaStreams =
             playbackInfo.MediaSources?.[0]?.MediaStreams || [];
-          const playbackSubtitle = playbackMediaStreams.find(
-            (s: Record<string, unknown>) =>
-              s.Type === "Subtitle" && s.Index === subtitleIndex
-          );
 
-          if (!playbackSubtitle?.DeliveryUrl) {
-            console.warn(
-              `No DeliveryUrl found for subtitle index ${subtitleIndex}`
-            );
-            return;
-          }
+          // Load each subtitle track
+          for (const subtitleOption of subtitleOptions) {
+            try {
+              const optionIndex = subtitleOption.index;
+              const optionLabel = subtitleOption.label;
+              console.log(
+                `Attempting to load subtitle: "${optionLabel}" (index=${optionIndex})`
+              );
 
-          // Build the full subtitle URL from DeliveryUrl
-          let subtitleUrl = "";
-          const deliveryUrl = playbackSubtitle.DeliveryUrl;
-          // Use .js format (JSON) like jellyfin-web does, not .vtt
-          const jsonDeliveryUrl = deliveryUrl.replace(".vtt", ".js");
+              const playbackSubtitle = playbackMediaStreams.find(
+                (s: Record<string, unknown>) =>
+                  s.Type === "Subtitle" && s.Index === optionIndex
+              );
 
-          if (jsonDeliveryUrl.startsWith("http")) {
-            subtitleUrl = jsonDeliveryUrl;
-          } else if (jsonDeliveryUrl.startsWith("/")) {
-            subtitleUrl = `${baseUrl}${jsonDeliveryUrl}`;
-          } else {
-            subtitleUrl = `${baseUrl}/${jsonDeliveryUrl}`;
-          }
-
-          console.log(
-            `Fetching subtitle JSON from: ${subtitleUrl.substring(0, 100)}...`
-          );
-
-          // Fetch the subtitle JSON content (not VTT)
-          const response = await fetch(subtitleUrl);
-
-          if (!response.ok) {
-            console.warn(
-              `Failed to fetch subtitle (${response.status}): ${response.statusText}`
-            );
-            return;
-          }
-
-          const subtitleData = await response.json();
-          const trackEvents = subtitleData.TrackEvents || [];
-          console.log(
-            `✓ Successfully loaded ${trackEvents.length} subtitle events`
-          );
-
-          if (trackEvents.length === 0) {
-            console.warn("No subtitle events found");
-            return;
-          }
-
-          // Remove any existing subtitle tracks to avoid duplicates
-          for (let i = videoRef.current!.textTracks.length - 1; i >= 0; i--) {
-            const track = videoRef.current!.textTracks[i];
-            if (track.kind === "subtitles") {
-              // Clear the cues from the track
-              for (let j = track.cues!.length - 1; j >= 0; j--) {
-                track.removeCue(track.cues![j]);
+              if (!playbackSubtitle?.DeliveryUrl) {
+                console.warn(
+                  `No DeliveryUrl found for subtitle index ${optionIndex}`
+                );
+                continue;
               }
+
+              // Build the full subtitle URL from DeliveryUrl
+              let subtitleUrl = "";
+              const deliveryUrl = playbackSubtitle.DeliveryUrl;
+              // Use .js format (JSON) like jellyfin-web does, not .vtt
+              const jsonDeliveryUrl = deliveryUrl.replace(".vtt", ".js");
+
+              if (jsonDeliveryUrl.startsWith("http")) {
+                subtitleUrl = jsonDeliveryUrl;
+              } else if (jsonDeliveryUrl.startsWith("/")) {
+                subtitleUrl = `${baseUrl}${jsonDeliveryUrl}`;
+              } else {
+                subtitleUrl = `${baseUrl}/${jsonDeliveryUrl}`;
+              }
+
+              console.log(
+                `Fetching subtitle JSON from: ${subtitleUrl.substring(
+                  0,
+                  100
+                )}...`
+              );
+
+              // Fetch the subtitle JSON content (not VTT)
+              const response = await fetch(subtitleUrl);
+
+              if (!response.ok) {
+                console.warn(
+                  `Failed to fetch subtitle (${response.status}): ${response.statusText}`
+                );
+                continue;
+              }
+
+              const subtitleData = await response.json();
+              const trackEvents = subtitleData.TrackEvents || [];
+              console.log(
+                `✓ Successfully loaded ${trackEvents.length} subtitle events for "${optionLabel}"`
+              );
+
+              if (trackEvents.length === 0) {
+                console.warn(`No subtitle events found for "${optionLabel}"`);
+                continue;
+              }
+
+              // Create a track element for this subtitle
+              const track = videoRef.current!.addTextTrack(
+                "subtitles",
+                optionLabel
+              );
+
+              // Add cues from TrackEvents JSON (like jellyfin-web does)
+              for (const trackEvent of trackEvents) {
+                // TrackEvents have StartPositionTicks and EndPositionTicks (in 10 million ticks per second)
+                const startSeconds = trackEvent.StartPositionTicks / 10000000;
+                const endSeconds = trackEvent.EndPositionTicks / 10000000;
+                const text = trackEvent.Text;
+
+                if (text) {
+                  const TrackCue: typeof VTTCue | typeof TextTrackCue =
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (window as any).VTTCue || (window as any).TextTrackCue;
+                  const cue = new TrackCue(startSeconds, endSeconds, text);
+                  // Position subtitles 20px higher by adjusting the line property
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (cue as any).line = -1;
+                  track.addCue(cue);
+                }
+              }
+
+              // Set initial visibility based on subtitle index
+              // Show the subtitle that matches the current subtitleIndex state, or first by default
+              track.mode = subtitleIndex === optionIndex ? "showing" : "hidden";
+            } catch (e) {
+              console.error(
+                `Error loading subtitle "${subtitleOption.label}":`,
+                e
+              );
             }
           }
 
-          // Create a track element
-          const track = videoRef.current!.addTextTrack(
-            "subtitles",
-            subtitleLabel
+          console.log(
+            `✓ Loaded all ${subtitleOptions.length} available subtitles`
           );
-
-          // Add cues from TrackEvents JSON (like jellyfin-web does)
-          for (const trackEvent of trackEvents) {
-            // TrackEvents have StartPositionTicks and EndPositionTicks (in 10 million ticks per second)
-            const startSeconds = trackEvent.StartPositionTicks / 10000000;
-            const endSeconds = trackEvent.EndPositionTicks / 10000000;
-            const text = trackEvent.Text;
-
-            if (text) {
-              const TrackCue: typeof VTTCue | typeof TextTrackCue =
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (window as any).VTTCue || (window as any).TextTrackCue;
-              const cue = new TrackCue(startSeconds, endSeconds, text);
-              // Position subtitles 20px higher by adjusting the line property
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (cue as any).line = -1;
-              track.addCue(cue);
-            }
-          }
-
-          // Show the track
-          track.mode = "showing";
-          console.log("✓ Subtitles loaded and visible");
         } catch (e) {
           console.error("Error loading subtitles:", e);
         }
@@ -564,6 +572,9 @@ export default function Player() {
   ]);
 
   const handleSubtitleSelect = (index?: number) => {
+    // Save current playback position
+    const savedTime = videoRef.current?.currentTime || 0;
+
     // Note: Subtitle reloading disabled due to CORS. Only update UI state.
     setSubtitleIndex(index);
 
@@ -574,15 +585,37 @@ export default function Player() {
         for (let i = 0; i < videoRef.current.textTracks.length; i++) {
           videoRef.current.textTracks[i].mode = "hidden";
         }
-      } else if (index < videoRef.current.textTracks.length) {
+      } else {
+        // Find and show the subtitle track that matches the selected index
+        let selectedTrackIndex = 0;
+
+        // Map subtitle options to their track positions
+        for (let i = 0; i < videoRef.current.textTracks.length; i++) {
+          const track = videoRef.current.textTracks[i];
+
+          // Find the subtitle option that matches this track's label
+          const matchingOption = subtitleOptions.find(
+            (opt) => opt.label === track.label
+          );
+
+          if (matchingOption?.index === index) {
+            selectedTrackIndex = i;
+            break;
+          }
+        }
+
         // Hide all except selected
         for (let i = 0; i < videoRef.current.textTracks.length; i++) {
           videoRef.current.textTracks[i].mode =
-            i === index ? "showing" : "hidden";
+            i === selectedTrackIndex ? "showing" : "hidden";
         }
       }
+
+      // Restore playback position
+      videoRef.current.currentTime = savedTime;
     }
 
+    // Update URL params without triggering a re-render/reset
     const nextParams = new URLSearchParams(searchParams);
     if (index === undefined) {
       nextParams.delete("subtitle");
