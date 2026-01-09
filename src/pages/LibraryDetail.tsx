@@ -16,6 +16,7 @@ import {
   ChevronsRight,
   ChevronLeft,
   ChevronRight,
+  Play,
 } from "lucide-react";
 
 interface MediaItem {
@@ -199,71 +200,77 @@ export default function LibraryDetail() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {items.map((item) => (
-                <Card
+                <div
                   key={item.Id}
-                  className="cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                  className="cursor-pointer group"
                   onClick={() => navigate(`/item/${item.Id}`)}
                 >
-                  <CardContent className="p-0">
-                    <div className="relative">
-                      <div
-                        className={`${
-                          libraryType === "music"
-                            ? "aspect-square"
-                            : "aspect-2/3"
-                        } bg-muted rounded overflow-hidden`}
-                      >
-                        {item.Id && item.ImageTags?.["Primary"] && serverUrl ? (
-                          <img
-                            src={getImageUrl(
-                              serverUrl,
-                              item.Id,
-                              "Primary",
-                              400,
-                              600,
-                              85
-                            )}
-                            alt={item.Name || "Media item"}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-4xl">
-                            {item.Type === "Movie"
-                              ? "🎬"
-                              : item.Type === "Series"
-                              ? "📺"
-                              : item.Type === "Audio"
-                              ? "🎵"
-                              : "📁"}
-                          </div>
-                        )}
-                      </div>
-                      {item.Type === "Series" && item.ChildCount && (
-                        <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full font-medium">
-                          {item.ChildCount}{" "}
-                          {item.ChildCount === 1 ? "Season" : "Seasons"}
+                  <div className="relative">
+                    <div
+                      className={`${
+                        libraryType === "music" ? "aspect-square" : "aspect-2/3"
+                      } bg-muted rounded-lg overflow-hidden`}
+                    >
+                      {item.Id && item.ImageTags?.["Primary"] && serverUrl ? (
+                        <img
+                          src={getImageUrl(
+                            serverUrl,
+                            item.Id,
+                            "Primary",
+                            400,
+                            600,
+                            85
+                          )}
+                          alt={item.Name || "Media item"}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl">
+                          {item.Type === "Movie"
+                            ? "🎬"
+                            : item.Type === "Series"
+                            ? "📺"
+                            : item.Type === "Audio"
+                            ? "🎵"
+                            : "📁"}
                         </div>
                       )}
+                      {/* Hover overlay with play button centered and title at bottom */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between rounded-lg p-4">
+                        <div></div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/play/${item.Id}`);
+                          }}
+                          className="h-16 w-16 rounded-full bg-primary hover:bg-primary/80 flex items-center justify-center transition-colors"
+                        >
+                          <Play className="h-8 w-8 text-primary-content fill-primary-content" />
+                        </button>
+                        <div className="w-full">
+                          <h3 className="font-semibold text-sm text-white text-center line-clamp-2">
+                            {item.Name}
+                          </h3>
+                          {item.Type === "Series" && item.ChildCount && (
+                            <p className="text-xs text-white/90 font-medium mt-1 text-center">
+                              {item.ChildCount}{" "}
+                              {item.ChildCount === 1 ? "Season" : "Seasons"}
+                            </p>
+                          )}
+                          {item.ProductionYear && (
+                            <p className="text-xs text-white/80 mt-1 text-center">
+                              {item.ProductionYear}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-2">
-                      <h3
-                        className="text-sm font-medium truncate"
-                        title={item.Name ?? undefined}
-                      >
-                        {item.Name}
-                      </h3>
-                      {item.ProductionYear && (
-                        <p className="text-xs text-muted-foreground">
-                          {item.ProductionYear}
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           )}

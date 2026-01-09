@@ -60,7 +60,7 @@ export function ItemCard({
       className="cursor-pointer group"
       onClick={onPlayClick ? handlePlayClick : handleCardClick}
     >
-      <div className="relative mb-2">
+      <div className="relative">
         <div
           className={`relative ${
             aspectRatio === "square" ? "aspect-square" : "aspect-2/3"
@@ -78,9 +78,34 @@ export function ItemCard({
               No Image
             </div>
           )}
-          {/* Play icon overlay on hover */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-            <Play className="h-12 w-12 text-white fill-white" />
+          {/* Hover overlay with play button centered and title at bottom */}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between rounded-lg p-4">
+            <div></div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePlayClick(e);
+              }}
+              className="h-16 w-16 rounded-full bg-primary hover:bg-primary/80 flex items-center justify-center transition-colors"
+            >
+              <Play className="h-8 w-8 text-primary-content fill-primary-content" />
+            </button>
+            <div className="w-full">
+              <h3 className="font-semibold text-sm text-white text-center line-clamp-2">
+                {item.Name}
+              </h3>
+              {item.Type === "Series" && item.ChildCount && (
+                <p className="text-xs text-white/90 font-medium mt-1 text-center">
+                  {item.ChildCount}{" "}
+                  {item.ChildCount === 1 ? "Season" : "Seasons"}
+                </p>
+              )}
+              {item.Type !== "Series" && getSubtitle() && (
+                <p className="text-xs text-white/80 mt-1 text-center">
+                  {getSubtitle()}
+                </p>
+              )}
+            </div>
           </div>
           {/* Progress bar for resume items */}
           {item.UserData?.PlayedPercentage &&
@@ -96,15 +121,6 @@ export function ItemCard({
         {/* Series badges - positioned outside overflow container */}
         {getSeriesBadges()}
       </div>
-      <h3 className="font-medium text-sm truncate">{item.Name}</h3>
-      {item.Type === "Series" && item.ChildCount && (
-        <p className="text-xs text-amber-500 font-medium">
-          {item.ChildCount} {item.ChildCount === 1 ? "Season" : "Seasons"}
-        </p>
-      )}
-      {item.Type !== "Series" && (
-        <p className="text-xs text-zinc-400 truncate">{getSubtitle()}</p>
-      )}
     </div>
   );
 }
