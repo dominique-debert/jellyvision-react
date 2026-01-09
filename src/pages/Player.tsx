@@ -742,7 +742,11 @@ export default function Player() {
               step={0.1}
               value={currentTime}
               onChange={(e) => handleSeek([Number(e.target.value)])}
-              className="flex-1 h-2 rounded-full bg-white/20 accent-emerald-400"
+              className="flex-1 h-2 rounded-full bg-white/20"
+              style={{
+                accentColor: 'transparent',
+                background: `linear-gradient(to right, #a855f7 0%, #3b82f6 ${(currentTime / (duration || 1)) * 50}%, #06b6d4 ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) ${(currentTime / (duration || 1)) * 100}%)`
+              }}
             />
             <span className="text-white font-medium min-w-20">
               {formatTime(duration)}

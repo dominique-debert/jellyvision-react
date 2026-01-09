@@ -72,7 +72,11 @@ export function FloatingAudioBar({
             step={0.1}
             value={currentTime}
             onChange={(e) => onSeek(Number(e.target.value))}
-            className="h-1 flex-1 rounded-full bg-gray-700 accent-amber-500"
+            className="h-1 flex-1 rounded-full bg-gray-700"
+            style={{
+              accentColor: 'transparent',
+              background: `linear-gradient(to right, #a855f7 0%, #3b82f6 ${(currentTime / (duration || 1)) * 50}%, #06b6d4 ${(currentTime / (duration || 1)) * 100}%, rgb(55,65,81) ${(currentTime / (duration || 1)) * 100}%)`
+            }}
           />
 
           <span className="text-xs text-gray-400 w-10">
