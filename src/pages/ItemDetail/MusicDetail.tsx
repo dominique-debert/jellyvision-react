@@ -90,23 +90,32 @@ export default function MusicDetail() {
         console.log("[MusicDetail] Early return: no AudioContext");
         return;
       }
-      console.log("[MusicDetail] Creating analyser...");
-      const ctx = new AudioCtxCtor();
-      const source = ctx.createMediaElementSource(audioRef.current);
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.85;
-      source.connect(analyser);
-      // Ensure the graph processes by connecting analyser to a silent gain -> destination
-      const silent = ctx.createGain();
-      silent.gain.value = 0;
-      analyser.connect(silent);
-      silent.connect(ctx.destination);
-      audioContextRef.current = ctx;
-      audioSourceRef.current = source;
-      analyserRef.current = analyser;
-      console.log("[MusicDetail] Analyser created successfully");
-    }, 0);
+      try {
+        console.log("[MusicDetail] Creating analyser...");
+        const ctx = new AudioCtxCtor();
+        console.log("[MusicDetail] AudioContext created:", ctx.state);
+        const source = ctx.createMediaElementSource(audioRef.current);
+        console.log("[MusicDetail] MediaElementAudioSourceNode created");
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.85;
+        source.connect(analyser);
+        // Ensure the graph processes by connecting analyser to a silent gain -> destination
+        const silent = ctx.createGain();
+        silent.gain.value = 0;
+        analyser.connect(silent);
+        silent.connect(ctx.destination);
+        audioContextRef.current = ctx;
+        audioSourceRef.current = source;
+        analyserRef.current = analyser;
+        console.log(
+          "[MusicDetail] Analyser created successfully, frequencyBinCount:",
+          analyser.frequencyBinCount
+        );
+      } catch (error) {
+        console.error("[MusicDetail] Error creating analyser:", error);
+      }
+    }, 100);
 
     return () => clearTimeout(timer);
   }, []);

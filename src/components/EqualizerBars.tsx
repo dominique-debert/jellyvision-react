@@ -27,9 +27,9 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
 
   useEffect(() => {
     console.log("[EqualizerBars] mounted, isPlaying:", isPlaying);
+    
     const run = () => {
       const analyser = getAnalyser();
-      console.log("[EqualizerBars RAF] analyser:", !!analyser, "isPlaying:", isPlaying);
       if (analyser && isPlaying) {
         const fftSize = analyser.frequencyBinCount;
         const data = new Uint8Array(fftSize);
