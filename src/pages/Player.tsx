@@ -19,19 +19,6 @@ import {
   ArrowLeft,
   Volume2,
 } from "lucide-react";
-import Hls from "hls.js";
-// Import muxjs and assign to window for shaka-player
-// if (typeof window !== "undefined") {
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   const w = window as any;
-//   if (!w.muxjs) {
-//     // Dynamically import mux.js if not already loaded
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     import("mux.js" as any).then((m: any) => {
-//       w.muxjs = m.default || m;
-//     });
-//   }
-// }
 
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
@@ -110,10 +97,22 @@ export default function Player() {
   const getStreamUrl = useCallback(
     (subtitle?: number) => {
       if (!serverUrl || !itemId || !accessToken) return "";
-      // Use Jellyfin's stream endpoint which handles transcoding automatically
+      // Use Jellyfin's stream endpoint with transcoding parameters
       const params = new URLSearchParams();
       params.set("api_key", accessToken);
       params.set("PlaySessionId", playSessionIdRef.current);
+      // Force transcoding to web-compatible formats
+      params.set("VideoCodec", "h264");
+      params.set("AudioCodec", "aac,mp3");
+      params.set("AudioStreamIndex", "1");
+      params.set("VideoStreamIndex", "0");
+      params.set("Level", "41");
+      params.set("MaxFramerate", "30");
+      params.set("MaxWidth", "1920");
+      params.set("MaxHeight", "1080");
+      params.set("VideoBitrate", "8000000");
+      params.set("AudioBitrate", "320000");
+      params.set("TranscodeReasons", "VideoCodecNotSupported");
       if (subtitle !== undefined) {
         params.set("SubtitleStreamIndex", String(subtitle));
       }
