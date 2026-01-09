@@ -1,4 +1,10 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
@@ -67,8 +73,13 @@ export default function MusicDetail() {
   }, [serverUrl, userId, accessToken, itemId]);
 
   // Initialize Web Audio analyser for visualizer (once)
-  useEffect(() => {
-    console.log("[MusicDetail] Analyser init: audioRef.current =", !!audioRef.current, "analyserRef.current =", !!analyserRef.current);
+  useLayoutEffect(() => {
+    console.log(
+      "[MusicDetail] Analyser init: audioRef.current =",
+      !!audioRef.current,
+      "analyserRef.current =",
+      !!analyserRef.current
+    );
     if (!audioRef.current) {
       console.log("[MusicDetail] Early return: no audioRef");
       return;
