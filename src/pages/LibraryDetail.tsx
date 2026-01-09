@@ -242,14 +242,6 @@ export default function LibraryDetail() {
                           </div>
                         )}
                       </div>
-                      {item.Type === "Series" && item.RecursiveItemCount && (
-                        <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full font-medium">
-                          {item.RecursiveItemCount}{" "}
-                          {item.RecursiveItemCount === 1
-                            ? "Episode"
-                            : "Episodes"}
-                        </div>
-                      )}
                       {item.Type === "Series" && item.ChildCount && (
                         <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full font-medium">
                           {item.ChildCount}{" "}
