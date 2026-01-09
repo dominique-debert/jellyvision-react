@@ -446,7 +446,6 @@ export default function MusicDetail() {
         {/* Hidden Audio Element */}
         <audio
           ref={audioRef}
-          crossOrigin="anonymous"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onPlay={handlePlay}
