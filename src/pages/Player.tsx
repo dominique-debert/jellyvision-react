@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
@@ -19,16 +19,20 @@ import {
   ArrowLeft,
   Volume2,
 } from "lucide-react";
-import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-import * as shaka from "shaka-player";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const muxjs = require("mux.js") as any;
-
-// Make mux.js available globally for shaka-player
+// Import muxjs and assign to window for shaka-player
 if (typeof window !== "undefined") {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).muxjs = muxjs;
+  const w = window as any;
+  if (!w.muxjs) {
+    // Dynamically import mux.js if not already loaded
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    import("mux.js" as any).then((m: any) => {
+      w.muxjs = m.default || m;
+    });
+  }
 }
+
+import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function Player() {
   const { itemId } = useParams<{ itemId: string }>();
@@ -101,6 +105,24 @@ export default function Player() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId, searchParams, setSearchParams]);
 
+  // getStreamUrl wrapped in useCallback to avoid redeclaration and dependency issues
+  const getStreamUrl = useCallback(
+    (subtitle?: number) => {
+      if (!serverUrl || !itemId || !accessToken) return "";
+      // Use direct streaming with optional subtitle parameter
+      const params = new URLSearchParams();
+      params.set("static", "true");
+      params.set("api_key", accessToken);
+      // Add PlaySessionId to the stream URL so it's associated with the playback session
+      params.set("PlaySessionId", playSessionIdRef.current);
+      if (subtitle !== undefined) {
+        params.set("SubtitleStreamIndex", String(subtitle));
+      }
+      return `${serverUrl}/Videos/${itemId}/stream?${params.toString()}`;
+    },
+    [serverUrl, itemId, accessToken]
+  );
+
   // Initialize video player with stream
   useEffect(() => {
     const initializePlayer = async () => {
@@ -121,7 +143,7 @@ export default function Player() {
     if (item && !loading) {
       initializePlayer();
     }
-  }, [item, loading, itemId, serverUrl, accessToken]);
+  }, [item, loading, itemId, serverUrl, accessToken, getStreamUrl]);
 
   // Unmute video once it starts playing (for autoplay)
   useEffect(() => {
@@ -144,20 +166,6 @@ export default function Player() {
       video.removeEventListener("canplay", handleCanPlay);
     };
   }, [volume]);
-
-  const getStreamUrl = (subtitle?: number) => {
-    if (!serverUrl || !itemId || !accessToken) return "";
-    // Use direct streaming with optional subtitle parameter
-    const params = new URLSearchParams();
-    params.set("static", "true");
-    params.set("api_key", accessToken);
-    // Add PlaySessionId to the stream URL so it's associated with the playback session
-    params.set("PlaySessionId", playSessionIdRef.current);
-    if (subtitle !== undefined) {
-      params.set("SubtitleStreamIndex", String(subtitle));
-    }
-    return `${serverUrl}/Videos/${itemId}/stream?${params.toString()}`;
-  };
 
   // Load subtitles by fetching track events and creating VTT cues (Jellyfin approach)
   useEffect(() => {
@@ -297,12 +305,13 @@ export default function Player() {
             const text = trackEvent.Text;
 
             if (text) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const TrackCue =
+              const TrackCue: typeof VTTCue | typeof TextTrackCue =
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (window as any).VTTCue || (window as any).TextTrackCue;
               const cue = new TrackCue(startSeconds, endSeconds, text);
               // Position subtitles 20px higher by adjusting the line property
-              cue.line = -1;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (cue as any).line = -1;
               track.addCue(cue);
             }
           }

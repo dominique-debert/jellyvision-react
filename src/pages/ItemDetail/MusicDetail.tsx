@@ -81,6 +81,10 @@ export default function MusicDetail() {
     };
   }, [serverUrl, userId, accessToken, itemId, item]);
 
+  const handlePlayTrack = (trackId: string) => {
+    navigate(`/audio/${trackId}`);
+  };
+
   if (loading) return <LoadingState />;
   if (!item) return <NotFoundState />;
 
@@ -108,17 +112,32 @@ export default function MusicDetail() {
           <div className="flex gap-8">
             {/* Left Column - Album Art */}
             <div className="w-80 shrink-0">
-              {primaryImageUrl ? (
-                <img
-                  src={primaryImageUrl}
-                  alt={item.Name || "Album"}
-                  className="w-full rounded-lg shadow-2xl"
-                />
-              ) : (
-                <div className="w-full aspect-2/3 bg-zinc-800 rounded-lg flex items-center justify-center">
-                  <span className="text-zinc-600">No Image</span>
-                </div>
-              )}
+              <div className="relative group">
+                {primaryImageUrl ? (
+                  <img
+                    src={primaryImageUrl}
+                    alt={item.Name || "Album"}
+                    className="w-full rounded-lg shadow-2xl"
+                  />
+                ) : (
+                  <div className="w-full aspect-2/3 bg-zinc-800 rounded-lg flex items-center justify-center">
+                    <span className="text-zinc-600">No Image</span>
+                  </div>
+                )}
+                {/* Play Overlay */}
+                {albumTracks.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (item.Id) handlePlayTrack(item.Id);
+                    }}
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <div className="bg-amber-500 hover:bg-amber-600 rounded-full p-4">
+                      <Play className="h-8 w-8 text-white fill-white" />
+                    </div>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Right Column - Details */}
@@ -184,7 +203,7 @@ export default function MusicDetail() {
                                 key={track.Id}
                                 className="group hover:bg-zinc-800 rounded cursor-pointer"
                                 onDoubleClick={() => {
-                                  /* TODO: trigger play */
+                                  if (track.Id) handlePlayTrack(track.Id);
                                 }}
                               >
                                 <td className="text-center font-mono">
@@ -197,7 +216,7 @@ export default function MusicDetail() {
                                     className="opacity-0 group-hover:opacity-100 transition-opacity"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      /* TODO: trigger play */
+                                      if (track.Id) handlePlayTrack(track.Id);
                                     }}
                                   >
                                     <Play className="h-5 w-5" />

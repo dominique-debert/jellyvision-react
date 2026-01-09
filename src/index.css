@@ -1,5 +1,9 @@
-@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap");
 
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: nord --default, abyss --prefersdark, cupcake, dracula;
+}
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
@@ -8,12 +12,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-body {
-  font-family: "Inter", sans-serif sans-serif;
+  font-family: "Mulish", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 1.1rem;
 }
 
 @theme inline {
