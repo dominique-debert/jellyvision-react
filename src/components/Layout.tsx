@@ -22,7 +22,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
         background: backdropUrl
           ? `url(${backdropUrl}) calc(50% + ${sidebarWidth}px)/cover no-repeat fixed, ${defaultGradient}`
           : defaultGradient,
-        backgroundBlendMode: backdropUrl ? "overlay" : "normal",
+        backgroundBlendMode: backdropUrl ? "multiply" : "normal",
         backgroundPosition: backdropUrl
           ? `calc(50% + ${sidebarWidth}px) center`
           : undefined,
