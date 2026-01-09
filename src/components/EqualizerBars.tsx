@@ -70,7 +70,7 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   return (
     <div
       className={
-        "flex items-end gap-0.5 h-6 w-12" + (className ? ` ${className}` : "")
+        "flex items-end gap-0.5 h-6" + (className ? ` ${className}` : "")
       }
     >
       {bands.map((_, i) => {
@@ -87,7 +87,8 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
             ref={(el) => {
               if (el) barsRef.current[i] = el;
             }}
-            className={`h-2 w-2 rounded-sm ${colorClass}`}
+            className={`flex-1 min-w-2 rounded-sm ${colorClass}`}
+            style={{ minHeight: "4%" }}
           />
         );
       })}
