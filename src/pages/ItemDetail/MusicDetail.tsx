@@ -228,6 +228,11 @@ export default function MusicDetail() {
 
   const handlePlay = () => {
     setIsPlaying(true);
+    // Ensure Web Audio context is running for analyser data
+    const ctx = audioContextRef.current;
+    if (ctx && ctx.state === "suspended") {
+      ctx.resume().catch(() => {});
+    }
   };
 
   const handlePause = () => {
@@ -441,6 +446,7 @@ export default function MusicDetail() {
         {/* Hidden Audio Element */}
         <audio
           ref={audioRef}
+          crossOrigin="anonymous"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onPlay={handlePlay}
