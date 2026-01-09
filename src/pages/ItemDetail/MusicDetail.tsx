@@ -71,7 +71,11 @@ export default function MusicDetail() {
   useEffect(() => {
     if (!currentTrackId || !audioRef.current) {
       console.log(
-        "[MusicDetail] Skip analyser init: no currentTrackId or audioRef"
+        "[MusicDetail] Skip analyser init: no currentTrackId or audioRef",
+        "currentTrackId:",
+        currentTrackId,
+        "audioRef.current:",
+        !!audioRef.current
       );
       return;
     }
@@ -82,52 +86,60 @@ export default function MusicDetail() {
       return;
     }
 
-    console.log("[MusicDetail] Initializing analyser for first time...");
+    console.log(
+      "[MusicDetail] Initializing analyser for first time, audio.src:",
+      audioRef.current.src
+    );
 
-    const initAnalyser = () => {
-      console.log(
-        "[MusicDetail] Analyser init: audioRef.current =",
-        !!audioRef.current,
-        "analyserRef.current =",
-        !!analyserRef.current
-      );
-      if (!audioRef.current) {
-        console.log("[MusicDetail] Early return: no audioRef");
-        return;
-      }
-      const w = window as Window &
-        typeof globalThis & { webkitAudioContext?: typeof AudioContext };
-      const AudioCtxCtor = w.AudioContext || w.webkitAudioContext;
-      if (!AudioCtxCtor) {
-        console.log("[MusicDetail] Early return: no AudioContext");
-        return;
-      }
-      try {
-        console.log("[MusicDetail] Creating analyser...");
-        const ctx = new AudioCtxCtor();
-        console.log("[MusicDetail] AudioContext created:", ctx.state);
-        const source = ctx.createMediaElementSource(audioRef.current!);
-        console.log("[MusicDetail] MediaElementAudioSourceNode created");
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 2048;
-        analyser.smoothingTimeConstant = 0.85;
-        source.connect(analyser);
-        // Connect to destination to ensure audio plays
-        analyser.connect(ctx.destination);
-        audioContextRef.current = ctx;
-        audioSourceRef.current = source;
-        analyserRef.current = analyser;
-        analyserInitializedRef.current = true;
+    // Small delay to ensure audio element is fully ready
+    const timer = setTimeout(() => {
+      const initAnalyser = () => {
         console.log(
-          "[MusicDetail] Analyser created successfully, frequencyBinCount:",
-          analyser.frequencyBinCount
+          "[MusicDetail] Analyser init: audioRef.current =",
+          !!audioRef.current,
+          "analyserRef.current =",
+          !!analyserRef.current
         );
-      } catch (error) {
-        console.error("[MusicDetail] Error creating analyser:", error);
-      }
-    };
+        if (!audioRef.current) {
+          console.log("[MusicDetail] Early return: no audioRef");
+          return;
+        }
+        const w = window as Window &
+          typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+        const AudioCtxCtor = w.AudioContext || w.webkitAudioContext;
+        if (!AudioCtxCtor) {
+          console.log("[MusicDetail] Early return: no AudioContext");
+          return;
+        }
+        try {
+          console.log("[MusicDetail] Creating analyser...");
+          const ctx = new AudioCtxCtor();
+          console.log("[MusicDetail] AudioContext created:", ctx.state);
+          const source = ctx.createMediaElementSource(audioRef.current!);
+          console.log("[MusicDetail] MediaElementAudioSourceNode created");
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 2048;
+          analyser.smoothingTimeConstant = 0.85;
+          source.connect(analyser);
+          // Connect to destination to ensure audio plays
+          analyser.connect(ctx.destination);
+          audioContextRef.current = ctx;
+          audioSourceRef.current = source;
+          analyserRef.current = analyser;
+          analyserInitializedRef.current = true;
+          console.log(
+            "[MusicDetail] Analyser created successfully, frequencyBinCount:",
+            analyser.frequencyBinCount
+          );
+        } catch (error) {
+          console.error("[MusicDetail] Error creating analyser:", error);
+        }
+      };
 
-    initAnalyser();
+      initAnalyser();
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [currentTrackId]);
 
   // Cleanup on unmount
