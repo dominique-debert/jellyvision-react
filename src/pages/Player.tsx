@@ -350,9 +350,9 @@ export default function Player() {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (window as any).VTTCue || (window as any).TextTrackCue;
                   const cue = new TrackCue(startSeconds, endSeconds, text);
-                  // Position subtitles 20px higher by adjusting the line property
+                  // Position subtitles higher by adjusting the line property
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (cue as any).line = -1;
+                  (cue as any).line = -3;
                   track.addCue(cue);
                 }
               }
