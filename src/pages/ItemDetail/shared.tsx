@@ -27,11 +27,13 @@ export const formatRuntime = (ticks?: number) => {
 
 export const getPrimaryImageUrl = (
   serverUrl: string | null,
-  item: BaseItemDto | null
+  item: BaseItemDto | null,
+  maxWidth?: number,
+  maxHeight?: number
 ) => {
   if (!serverUrl || !item?.Id) return undefined;
   if (item.ImageTags?.Primary) {
-    return getImageUrl(serverUrl, item.Id, "Primary");
+    return getImageUrl(serverUrl, item.Id, "Primary", maxWidth, maxHeight, 90);
   }
   return undefined;
 };
@@ -230,9 +232,17 @@ export const CastAndCrewSection = ({
                 .map((actor) => (
                   <div key={actor.Id} className="flex flex-col items-center">
                     <img
-                      src={getImageUrl(serverUrl!, actor.Id!, "Primary")}
+                      src={getImageUrl(
+                        serverUrl!,
+                        actor.Id!,
+                        "Primary",
+                        160,
+                        160,
+                        85
+                      )}
                       alt={actor.Name || "Actor"}
                       className="w-20 h-20 rounded-full object-cover mb-2"
+                      loading="lazy"
                     />
                     <p className="text-white text-xs font-medium text-center line-clamp-2">
                       {actor.Name}

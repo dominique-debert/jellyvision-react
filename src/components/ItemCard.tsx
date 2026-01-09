@@ -21,7 +21,10 @@ export function ItemCard({
   const getPrimaryImageUrl = () => {
     if (!serverUrl || !item?.Id) return undefined;
     if (item.ImageTags?.Primary) {
-      return getImageUrl(serverUrl, item.Id, "Primary");
+      // Request 400x600 thumbnail for 2/3 aspect ratio, 600x600 for square
+      const width = aspectRatio === "square" ? 600 : 400;
+      const height = aspectRatio === "square" ? 600 : 600;
+      return getImageUrl(serverUrl, item.Id, "Primary", width, height, 85);
     }
     return undefined;
   };
@@ -68,6 +71,7 @@ export function ItemCard({
               src={primaryImageUrl}
               alt={item.Name || "Item"}
               className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-zinc-600">

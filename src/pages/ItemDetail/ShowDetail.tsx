@@ -215,10 +215,14 @@ export default function ShowDetail() {
                             src={getImageUrl(
                               serverUrl,
                               nextUpEpisode.Id!,
-                              "Primary"
+                              "Primary",
+                              640,
+                              360,
+                              85
                             )}
                             alt={nextUpEpisode.Name || "Next up"}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
@@ -287,10 +291,14 @@ export default function ShowDetail() {
                                     src={getImageUrl(
                                       serverUrl,
                                       season.Id,
-                                      "Primary"
+                                      "Primary",
+                                      400,
+                                      600,
+                                      85
                                     )}
                                     alt={season.Name || "Season"}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-zinc-500">
@@ -349,10 +357,14 @@ export default function ShowDetail() {
                                         src={getImageUrl(
                                           serverUrl,
                                           episode.Id,
-                                          "Primary"
+                                          "Primary",
+                                          512,
+                                          288,
+                                          85
                                         )}
                                         alt={episode.Name || "Episode"}
                                         className="w-full h-full object-cover rounded-l-lg"
+                                        loading="lazy"
                                       />
                                     ) : (
                                       <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-l-lg">

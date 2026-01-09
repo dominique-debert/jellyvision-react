@@ -337,10 +337,20 @@ export const getUserImageUrl = (
 export const getImageUrl = (
   baseURL: string,
   itemId: string,
-  imageType: string = "Primary"
+  imageType: string = "Primary",
+  maxWidth?: number,
+  maxHeight?: number,
+  quality: number = 90
 ) => {
   const proxiedURL = getProxiedURL(baseURL);
-  return `${proxiedURL}/Items/${itemId}/Images/${imageType}`;
+  const params = new URLSearchParams();
+  if (maxWidth) params.set("maxWidth", maxWidth.toString());
+  if (maxHeight) params.set("maxHeight", maxHeight.toString());
+  params.set("quality", quality.toString());
+  const queryString = params.toString();
+  return `${proxiedURL}/Items/${itemId}/Images/${imageType}${
+    queryString ? `?${queryString}` : ""
+  }`;
 };
 
 export const getUserViews = async (

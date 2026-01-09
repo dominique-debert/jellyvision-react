@@ -73,9 +73,17 @@ export function LibraryList() {
             {library.Id && library.ImageTags?.["Primary"] && serverUrl ? (
               <div className="aspect-video bg-muted rounded mb-4 overflow-hidden">
                 <img
-                  src={getImageUrl(serverUrl, library.Id, "Primary")}
+                  src={getImageUrl(
+                    serverUrl,
+                    library.Id,
+                    "Primary",
+                    800,
+                    450,
+                    85
+                  )}
                   alt={library.Name || "Library"}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}

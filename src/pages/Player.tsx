@@ -154,7 +154,7 @@ export default function Player() {
         console.log("HLS manifest parsed, ready to play");
       });
 
-      hls.on(Hls.Events.ERROR, (event, data) => {
+      hls.on(Hls.Events.ERROR, (_, data) => {
         console.error("HLS error:", data);
         if (data.fatal) {
           switch (data.type) {
@@ -650,7 +650,7 @@ export default function Player() {
 
   const posterUrl =
     item.Id && serverUrl
-      ? getImageUrl(serverUrl, item.Id, "Primary")
+      ? getImageUrl(serverUrl, item.Id, "Primary", 800, 1200, 90)
       : undefined;
 
   return (

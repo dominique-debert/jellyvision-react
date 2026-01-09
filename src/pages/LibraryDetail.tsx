@@ -215,9 +215,17 @@ export default function LibraryDetail() {
                       >
                         {item.Id && item.ImageTags?.["Primary"] && serverUrl ? (
                           <img
-                            src={getImageUrl(serverUrl, item.Id, "Primary")}
+                            src={getImageUrl(
+                              serverUrl,
+                              item.Id,
+                              "Primary",
+                              400,
+                              600,
+                              85
+                            )}
                             alt={item.Name || "Media item"}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
                             }}
