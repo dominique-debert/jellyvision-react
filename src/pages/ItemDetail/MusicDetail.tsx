@@ -66,9 +66,16 @@ export default function MusicDetail() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId]);
 
-  // Initialize Web Audio analyser for visualizer (once on mount)
+  // Initialize Web Audio analyser when a track starts playing
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (!currentTrackId || !audioRef.current) {
+      console.log("[MusicDetail] Skip analyser init: no currentTrackId or audioRef");
+      return;
+    }
+
+    console.log("[MusicDetail] Track changed, initializing analyser...");
+    
+    const initAnalyser = () => {
       console.log(
         "[MusicDetail] Analyser init: audioRef.current =",
         !!audioRef.current,
@@ -94,7 +101,7 @@ export default function MusicDetail() {
         console.log("[MusicDetail] Creating analyser...");
         const ctx = new AudioCtxCtor();
         console.log("[MusicDetail] AudioContext created:", ctx.state);
-        const source = ctx.createMediaElementSource(audioRef.current);
+        const source = ctx.createMediaElementSource(audioRef.current!);
         console.log("[MusicDetail] MediaElementAudioSourceNode created");
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 2048;
@@ -115,10 +122,12 @@ export default function MusicDetail() {
       } catch (error) {
         console.error("[MusicDetail] Error creating analyser:", error);
       }
-    }, 100);
+    };
 
-    return () => clearTimeout(timer);
-  }, []);
+    initAnalyser();
+  }, [currentTrackId]);
+
+  // Cleanup on unmount
 
   // Cleanup on unmount
   useEffect(() => {
