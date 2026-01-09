@@ -3,17 +3,23 @@ import { Sidebar } from "./Sidebar";
 
 interface LayoutProps {
   children: ReactNode;
+  backdropUrl?: string;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, backdropUrl }: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const defaultGradient =
+    "linear-gradient(to bottom right, oklch(29% 0.05 282.93), oklch(29% 0.01 294.99))";
 
   return (
     <div
       className="min-h-screen text-base-content w-full"
       style={{
-        background:
-          "linear-gradient(to bottom right, oklch(29% 0.05 282.93), oklch(29% 0.01 294.99))",
+        background: backdropUrl
+          ? `url(${backdropUrl}) center/cover no-repeat fixed, ${defaultGradient}`
+          : defaultGradient,
+        backgroundBlendMode: backdropUrl ? "multiply" : "normal",
       }}
     >
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />

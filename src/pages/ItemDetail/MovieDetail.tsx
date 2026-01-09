@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
-import { getItem } from "@/lib/jellyfin/client";
+import { getItem, getImageUrl } from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
@@ -57,10 +57,14 @@ export default function MovieDetail() {
   if (!item) return <NotFoundState />;
 
   const primaryImageUrl = getPrimaryImageUrl(serverUrl, item);
+  const backdropUrl =
+    item.Id && serverUrl
+      ? getImageUrl(serverUrl, item.Id, "Backdrop", 1280, 720, 90)
+      : undefined;
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-linear-to-br from-gray-900 to-black">
+    <Layout backdropUrl={backdropUrl}>
+      <div className="min-h-screen">
         <div className="container mx-auto px-8 py-8 max-w-400">
           <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />

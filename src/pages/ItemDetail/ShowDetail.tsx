@@ -142,6 +142,10 @@ export default function ShowDetail() {
   if (!item) return <NotFoundState />;
 
   const primaryImageUrl = getPrimaryImageUrl(serverUrl, item);
+  const backdropUrl =
+    item.Id && serverUrl
+      ? getImageUrl(serverUrl, item.Id, "Backdrop", 1280, 720, 90)
+      : undefined;
   const isSeries =
     item?.Type === "Series" ||
     (item?.Type === "Season" && (item as any).SeriesId);
@@ -160,7 +164,7 @@ export default function ShowDetail() {
   };
 
   return (
-    <Layout>
+    <Layout backdropUrl={backdropUrl}>
       <div className="min-h-screen bg-linear-to-br from-gray-900 to-black">
         <div className="container mx-auto px-8 py-8 max-w-400">
           <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
