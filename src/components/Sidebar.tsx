@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserViews } from "@/lib/jellyfin/client";
-import { Home, Film, Tv, Music, Menu, Search } from "lucide-react";
+import { Home, Film, Tv, Music, Menu } from "lucide-react";
 import visionLogo from "@/assets/vision.png";
 import visionIcon from "@/assets/vision-icon.png";
 
@@ -22,15 +22,6 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
   const location = useLocation();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const [libraries, setLibraries] = useState<Library[]>([]);
-  const [searchInput, setSearchInput] = useState("");
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchInput.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchInput)}`);
-      setSearchInput("");
-    }
-  };
 
   useEffect(() => {
     const fetchLibraries = async () => {
@@ -124,26 +115,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
         </button>
       </div>
 
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="px-4 py-4 flex items-center gap-2">
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder={isCollapsed ? "" : "Search..."}
-          title="Search"
-          className="input input-sm input-bordered flex-1 focus:outline-none focus:ring-1 focus:ring-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-        />
-        <button
-          type="submit"
-          className="btn btn-sm btn-primary"
-          title="Search"
-        >
-          <Search className="w-4 h-4" />
-        </button>
-      </form>
-
-      <nav className="flex flex-col p-5! gap-6">
+      <nav className="flex flex-col p-6 gap-6 mt-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
