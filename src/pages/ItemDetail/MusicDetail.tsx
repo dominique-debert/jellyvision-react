@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-} from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
@@ -50,7 +45,6 @@ export default function MusicDetail() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">("off");
-  const [analyserReady, setAnalyserReady] = useState(false);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -111,10 +105,9 @@ export default function MusicDetail() {
       audioContextRef.current = ctx;
       audioSourceRef.current = source;
       analyserRef.current = analyser;
-      setAnalyserReady(true);
       console.log("[MusicDetail] Analyser created successfully");
     }, 0);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -453,7 +446,7 @@ export default function MusicDetail() {
                                     )}
                                 </td>
                                 <td className="text-center">
-                                  {track.Id === currentTrackId && analyserReady ? (
+                                  {track.Id === currentTrackId ? (
                                     <EqualizerBars
                                       getAnalyser={() => analyserRef.current}
                                       isPlaying={isPlaying}
