@@ -12,10 +12,10 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "m3e";
-  default: true; /* set as default */
-  prefersdark: false; /* set as default dark mode (prefers-color-scheme:dark) */
-  color-scheme: light; /* color of browser-provided UI */
+  name: "dark";
+  default: false; /* set as default */
+  prefersdark: true; /* set as default dark mode (prefers-color-scheme:dark) */
+  color-scheme: dark; /* color of browser-provided UI */
 
   --color-base-100: oklch(98% 0.02 289.39);
   --color-base-200: oklch(92% 0.04 303.76);
@@ -55,7 +55,7 @@
 }
 
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark, m3e;
+  themes: dark --default, dark --prefersdark;
 }
 
 @layer base {

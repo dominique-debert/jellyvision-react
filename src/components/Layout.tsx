@@ -10,7 +10,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const defaultGradient =
-    "linear-gradient(to bottom right, oklch(29% 0.05 282.93), oklch(29% 0.01 294.99))";
+    "linear-gradient(to bottom right, transparent, transparent))";
 
   // Calculate sidebar width in pixels: collapsed = 80px (left-20 = 5rem), expanded = 256px (left-64 = 16rem)
   const sidebarWidth = isCollapsed ? 80 : 256;
@@ -21,7 +21,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
       style={{
         background: backdropUrl
           ? `url(${backdropUrl}) calc(50% + ${sidebarWidth}px)/cover no-repeat fixed, ${defaultGradient}`
-          : defaultGradient,
+          : "transparent",
         backgroundBlendMode: backdropUrl ? "multiply" : "normal",
         backgroundPosition: backdropUrl
           ? `calc(50% + ${sidebarWidth}px) center`

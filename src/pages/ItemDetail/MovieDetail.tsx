@@ -64,8 +64,8 @@ export default function MovieDetail() {
 
   return (
     <Layout backdropUrl={backdropUrl}>
-      <div className="min-h-screen">
-        <div className="container mx-auto px-8 py-8 max-w-400">
+      <div className="min-h-screen w-full">
+        <div className="px-8 w-full">
           <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back

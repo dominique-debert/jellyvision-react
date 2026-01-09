@@ -135,12 +135,12 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="container flex flex-col gap-8">
+      <div className="flex flex-col gap-8">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section>
-            <div className="flex items-center justify-between ml-20">
-              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+            <div className="flex items-center justify-between ml-10">
+              <h2 className="text-3xl font-light flex items-center gap-3">
                 <CirclePause className="size-5 inline-block mr-2" /> Continue
                 watching
               </h2>
@@ -151,7 +151,7 @@ export default function Home() {
                   onClick={() => scroll(resumeScrollRef, "left")}
                   className="h-8 w-8"
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="size-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -159,13 +159,13 @@ export default function Home() {
                   onClick={() => scroll(resumeScrollRef, "right")}
                   className="h-8 w-8"
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="size-5" />
                 </Button>
               </div>
             </div>
             <div
               ref={resumeScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              className="flex ml-10 gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {resumeItems.map((item) => (
@@ -184,8 +184,8 @@ export default function Home() {
         {/* Recently Added Movies */}
         {!loading && recentMovies.length > 0 && (
           <section>
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+            <div className="flex items-center justify-between ml-10">
+              <h2 className="text-3xl font-light flex items-center gap-3">
                 <Clapperboard className="size-5 inline-block mr-2" /> Recently
                 added in Movies
               </h2>
@@ -210,7 +210,7 @@ export default function Home() {
             </div>
             <div
               ref={moviesScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-10"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMovies.map((item) => (
@@ -225,8 +225,8 @@ export default function Home() {
         {/* Recently Added TV Shows */}
         {!loading && recentShows.length > 0 && (
           <section>
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+            <div className="flex items-center justify-between ml-10">
+              <h2 className="text-3xl font-light flex items-center gap-3">
                 <Drama className="size-5 inline-block mr-2" /> Recently added in
                 TV Shows
               </h2>
@@ -251,7 +251,7 @@ export default function Home() {
             </div>
             <div
               ref={showsScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-10"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentShows.map((item) => (
@@ -267,7 +267,7 @@ export default function Home() {
         {!loading && recentMusic.length > 0 && (
           <section>
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+              <h2 className="text-3xl font-light flex items-center gap-3 ml-10">
                 <Music className="size-5 inline-block mr-2" /> Recently added in
                 Music
               </h2>
@@ -278,7 +278,7 @@ export default function Home() {
                   onClick={() => scroll(musicScrollRef, "left")}
                   className="h-8 w-8"
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="size-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -286,13 +286,13 @@ export default function Home() {
                   onClick={() => scroll(musicScrollRef, "right")}
                   className="h-8 w-8"
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="size-5" />
                 </Button>
               </div>
             </div>
             <div
               ref={musicScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-10"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMusic.map((item) => (
