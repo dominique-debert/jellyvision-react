@@ -220,10 +220,11 @@ export default function Player() {
         }
       });
 
-      // Clear existing subtitle tracks
-      for (let i = videoRef.current!.textTracks.length - 1; i >= 0; i--) {
-        const track = videoRef.current!.textTracks[i];
+      // Clear all existing subtitle tracks
+      while (videoRef.current!.textTracks.length > 0) {
+        const track = videoRef.current!.textTracks[0];
         if (track.kind === "subtitles") {
+          // Remove associated track element
           const trackElement = Array.from(
             videoRef.current!.querySelectorAll("track")
           ).find((t) => t.label === track.label);
@@ -377,7 +378,7 @@ export default function Player() {
     };
 
     loadSubtitles();
-  }, [item, subtitleOptions, serverUrl, itemId, accessToken, buildStreamUrl]);
+  }, [item?.Id, subtitleOptions, serverUrl, itemId, accessToken]);
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
