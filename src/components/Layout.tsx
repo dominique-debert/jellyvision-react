@@ -1,9 +1,10 @@
 import { ReactNode, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
-import { Search, User, LogOut, Settings } from "lucide-react";
+import { Search, User, LogOut, Settings, Menu } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserById, getUserImageUrl } from "@/lib/jellyfin/client";
+import visionLogo from "@/assets/vision.png";
 
 interface LayoutProps {
   children: ReactNode;
@@ -69,16 +70,20 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
     >
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-      {/* Header */}
-      <header
-        className={`fixed top-0 right-0 h-16 bg-base-300/80 backdrop-blur-sm border-b border-base-content/10 z-40 flex items-center px-6 transition-all duration-300 ${
-          isCollapsed ? "left-20" : "left-64"
-        }`}
-      >
+      <header className="fixed top-0 left-0 right-0 h-16 bg-base-300/80 backdrop-blur-sm border-b border-base-content/10 z-40 flex items-center px-6 gap-4">
+        <button
+          onClick={() => setIsCollapsed((prev) => !prev)}
+          className="btn btn-ghost btn-circle"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <img src={visionLogo} alt="Vision" className="h-6 w-auto" />
+
         <div className="flex items-center gap-4 ml-auto">
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <div className="relative">
-              <Search className="w-4 h-4 text-white/60 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+              <Search className="w-4 h-4 text-primary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
               <input
                 type="text"
                 value={searchInput}
