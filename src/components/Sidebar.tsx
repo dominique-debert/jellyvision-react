@@ -90,13 +90,13 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-5 top-5 h-full flex flex-col z-50 transition-all duration-300 ${
-        isCollapsed ? "w-10" : "w-54"
+      className={`fixed bg-base-300 left-0 top-0 h-full flex flex-col z-50 transition-all duration-300 ${
+        isCollapsed ? "w-20" : "w-64"
       }`}
     >
-      <div className="p-5! flex items-center justify-between">
+      <div className="flex items-center justify-between p-5!">
         {!isCollapsed && (
-          <h1 className="text-2xl font-bold text-primary flex items-center">
+          <h1 className="text-2xl font-bold text-primary flex items-center gap-8">
             <svg
               className="w-8 h-8 mr-2"
               viewBox="0 0 512 512"
@@ -116,7 +116,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
         </button>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex flex-col p-5! gap-8">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -124,18 +124,18 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               key={item.label}
               onClick={() => !item.disabled && navigate(item.path)}
               disabled={item.disabled}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-colors ${
                 item.isActive
-                  ? "bg-primary text-primary-content"
+                  ? "bg-secondary text-white/60"
                   : item.disabled
                   ? "text-base-content/40 cursor-not-allowed"
                   : "text-base-content hover:bg-base-300"
               } ${isCollapsed ? "justify-center" : ""}`}
               title={isCollapsed ? item.label : undefined}
             >
-              <Icon className="w-5 h-5 shrink-0" />
+              <Icon className="size-6 shrink-0" />
               {!isCollapsed && (
-                <span className="font-medium">{item.label}</span>
+                <span className="text-xl font-normal">{item.label}</span>
               )}
             </button>
           );
