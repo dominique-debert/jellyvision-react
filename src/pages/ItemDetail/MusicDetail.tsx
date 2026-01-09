@@ -33,6 +33,7 @@ export default function MusicDetail() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const analyserInitializedRef = useRef(false);
 
   const [item, setItem] = useState<BaseItemDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,12 +70,20 @@ export default function MusicDetail() {
   // Initialize Web Audio analyser when a track starts playing
   useEffect(() => {
     if (!currentTrackId || !audioRef.current) {
-      console.log("[MusicDetail] Skip analyser init: no currentTrackId or audioRef");
+      console.log(
+        "[MusicDetail] Skip analyser init: no currentTrackId or audioRef"
+      );
       return;
     }
 
-    console.log("[MusicDetail] Track changed, initializing analyser...");
-    
+    // Only initialize once
+    if (analyserInitializedRef.current) {
+      console.log("[MusicDetail] Analyser already initialized");
+      return;
+    }
+
+    console.log("[MusicDetail] Initializing analyser for first time...");
+
     const initAnalyser = () => {
       console.log(
         "[MusicDetail] Analyser init: audioRef.current =",
@@ -84,10 +93,6 @@ export default function MusicDetail() {
       );
       if (!audioRef.current) {
         console.log("[MusicDetail] Early return: no audioRef");
-        return;
-      }
-      if (analyserRef.current) {
-        console.log("[MusicDetail] Early return: analyser already exists");
         return;
       }
       const w = window as Window &
@@ -107,14 +112,12 @@ export default function MusicDetail() {
         analyser.fftSize = 2048;
         analyser.smoothingTimeConstant = 0.85;
         source.connect(analyser);
-        // Ensure the graph processes by connecting analyser to a silent gain -> destination
-        const silent = ctx.createGain();
-        silent.gain.value = 0;
-        analyser.connect(silent);
-        silent.connect(ctx.destination);
+        // Connect to destination to ensure audio plays
+        analyser.connect(ctx.destination);
         audioContextRef.current = ctx;
         audioSourceRef.current = source;
         analyserRef.current = analyser;
+        analyserInitializedRef.current = true;
         console.log(
           "[MusicDetail] Analyser created successfully, frequencyBinCount:",
           analyser.frequencyBinCount
@@ -126,8 +129,6 @@ export default function MusicDetail() {
 
     initAnalyser();
   }, [currentTrackId]);
-
-  // Cleanup on unmount
 
   // Cleanup on unmount
   useEffect(() => {
@@ -153,6 +154,7 @@ export default function MusicDetail() {
       analyserRef.current = null;
       audioSourceRef.current = null;
       audioContextRef.current = null;
+      analyserInitializedRef.current = false;
     };
   }, []);
 
