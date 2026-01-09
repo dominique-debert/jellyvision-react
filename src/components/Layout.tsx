@@ -22,8 +22,10 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
         background: backdropUrl
           ? `url(${backdropUrl}) calc(50% + ${sidebarWidth}px)/cover no-repeat fixed, ${defaultGradient}`
           : defaultGradient,
-        backgroundBlendMode: backdropUrl ? "multiply" : "normal",
-        backgroundPosition: backdropUrl ? `calc(50% + ${sidebarWidth}px) center` : undefined,
+        backgroundBlendMode: backdropUrl ? "overlay" : "normal",
+        backgroundPosition: backdropUrl
+          ? `calc(50% + ${sidebarWidth}px) center`
+          : undefined,
       }}
     >
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
