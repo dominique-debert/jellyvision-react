@@ -22,32 +22,10 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   bands = DEFAULT_BANDS,
   className,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const barsRef = useRef<(HTMLDivElement | null)[]>([]);
   const rafRef = useRef<number | null>(null);
-  const barsRef = useRef<HTMLDivElement[]>([]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Prepare bar elements
-    barsRef.current = bands.map((_, i) => {
-      let el = container.children[i] as HTMLDivElement | undefined;
-      if (!el) {
-        el = document.createElement("div");
-        const colorClass = [
-          "bg-primary",
-          "bg-secondary",
-          "bg-accent",
-          "bg-info",
-          "bg-warning",
-        ][i % 5];
-        el.className = `h-2 w-2 rounded-sm ${colorClass}`;
-        container.appendChild(el);
-      }
-      return el;
-    });
-
     const run = () => {
       const analyser = getAnalyser();
       if (analyser && isPlaying) {
@@ -59,6 +37,7 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
         const binSize = nyquist / fftSize;
 
         barsRef.current.forEach((bar, idx) => {
+          if (!bar) return;
           const band = bands[idx];
           const startBin = Math.max(0, Math.floor(band.min / binSize));
           const endBin = Math.min(fftSize - 1, Math.floor(band.max / binSize));
@@ -76,7 +55,7 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
       } else {
         // No fallback animation: keep minimal height when not playing or no analyser
         barsRef.current.forEach((bar) => {
-          bar.style.height = "4%";
+          if (bar) bar.style.height = "4%";
         });
       }
       rafRef.current = requestAnimationFrame(run);
@@ -90,7 +69,6 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
 
   return (
     <div
-      ref={containerRef}
       className={
         "flex items-end gap-0.5 h-6 w-12" + (className ? ` ${className}` : "")
       }
@@ -103,7 +81,15 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
           "bg-info",
           "bg-warning",
         ][i % 5];
-        return <div key={i} className={`h-2 w-2 rounded-sm ${colorClass}`} />;
+        return (
+          <div
+            key={i}
+            ref={(el) => {
+              if (el) barsRef.current[i] = el;
+            }}
+            className={`h-2 w-2 rounded-sm ${colorClass}`}
+          />
+        );
       })}
     </div>
   );
