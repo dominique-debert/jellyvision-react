@@ -21,17 +21,17 @@ import {
 } from "lucide-react";
 import Hls from "hls.js";
 // Import muxjs and assign to window for shaka-player
-if (typeof window !== "undefined") {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const w = window as any;
-  if (!w.muxjs) {
-    // Dynamically import mux.js if not already loaded
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    import("mux.js" as any).then((m: any) => {
-      w.muxjs = m.default || m;
-    });
-  }
-}
+// if (typeof window !== "undefined") {
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   const w = window as any;
+//   if (!w.muxjs) {
+//     // Dynamically import mux.js if not already loaded
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     import("mux.js" as any).then((m: any) => {
+//       w.muxjs = m.default || m;
+//     });
+//   }
+// }
 
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
@@ -110,11 +110,8 @@ export default function Player() {
   const getStreamUrl = useCallback(
     (subtitle?: number) => {
       if (!serverUrl || !itemId || !accessToken) return "";
-      // Use transcoding for better browser compatibility
+      // Use Jellyfin's stream endpoint which handles transcoding automatically
       const params = new URLSearchParams();
-      params.set("VideoCodec", "h264");
-      params.set("AudioCodec", "aac");
-      params.set("Container", "ts,mp4");
       params.set("api_key", accessToken);
       params.set("PlaySessionId", playSessionIdRef.current);
       if (subtitle !== undefined) {
@@ -126,7 +123,7 @@ export default function Player() {
         window.location.hostname === "localhost"
           ? "/jellyfin"
           : serverUrl;
-      return `${baseUrl}/Videos/${itemId}/master.m3u8?${params.toString()}`;
+      return `${baseUrl}/Videos/${itemId}/stream?${params.toString()}`;
     },
     [serverUrl, itemId, accessToken]
   );
@@ -140,32 +137,9 @@ export default function Player() {
         const streamUrl = getStreamUrl();
         console.log("Loading stream:", streamUrl);
 
-        // Use HLS.js for HLS streaming
-        if (Hls.isSupported()) {
-          const hls = new Hls({
-            xhrSetup: (xhr) => {
-              xhr.withCredentials = false;
-            },
-          });
-          hls.loadSource(streamUrl);
-          hls.attachMedia(videoRef.current);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            console.log("HLS manifest loaded");
-          });
-          hls.on(Hls.Events.ERROR, (event, data) => {
-            console.error("HLS error:", data);
-          });
-          // Store hls instance for cleanup
-          (videoRef.current as any)._hls = hls;
-        } else if (
-          videoRef.current.canPlayType("application/vnd.apple.mpegurl")
-        ) {
-          // Native HLS support (Safari)
-          videoRef.current.src = streamUrl;
-          videoRef.current.load();
-        } else {
-          console.error("HLS not supported");
-        }
+        // Use native video element - Jellyfin will transcode if needed
+        videoRef.current.src = streamUrl;
+        videoRef.current.load();
       } catch (e) {
         console.error("Error initializing player:", e);
       }
@@ -174,17 +148,7 @@ export default function Player() {
     if (item && !loading) {
       initializePlayer();
     }
-
-    // Cleanup HLS instance on unmount
-    return () => {
-      if (videoRef.current) {
-        const hls = (videoRef.current as any)._hls;
-        if (hls) {
-          hls.destroy();
-        }
-      }
-    };
-  }, [item, loading, itemId, serverUrl, accessToken, getStreamUrl]);
+  }, [item, loading, itemId, getStreamUrl]);
 
   // Unmute video once it starts playing (for autoplay)
   useEffect(() => {
