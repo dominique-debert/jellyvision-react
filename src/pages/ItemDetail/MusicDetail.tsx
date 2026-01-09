@@ -3,7 +3,6 @@ import {
   useState,
   useRef,
   useCallback,
-  useLayoutEffect,
 } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -51,6 +50,7 @@ export default function MusicDetail() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">("off");
+  const [analyserReady, setAnalyserReady] = useState(false);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -72,60 +72,76 @@ export default function MusicDetail() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId]);
 
-  // Initialize Web Audio analyser for visualizer (once)
-  useLayoutEffect(() => {
-    console.log(
-      "[MusicDetail] Analyser init: audioRef.current =",
-      !!audioRef.current,
-      "analyserRef.current =",
-      !!analyserRef.current
-    );
-    if (!audioRef.current) {
-      console.log("[MusicDetail] Early return: no audioRef");
-      return;
-    }
-    if (analyserRef.current) {
-      console.log("[MusicDetail] Early return: analyser already exists");
-      return;
-    }
-    const w = window as Window &
-      typeof globalThis & { webkitAudioContext?: typeof AudioContext };
-    const AudioCtxCtor = w.AudioContext || w.webkitAudioContext;
-    if (!AudioCtxCtor) {
-      console.log("[MusicDetail] Early return: no AudioContext");
-      return;
-    }
-    console.log("[MusicDetail] Creating analyser...");
-    const ctx = new AudioCtxCtor();
-    const source = ctx.createMediaElementSource(audioRef.current);
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 2048;
-    analyser.smoothingTimeConstant = 0.85;
-    source.connect(analyser);
-    // Ensure the graph processes by connecting analyser to a silent gain -> destination
-    const silent = ctx.createGain();
-    silent.gain.value = 0;
-    analyser.connect(silent);
-    silent.connect(ctx.destination);
-    audioContextRef.current = ctx;
-    audioSourceRef.current = source;
-    analyserRef.current = analyser;
-    console.log("[MusicDetail] Analyser created successfully");
+  // Initialize Web Audio analyser for visualizer (once on mount)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log(
+        "[MusicDetail] Analyser init: audioRef.current =",
+        !!audioRef.current,
+        "analyserRef.current =",
+        !!analyserRef.current
+      );
+      if (!audioRef.current) {
+        console.log("[MusicDetail] Early return: no audioRef");
+        return;
+      }
+      if (analyserRef.current) {
+        console.log("[MusicDetail] Early return: analyser already exists");
+        return;
+      }
+      const w = window as Window &
+        typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+      const AudioCtxCtor = w.AudioContext || w.webkitAudioContext;
+      if (!AudioCtxCtor) {
+        console.log("[MusicDetail] Early return: no AudioContext");
+        return;
+      }
+      console.log("[MusicDetail] Creating analyser...");
+      const ctx = new AudioCtxCtor();
+      const source = ctx.createMediaElementSource(audioRef.current);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.85;
+      source.connect(analyser);
+      // Ensure the graph processes by connecting analyser to a silent gain -> destination
+      const silent = ctx.createGain();
+      silent.gain.value = 0;
+      analyser.connect(silent);
+      silent.connect(ctx.destination);
+      audioContextRef.current = ctx;
+      audioSourceRef.current = source;
+      analyserRef.current = analyser;
+      setAnalyserReady(true);
+      console.log("[MusicDetail] Analyser created successfully");
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
-      console.log("[MusicDetail] Analyser cleanup");
-      try {
-        analyser.disconnect();
-        source.disconnect();
-      } catch (e) {
-        void e;
+      console.log("[MusicDetail] Cleanup on unmount");
+      if (analyserRef.current) {
+        try {
+          analyserRef.current.disconnect();
+        } catch (e) {
+          void e;
+        }
+      }
+      if (audioSourceRef.current) {
+        try {
+          audioSourceRef.current.disconnect();
+        } catch (e) {
+          void e;
+        }
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
       }
       analyserRef.current = null;
       audioSourceRef.current = null;
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
+      audioContextRef.current = null;
     };
   }, []);
 
@@ -437,7 +453,7 @@ export default function MusicDetail() {
                                     )}
                                 </td>
                                 <td className="text-center">
-                                  {track.Id === currentTrackId ? (
+                                  {track.Id === currentTrackId && analyserReady ? (
                                     <EqualizerBars
                                       getAnalyser={() => analyserRef.current}
                                       isPlaying={isPlaying}
