@@ -29,6 +29,7 @@ export default function Home() {
   const moviesScrollRef = useRef<HTMLDivElement>(null);
   const showsScrollRef = useRef<HTMLDivElement>(null);
   const musicScrollRef = useRef<HTMLDivElement>(null);
+  const resumeScrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (
     ref: React.RefObject<HTMLDivElement | null>,
@@ -132,21 +133,46 @@ export default function Home() {
 
   return (
     <Layout>
-      <main className="container mx-auto px-8 py-8 space-y-12">
+      <main className="container">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section>
-            <h2 className="text-2xl font-semibold mb-6 flex items-center">
-              <span className="mr-3">⏯</span> Continue watching
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-medium flex items-center">
+                <span className="mr-2">⏯</span> Continue watching
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => scroll(resumeScrollRef, "left")}
+                  className="h-8 w-8"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => scroll(resumeScrollRef, "right")}
+                  className="h-8 w-8"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            <div
+              ref={resumeScrollRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
               {resumeItems.map((item) => (
-                <ItemCard
-                  key={item.Id}
-                  item={item}
-                  serverUrl={serverUrl!}
-                  onPlayClick={() => navigate(`/play/${item.Id}?from=home`)}
-                />
+                <div key={item.Id} className="flex-none w-48">
+                  <ItemCard
+                    item={item}
+                    serverUrl={serverUrl!}
+                    onPlayClick={() => navigate(`/play/${item.Id}?from=home`)}
+                  />
+                </div>
               ))}
             </div>
           </section>
@@ -155,9 +181,9 @@ export default function Home() {
         {/* Recently Added Movies */}
         {!loading && recentMovies.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold flex items-center">
-                <span className="mr-3">🎬</span> Recently added movies
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-medium flex items-center">
+                <span className="mr-2">🎬</span> Recently added
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -180,7 +206,7 @@ export default function Home() {
             </div>
             <div
               ref={moviesScrollRef}
-              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMovies.map((item) => (
@@ -195,9 +221,9 @@ export default function Home() {
         {/* Recently Added TV Shows */}
         {!loading && recentShows.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold flex items-center">
-                <span className="mr-3">📺</span> Recently added shows
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-medium flex items-center">
+                <span className="mr-2">📺</span> Recently added
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -220,7 +246,7 @@ export default function Home() {
             </div>
             <div
               ref={showsScrollRef}
-              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentShows.map((item) => (
@@ -235,9 +261,9 @@ export default function Home() {
         {/* Recently Added Music */}
         {!loading && recentMusic.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold flex items-center">
-                <span className="mr-3">🎵</span> Recently added music
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-medium flex items-center">
+                <span className="mr-2">🎵</span> Recently added
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -260,7 +286,7 @@ export default function Home() {
             </div>
             <div
               ref={musicScrollRef}
-              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMusic.map((item) => (

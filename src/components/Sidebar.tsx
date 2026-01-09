@@ -90,11 +90,11 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full bg-base-200 border-r border-base-300 flex flex-col z-50 transition-all duration-300 ${
+      className={`fixed left-0 top-0 h-full bg-base-100 border-r border-base-300/50 flex flex-col z-50 transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
-      <div className="p-6 border-b border-base-300 flex items-center justify-between">
+      <div className="p-6 border-b border-base-300/50 flex items-center justify-between">
         {!isCollapsed && (
           <h1 className="text-2xl font-bold text-primary flex items-center">
             <svg

@@ -9,11 +9,11 @@ export function Layout({ children }: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-base-300 text-base-content">
+    <div className="min-h-screen bg-base-300 text-base-content w-full">
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       <div
-        className={`fixed right-0 top-0 bottom-0 overflow-auto pl-8 transition-all duration-300 ${
-          isCollapsed ? "left-20" : "left-64"
+        className={`fixed right-0 top-10 bottom-10 overflow-auto transition-all duration-300 ${
+          isCollapsed ? "left-30" : "left-74"
         }`}
       >
         {children}

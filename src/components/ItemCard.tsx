@@ -20,14 +20,21 @@ export function ItemCard({
 
   const getPrimaryImageUrl = () => {
     if (!serverUrl || !item?.Id) return undefined;
-    
+
     // For episodes, use the season poster instead of episode thumbnail
     if (item.Type === "Episode" && item.SeasonId) {
       const width = aspectRatio === "square" ? 600 : 400;
       const height = aspectRatio === "square" ? 600 : 600;
-      return getImageUrl(serverUrl, item.SeasonId, "Primary", width, height, 85);
+      return getImageUrl(
+        serverUrl,
+        item.SeasonId,
+        "Primary",
+        width,
+        height,
+        85
+      );
     }
-    
+
     if (item.ImageTags?.Primary) {
       // Request 400x600 thumbnail for 2/3 aspect ratio, 600x600 for square
       const width = aspectRatio === "square" ? 600 : 400;
@@ -64,21 +71,21 @@ export function ItemCard({
   };
 
   return (
-    <div
-      className="cursor-pointer group"
-      onClick={onPlayClick ? handlePlayClick : handleCardClick}
-    >
-      <div className="relative">
+    <div className="group">
+      <div
+        className="relative cursor-pointer"
+        onClick={onPlayClick ? handlePlayClick : handleCardClick}
+      >
         <div
           className={`relative ${
             aspectRatio === "square" ? "aspect-square" : "aspect-2/3"
-          } bg-base-300 rounded-lg overflow-hidden`}
+          } bg-base-300 rounded-md overflow-hidden`}
         >
           {primaryImageUrl ? (
             <img
               src={primaryImageUrl}
               alt={item.Name || "Item"}
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              className="w-full h-full object-cover"
               loading="lazy"
             />
           ) : (
@@ -86,48 +93,42 @@ export function ItemCard({
               No Image
             </div>
           )}
-          {/* Hover overlay with play button centered and title at bottom */}
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between rounded-lg p-4">
-            <div></div>
+          {/* Hover overlay with play button only */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handlePlayClick(e);
               }}
-              className="h-20 w-20 rounded-full bg-primary hover:bg-primary/90 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
+              className="h-16 w-16 rounded-full bg-white/90 hover:bg-white hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-xl"
             >
-              <Play className="h-10 w-10 text-white/60 fill-white/60" />
+              <Play className="h-8 w-8 text-black fill-black ml-0.5" />
             </button>
-            <div className="w-full">
-              <h3 className="font-semibold text-sm text-white text-center line-clamp-2">
-                {item.Name}
-              </h3>
-              {item.Type === "Series" && item.ChildCount && (
-                <p className="text-xs text-white/90 font-medium mt-1 text-center">
-                  {item.ChildCount}{" "}
-                  {item.ChildCount === 1 ? "Season" : "Seasons"}
-                </p>
-              )}
-              {item.Type !== "Series" && getSubtitle() && (
-                <p className="text-xs text-white/80 mt-1 text-center">
-                  {getSubtitle()}
-                </p>
-              )}
-            </div>
           </div>
           {/* Progress bar for resume items */}
           {item.UserData?.PlayedPercentage &&
             item.UserData.PlayedPercentage > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-700">
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
                 <div
-                  className="h-full bg-blue-500"
+                  className="h-full bg-primary"
                   style={{ width: `${item.UserData.PlayedPercentage}%` }}
                 />
               </div>
             )}
         </div>
-        {/* Series badges - positioned outside overflow container */}
-        {getSeriesBadges()}
+      </div>
+      {/* Title and metadata below poster */}
+      <div className="mt-2">
+        <h3 className="font-medium text-sm line-clamp-1">{item.Name}</h3>
+        {item.Type === "Episode" ? (
+          <p className="text-xs text-base-content/60 mt-0.5">
+            Season {item.ParentIndexNumber} · Episode {item.IndexNumber}
+          </p>
+        ) : item.ProductionYear ? (
+          <p className="text-xs text-base-content/60 mt-0.5">
+            {item.ProductionYear}
+          </p>
+        ) : null}
       </div>
     </div>
   );
