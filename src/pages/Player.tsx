@@ -120,7 +120,8 @@ export default function Player() {
       }
       // In development (localhost), use the Vite proxy; otherwise use the server URL
       const baseUrl =
-        typeof window !== "undefined" && window.location.hostname === "localhost"
+        typeof window !== "undefined" &&
+        window.location.hostname === "localhost"
           ? "/jellyfin"
           : serverUrl;
       return `${baseUrl}/Videos/${itemId}/stream?${params.toString()}`;
@@ -211,8 +212,13 @@ export default function Player() {
           // Get PlaybackInfo to fetch DeliveryUrl for the subtitle
           // This is how jellyfin-web handles subtitles
           console.log("Fetching PlaybackInfo to get subtitle DeliveryUrl...");
+          // In development (localhost), use the Vite proxy; otherwise use the server URL
+          const baseUrl =
+            typeof window !== "undefined" && window.location.hostname === "localhost"
+              ? "/jellyfin"
+              : serverUrl;
           const playbackInfoResponse = await fetch(
-            `${serverUrl}/Items/${itemId}/PlaybackInfo?api_key=${accessToken}`,
+            `${baseUrl}/Items/${itemId}/PlaybackInfo?api_key=${accessToken}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -251,13 +257,18 @@ export default function Player() {
           const deliveryUrl = playbackSubtitle.DeliveryUrl;
           // Use .js format (JSON) like jellyfin-web does, not .vtt
           const jsonDeliveryUrl = deliveryUrl.replace(".vtt", ".js");
+          // In development (localhost), use the Vite proxy; otherwise use the server URL
+          const baseUrl =
+            typeof window !== "undefined" && window.location.hostname === "localhost"
+              ? "/jellyfin"
+              : serverUrl;
 
           if (jsonDeliveryUrl.startsWith("http")) {
             subtitleUrl = jsonDeliveryUrl;
           } else if (jsonDeliveryUrl.startsWith("/")) {
-            subtitleUrl = `${serverUrl}${jsonDeliveryUrl}`;
+            subtitleUrl = `${baseUrl}${jsonDeliveryUrl}`;
           } else {
-            subtitleUrl = `${serverUrl}/${jsonDeliveryUrl}`;
+            subtitleUrl = `${baseUrl}/${jsonDeliveryUrl}`;
           }
 
           console.log(
@@ -625,6 +636,7 @@ export default function Player() {
         className="w-full h-full object-contain"
         autoPlay
         muted
+        crossOrigin="anonymous"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onPlay={handlePlayEvent}
