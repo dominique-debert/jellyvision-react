@@ -73,7 +73,7 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   return (
     <div
       className={
-        "flex items-end gap-1 h-6 w-24" + (className ? ` ${className}` : "")
+        "flex items-end gap-0.5 h-6 w-24" + (className ? ` ${className}` : "")
       }
     >
       {bands.map((_, i) => {
