@@ -26,8 +26,6 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    console.log("[EqualizerBars] mounted, isPlaying:", isPlaying);
-    
     const run = () => {
       const analyser = getAnalyser();
       if (analyser && isPlaying) {
