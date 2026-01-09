@@ -35,7 +35,14 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
       let el = container.children[i] as HTMLDivElement | undefined;
       if (!el) {
         el = document.createElement("div");
-        el.className = "h-2 w-2 rounded-sm bg-primary";
+        const colorClass = [
+          "bg-primary",
+          "bg-secondary",
+          "bg-accent",
+          "bg-info",
+          "bg-warning",
+        ][i % 5];
+        el.className = `h-2 w-2 rounded-sm ${colorClass}`;
         container.appendChild(el);
       }
       return el;
@@ -88,9 +95,16 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
         "flex items-end gap-0.5 h-6 w-12" + (className ? ` ${className}` : "")
       }
     >
-      {bands.map((_, i) => (
-        <div key={i} className="h-2 w-2 rounded-sm bg-primary" />
-      ))}
+      {bands.map((_, i) => {
+        const colorClass = [
+          "bg-primary",
+          "bg-secondary",
+          "bg-accent",
+          "bg-info",
+          "bg-warning",
+        ][i % 5];
+        return <div key={i} className={`h-2 w-2 rounded-sm ${colorClass}`} />;
+      })}
     </div>
   );
 };

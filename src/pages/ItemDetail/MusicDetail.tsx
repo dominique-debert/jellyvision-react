@@ -12,7 +12,6 @@ import {
   LoadingState,
   NotFoundState,
   getPrimaryImageUrl,
-  ItemHeader,
   MetadataTable,
   QualityBadges,
   SynopsisSection,
@@ -81,7 +80,11 @@ export default function MusicDetail() {
     analyser.fftSize = 2048;
     analyser.smoothingTimeConstant = 0.85;
     source.connect(analyser);
-    // Do not connect analyser to destination to avoid altering output
+    // Ensure the graph processes by connecting analyser to a silent gain -> destination
+    const silent = ctx.createGain();
+    silent.gain.value = 0;
+    analyser.connect(silent);
+    silent.connect(ctx.destination);
     audioContextRef.current = ctx;
     audioSourceRef.current = source;
     analyserRef.current = analyser;
@@ -311,7 +314,7 @@ export default function MusicDetail() {
 
             {/* Right Column - Details */}
             <div className="flex-1 min-w-0 space-y-6">
-              <ItemHeader item={item} itemId={itemId!} />
+              {/* <ItemHeader item={item} itemId={itemId!} /> */}
 
               <QualityBadges item={item} />
 
