@@ -13,10 +13,10 @@ const DEFAULT_BANDS = [
   { min: 100, max: 250 },
   { min: 250, max: 500 },
   { min: 500, max: 1000 },
-  { min: 1000, max: 2000 },
-  { min: 2000, max: 4000 },
-  { min: 4000, max: 8000 },
-  { min: 8000, max: 16000 },
+  // { min: 1000, max: 2000 },
+  // { min: 2000, max: 4000 },
+  // { min: 4000, max: 8000 },
+  // { min: 8000, max: 16000 },
 ];
 
 export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
@@ -73,7 +73,8 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   return (
     <div
       className={
-        "flex items-end gap-0.5 h-6 w-24" + (className ? ` ${className}` : "")
+        "flex items-end justify-center gap-1 h-5 w-24" +
+        (className ? ` ${className}` : "")
       }
     >
       {bands.map((_, i) => {
@@ -83,7 +84,7 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
             ref={(el) => {
               barsRef.current[i] = el;
             }}
-            className="flex-1 bg-white/60"
+            className="flex-1 max-w-0.75 bg-white/60"
             style={{ minHeight: "4%" }}
           />
         );
