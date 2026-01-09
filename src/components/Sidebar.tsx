@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserViews } from "@/lib/jellyfin/client";
-import { Home, Film, Tv, Music, Folder, Bookmark, Menu } from "lucide-react";
+import { Home, Film, Tv, Music, Menu } from "lucide-react";
+import visionLogo from "@/assets/vision.png";
+import visionIcon from "@/assets/vision-icon.png";
 
 interface Library {
   Id?: string;
@@ -94,29 +96,26 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
-      <div className="flex items-center justify-between p-5!">
-        {!isCollapsed && (
-          <h1 className="text-2xl font-bold text-primary flex items-center gap-8">
-            <svg
-              className="w-8 h-8 mr-2"
-              viewBox="0 0 512 512"
-              fill="currentColor"
-            >
-              <path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm115.7 272l-176 101c-15.8 8.8-35.7-2.5-35.7-21V152c0-18.4 19.8-29.8 35.7-21l176 107c16.4 9.2 16.4 32.9 0 42z" />
-            </svg>
-            Vision
-          </h1>
+      <div
+        className={`flex items-center ${
+          isCollapsed ? "justify-center pt-6 pb-5" : "justify-between p-6 pb-5"
+        } gap-3`}
+      >
+        {isCollapsed ? (
+          <img src={visionIcon} alt="Vision" className="h-6 w-auto" />
+        ) : (
+          <img src={visionLogo} alt="Vision" className="h-6 w-auto" />
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 hover:bg-base-300 rounded-lg transition-colors"
+          className="hover:bg-base-300 rounded-lg transition-colors"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <Menu className="w-5 h-5" />
         </button>
       </div>
 
-      <nav className="flex flex-col p-5! gap-8">
+      <nav className="flex flex-col p-5! gap-6">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
