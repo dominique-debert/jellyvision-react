@@ -7,13 +7,16 @@ export interface EqualizerBarsProps {
   className?: string;
 }
 
-// Default 5 bands: bass, low-mid, mid, upper-mid, treble
+// Default 8 bands: wider frequency coverage
 const DEFAULT_BANDS = [
-  { min: 20, max: 250 },
+  { min: 20, max: 100 },
+  { min: 100, max: 250 },
   { min: 250, max: 500 },
-  { min: 500, max: 2000 },
+  { min: 500, max: 1000 },
+  { min: 1000, max: 2000 },
   { min: 2000, max: 4000 },
-  { min: 4000, max: 16000 },
+  { min: 4000, max: 8000 },
+  { min: 8000, max: 16000 },
 ];
 
 export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
@@ -70,24 +73,17 @@ export const EqualizerBars: React.FC<EqualizerBarsProps> = ({
   return (
     <div
       className={
-        "flex items-end gap-0.5 h-6 w-16" + (className ? ` ${className}` : "")
+        "flex items-end gap-1 h-6 w-24" + (className ? ` ${className}` : "")
       }
     >
       {bands.map((_, i) => {
-        const colorClass = [
-          "bg-primary",
-          "bg-secondary",
-          "bg-accent",
-          "bg-info",
-          "bg-warning",
-        ][i % 5];
         return (
           <div
             key={i}
             ref={(el) => {
               barsRef.current[i] = el;
             }}
-            className={`flex-1 rounded-sm ${colorClass}`}
+            className="flex-1 bg-white/60"
             style={{ minHeight: "4%" }}
           />
         );
