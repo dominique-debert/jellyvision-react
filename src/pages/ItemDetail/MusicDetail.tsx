@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
 import { getItem, getAlbumTracks } from "@/lib/jellyfin/client";
@@ -28,6 +28,7 @@ function formatTrackTime(ticks?: number | null) {
 export default function MusicDetail() {
   const { itemId } = useParams<{ itemId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -168,6 +169,15 @@ export default function MusicDetail() {
       cancelled = true;
     };
   }, [serverUrl, userId, accessToken, itemId, item]);
+
+  // Handle autoplay from URL parameter
+  useEffect(() => {
+    const autoplay = searchParams.get("autoplay");
+    if (autoplay === "true" && albumTracks.length > 0 && !currentTrackId) {
+      // Play the first track
+      handlePlayTrack(albumTracks[0].Id!);
+    }
+  }, [albumTracks, searchParams, currentTrackId]);
 
   const handlePlayTrack = (trackId: string) => {
     setCurrentTrackId(trackId);
@@ -313,7 +323,7 @@ export default function MusicDetail() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-linear-to-br from-gray-900 to-black relative">
+      <div className="min-h-screen relative">
         <div className="container mx-auto px-8 py-8 max-w-400 pb-80">
           <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />

@@ -111,9 +111,10 @@ export function ItemCard({
               <div className="absolute bottom-0 left-0 right-0 h-2 bg-black/60">
                 <div
                   className="h-full"
-                  style={{ 
+                  style={{
                     width: `${item.UserData.PlayedPercentage}%`,
-                    background: 'linear-gradient(to right, #a855f7, #3b82f6, #06b6d4)'
+                    background:
+                      "linear-gradient(to right, #a855f7, #3b82f6, #06b6d4)",
                   }}
                 />
               </div>

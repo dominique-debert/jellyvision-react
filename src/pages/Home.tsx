@@ -135,11 +135,11 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-8 py-8 flex flex-col gap-8">
+      <div className="container flex flex-col gap-8">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between ml-20">
               <h2 className="text-3xl font-light h-18 flex items-center gap-3">
                 <CirclePause className="size-5 inline-block mr-2" /> Continue
                 watching
@@ -301,6 +301,9 @@ export default function Home() {
                     item={item}
                     serverUrl={serverUrl!}
                     aspectRatio="square"
+                    onPlayClick={() =>
+                      navigate(`/item/${item.Id}?autoplay=true`)
+                    }
                   />
                 </div>
               ))}

@@ -5,6 +5,7 @@
   themes: night --default;
 }
 @plugin "tailwindcss-animate";
+@layer base;
 
 * {
   margin: 0;

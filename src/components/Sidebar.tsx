@@ -90,11 +90,11 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full bg-base-100 border-r border-base-300/50 flex flex-col z-50 transition-all duration-300 ${
-        isCollapsed ? "w-20" : "w-64"
+      className={`fixed left-5 top-5 h-full flex flex-col z-50 transition-all duration-300 ${
+        isCollapsed ? "w-10" : "w-54"
       }`}
     >
-      <div className="p-6 border-b border-base-300/50 flex items-center justify-between">
+      <div className="p-5! flex items-center justify-between">
         {!isCollapsed && (
           <h1 className="text-2xl font-bold text-primary flex items-center">
             <svg
@@ -131,11 +131,11 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                   ? "text-base-content/40 cursor-not-allowed"
                   : "text-base-content hover:bg-base-300"
               } ${isCollapsed ? "justify-center" : ""}`}
-              title={isCollapsed ? item.label : ""}
+              title={isCollapsed ? item.label : undefined}
             >
               <Icon className="w-5 h-5 shrink-0" />
               {!isCollapsed && (
-                <span className="font-normal">{item.label}</span>
+                <span className="font-medium">{item.label}</span>
               )}
             </button>
           );
