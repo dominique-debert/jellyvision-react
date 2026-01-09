@@ -68,12 +68,23 @@ export default function MusicDetail() {
 
   // Initialize Web Audio analyser for visualizer (once)
   useEffect(() => {
-    if (!audioRef.current) return;
-    if (analyserRef.current) return;
+    console.log("[MusicDetail] Analyser init: audioRef.current =", !!audioRef.current, "analyserRef.current =", !!analyserRef.current);
+    if (!audioRef.current) {
+      console.log("[MusicDetail] Early return: no audioRef");
+      return;
+    }
+    if (analyserRef.current) {
+      console.log("[MusicDetail] Early return: analyser already exists");
+      return;
+    }
     const w = window as Window &
       typeof globalThis & { webkitAudioContext?: typeof AudioContext };
     const AudioCtxCtor = w.AudioContext || w.webkitAudioContext;
-    if (!AudioCtxCtor) return;
+    if (!AudioCtxCtor) {
+      console.log("[MusicDetail] Early return: no AudioContext");
+      return;
+    }
+    console.log("[MusicDetail] Creating analyser...");
     const ctx = new AudioCtxCtor();
     const source = ctx.createMediaElementSource(audioRef.current);
     const analyser = ctx.createAnalyser();
@@ -88,8 +99,10 @@ export default function MusicDetail() {
     audioContextRef.current = ctx;
     audioSourceRef.current = source;
     analyserRef.current = analyser;
+    console.log("[MusicDetail] Analyser created successfully");
 
     return () => {
+      console.log("[MusicDetail] Analyser cleanup");
       try {
         analyser.disconnect();
         source.disconnect();
