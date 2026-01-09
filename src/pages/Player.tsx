@@ -352,7 +352,7 @@ export default function Player() {
                   const cue = new TrackCue(startSeconds, endSeconds, text);
                   // Position subtitles higher by adjusting the line property
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (cue as any).line = -3;
+                  (cue as any).line = -4;
                   track.addCue(cue);
                 }
               }
