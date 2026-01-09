@@ -138,7 +138,7 @@ export default function Home() {
       <div className="flex flex-col gap-8">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
-          <section>
+          <section className="mr-10">
             <div className="flex items-center justify-between ml-10">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <CirclePause className="size-5 inline-block mr-2" /> Continue
@@ -183,7 +183,7 @@ export default function Home() {
 
         {/* Recently Added Movies */}
         {!loading && recentMovies.length > 0 && (
-          <section>
+          <section className="mr-10">
             <div className="flex items-center justify-between ml-10">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Clapperboard className="size-5 inline-block mr-2" /> Recently
@@ -196,7 +196,7 @@ export default function Home() {
                   onClick={() => scroll(moviesScrollRef, "left")}
                   className="h-8 w-8"
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="size-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -204,7 +204,7 @@ export default function Home() {
                   onClick={() => scroll(moviesScrollRef, "right")}
                   className="h-8 w-8"
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="size-5" />
                 </Button>
               </div>
             </div>
@@ -224,7 +224,7 @@ export default function Home() {
 
         {/* Recently Added TV Shows */}
         {!loading && recentShows.length > 0 && (
-          <section>
+          <section className="mr-10">
             <div className="flex items-center justify-between ml-10">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Drama className="size-5 inline-block mr-2" /> Recently added in
@@ -265,9 +265,9 @@ export default function Home() {
 
         {/* Recently Added Music */}
         {!loading && recentMusic.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-light flex items-center gap-3 ml-10">
+          <section className="mr-10">
+            <div className="flex items-center justify-between ml-10">
+              <h2 className="text-3xl font-light flex items-center gap-3">
                 <Music className="size-5 inline-block mr-2" /> Recently added in
                 Music
               </h2>
