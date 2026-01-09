@@ -30,6 +30,9 @@ export default function MusicDetail() {
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
 
   const [item, setItem] = useState<BaseItemDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,10 +66,45 @@ export default function MusicDetail() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId]);
 
+  // Initialize Web Audio analyser for visualizer (once)
+  useEffect(() => {
+    if (!audioRef.current) return;
+    if (analyserRef.current) return;
+    const w = window as Window &
+      typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+    const AudioCtxCtor = w.AudioContext || w.webkitAudioContext;
+    if (!AudioCtxCtor) return;
+    const ctx = new AudioCtxCtor();
+    const source = ctx.createMediaElementSource(audioRef.current);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.85;
+    source.connect(analyser);
+    // Do not connect analyser to destination to avoid altering output
+    audioContextRef.current = ctx;
+    audioSourceRef.current = source;
+    analyserRef.current = analyser;
+
+    return () => {
+      try {
+        analyser.disconnect();
+        source.disconnect();
+      } catch (e) {
+        void e;
+      }
+      analyserRef.current = null;
+      audioSourceRef.current = null;
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+    };
+  }, []);
+
+  // Load album tracks when item is ready
   useEffect(() => {
     let cancelled = false;
     if (!serverUrl || !userId || !accessToken || !itemId || !item) return;
-    if (item.Type !== "MusicAlbum") return;
 
     const loadTracks = async () => {
       setLoadingTracks(true);
@@ -98,8 +136,6 @@ export default function MusicDetail() {
       setCurrentTrackIndex(trackIndex);
     }
   };
-
-  
 
   const getStreamUrl = useCallback(() => {
     if (!serverUrl || !accessToken || !currentTrackId) return "";
@@ -398,6 +434,7 @@ export default function MusicDetail() {
             onVolumeChange={handleVolumeChange}
             onToggleRepeat={toggleRepeatMode}
             onClose={() => setCurrentTrackId(null)}
+            getAnalyser={() => analyserRef.current}
           />
         )}
 

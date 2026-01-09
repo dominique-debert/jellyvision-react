@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   Play,
   Pause,
@@ -26,6 +27,7 @@ interface FloatingAudioBarProps {
   onVolumeChange: (value: number) => void;
   onToggleRepeat: () => void;
   onClose: () => void;
+  getAnalyser?: () => AnalyserNode | null;
 }
 
 export function FloatingAudioBar({
@@ -42,12 +44,58 @@ export function FloatingAudioBar({
   onVolumeChange,
   onToggleRepeat,
   onClose,
+  getAnalyser,
 }: FloatingAudioBarProps) {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  const barRefs = useRef<HTMLDivElement[]>([]);
+
+  useEffect(() => {
+    const a = getAnalyser ? getAnalyser() : null;
+    if (!a) return;
+    const data = new Uint8Array(a.frequencyBinCount);
+    let rafId = 0;
+
+    const update = () => {
+      a.getByteFrequencyData(data);
+      const nyquist = a.context.sampleRate / 2;
+      const freqPerBin = nyquist / data.length;
+      const ranges: Array<[number, number]> = [
+        [20, 250],
+        [250, 500],
+        [500, 2000],
+        [2000, 4000],
+        [4000, 16000],
+      ];
+
+      for (let i = 0; i < 5; i++) {
+        const [startF, endF] = ranges[i];
+        const start = Math.max(0, Math.floor(startF / freqPerBin));
+        let end = Math.min(data.length - 1, Math.floor(endF / freqPerBin));
+        if (end < start) end = start;
+        let sum = 0;
+        let count = 0;
+        for (let b = start; b <= end; b++) {
+          sum += data[b];
+          count++;
+        }
+        const avg = count > 0 ? sum / count : 0;
+        const level = Math.min(1, avg / 255);
+        const bar = barRefs.current[i];
+        if (bar) {
+          const pct = Math.max(0.06, level) * 100;
+          bar.style.height = `${pct}%`;
+        }
+      }
+      rafId = requestAnimationFrame(update);
+    };
+    rafId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(rafId);
+  }, [getAnalyser]);
 
   return (
     <div className="sticky bottom-0 border-t border-gray-700 bg-gray-900/95 backdrop-blur-lg px-6 py-4 z-50">
@@ -73,6 +121,20 @@ export function FloatingAudioBar({
             onChange={(e) => onSeek(Number(e.target.value))}
             className="h-1 flex-1 rounded-full bg-gray-700 accent-amber-500"
           />
+          {/* FFT Visualizer: 5 vertical bars */}
+          <div className="h-6 flex items-end gap-1">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                ref={(el) => {
+                  if (el) barRefs.current[i] = el;
+                }}
+                className="w-1.5 bg-amber-500 rounded-sm"
+                style={{ height: "10%" }}
+                aria-hidden="true"
+              />
+            ))}
+          </div>
           <span className="text-xs text-gray-400 w-10">
             {formatTime(duration)}
           </span>
