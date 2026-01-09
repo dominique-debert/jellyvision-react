@@ -7,9 +7,15 @@ interface ItemCardProps {
   item: BaseItemDto;
   serverUrl: string;
   onPlayClick?: (e: React.MouseEvent) => void;
+  aspectRatio?: "square" | "2/3";
 }
 
-export function ItemCard({ item, serverUrl, onPlayClick }: ItemCardProps) {
+export function ItemCard({
+  item,
+  serverUrl,
+  onPlayClick,
+  aspectRatio = "2/3",
+}: ItemCardProps) {
   const navigate = useNavigate();
 
   const getPrimaryImageUrl = () => {
@@ -52,7 +58,11 @@ export function ItemCard({ item, serverUrl, onPlayClick }: ItemCardProps) {
       onClick={onPlayClick ? handlePlayClick : handleCardClick}
     >
       <div className="relative mb-2">
-        <div className="relative aspect-square bg-zinc-800 rounded-lg overflow-hidden">
+        <div
+          className={`relative ${
+            aspectRatio === "square" ? "aspect-square" : "aspect-2/3"
+          } bg-zinc-800 rounded-lg overflow-hidden`}
+        >
           {primaryImageUrl ? (
             <img
               src={primaryImageUrl}

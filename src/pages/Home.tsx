@@ -265,7 +265,11 @@ export default function Home() {
             >
               {recentMusic.map((item) => (
                 <div key={item.Id} className="flex-none w-48">
-                  <ItemCard item={item} serverUrl={serverUrl!} />
+                  <ItemCard
+                    item={item}
+                    serverUrl={serverUrl!}
+                    aspectRatio="square"
+                  />
                 </div>
               ))}
             </div>
