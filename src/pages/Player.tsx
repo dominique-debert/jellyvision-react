@@ -214,7 +214,8 @@ export default function Player() {
           console.log("Fetching PlaybackInfo to get subtitle DeliveryUrl...");
           // In development (localhost), use the Vite proxy; otherwise use the server URL
           const baseUrl =
-            typeof window !== "undefined" && window.location.hostname === "localhost"
+            typeof window !== "undefined" &&
+            window.location.hostname === "localhost"
               ? "/jellyfin"
               : serverUrl;
           const playbackInfoResponse = await fetch(
@@ -257,11 +258,6 @@ export default function Player() {
           const deliveryUrl = playbackSubtitle.DeliveryUrl;
           // Use .js format (JSON) like jellyfin-web does, not .vtt
           const jsonDeliveryUrl = deliveryUrl.replace(".vtt", ".js");
-          // In development (localhost), use the Vite proxy; otherwise use the server URL
-          const baseUrl =
-            typeof window !== "undefined" && window.location.hostname === "localhost"
-              ? "/jellyfin"
-              : serverUrl;
 
           if (jsonDeliveryUrl.startsWith("http")) {
             subtitleUrl = jsonDeliveryUrl;
