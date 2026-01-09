@@ -153,7 +153,11 @@ export default function LibraryDetail() {
               {[...Array(12)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
                   <CardContent className="p-0">
-                    <div className="aspect-2/3 bg-muted rounded" />
+                    <div
+                      className={`${
+                        libraryType === "music" ? "aspect-square" : "aspect-2/3"
+                      } bg-muted rounded`}
+                    />
                   </CardContent>
                 </Card>
               ))}
@@ -200,7 +204,13 @@ export default function LibraryDetail() {
                 >
                   <CardContent className="p-0">
                     <div className="relative">
-                      <div className="aspect-2/3 bg-muted rounded overflow-hidden">
+                      <div
+                        className={`${
+                          libraryType === "music"
+                            ? "aspect-square"
+                            : "aspect-2/3"
+                        } bg-muted rounded overflow-hidden`}
+                      >
                         {item.Id && item.ImageTags?.["Primary"] && serverUrl ? (
                           <img
                             src={getImageUrl(serverUrl, item.Id, "Primary")}
