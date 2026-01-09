@@ -245,7 +245,11 @@ export default function LibraryDetail() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/play/${item.Id}`);
+                            if (libraryType === "music") {
+                              navigate(`/item/${item.Id}?autoplay=true`);
+                            } else {
+                              navigate(`/play/${item.Id}`);
+                            }
                           }}
                           className="h-20 w-20 rounded-full bg-primary hover:bg-primary/90 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
                         >
