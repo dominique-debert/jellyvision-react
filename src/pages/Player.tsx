@@ -683,7 +683,10 @@ export default function Player() {
 
   const posterUrl =
     item.Id && serverUrl
-      ? getImageUrl(serverUrl, item.Id, "Primary", 800, 1200, 90)
+      ? // For episodes, use the season poster if available, otherwise use episode poster
+        item.Type === "Episode" && item.ParentId
+        ? getImageUrl(serverUrl, item.ParentId, "Primary", 800, 1200, 90)
+        : getImageUrl(serverUrl, item.Id, "Primary", 800, 1200, 90)
       : undefined;
 
   return (
