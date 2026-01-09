@@ -118,7 +118,12 @@ export default function Player() {
       if (subtitle !== undefined) {
         params.set("SubtitleStreamIndex", String(subtitle));
       }
-      return `${serverUrl}/Videos/${itemId}/stream?${params.toString()}`;
+      // In development (localhost), use the Vite proxy; otherwise use the server URL
+      const baseUrl =
+        typeof window !== "undefined" && window.location.hostname === "localhost"
+          ? "/jellyfin"
+          : serverUrl;
+      return `${baseUrl}/Videos/${itemId}/stream?${params.toString()}`;
     },
     [serverUrl, itemId, accessToken]
   );
