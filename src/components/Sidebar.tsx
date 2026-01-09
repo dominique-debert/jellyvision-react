@@ -126,10 +126,10 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               disabled={item.disabled}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-colors ${
                 item.isActive
-                  ? "bg-secondary text-white/60"
+                  ? "bg-primary text-white font-medium"
                   : item.disabled
                   ? "text-base-content/40 cursor-not-allowed"
-                  : "text-base-content hover:bg-base-300"
+                  : "text-base-content hover:bg-primary/20 hover:text-white/80"
               } ${isCollapsed ? "justify-center" : ""}`}
               title={isCollapsed ? item.label : undefined}
             >
