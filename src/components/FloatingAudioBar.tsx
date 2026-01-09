@@ -1,15 +1,5 @@
 import { useEffect, useRef } from "react";
-import {
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  Volume2,
-  VolumeX,
-  Repeat,
-  Repeat1,
-  X,
-} from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Repeat1, X } from "lucide-react";
 
 export type RepeatMode = "off" | "all" | "one";
 
@@ -56,62 +46,83 @@ export function FloatingAudioBar({
 
   useEffect(() => {
     const a = getAnalyser ? getAnalyser() : null;
-    if (!a) return;
-    const data = new Uint8Array(a.frequencyBinCount);
+    const data = a ? new Uint8Array(a.frequencyBinCount) : null;
     let rafId = 0;
 
-    const update = () => {
-      a.getByteFrequencyData(data);
-      const nyquist = a.context.sampleRate / 2;
-      const freqPerBin = nyquist / data.length;
-      const ranges: Array<[number, number]> = [
-        [20, 250],
-        [250, 500],
-        [500, 2000],
-        [2000, 4000],
-        [4000, 16000],
-      ];
+    const phases = [0, 0.8, 1.6, 2.4, 3.2];
 
-      for (let i = 0; i < 5; i++) {
-        const [startF, endF] = ranges[i];
-        const start = Math.max(0, Math.floor(startF / freqPerBin));
-        let end = Math.min(data.length - 1, Math.floor(endF / freqPerBin));
-        if (end < start) end = start;
-        let sum = 0;
-        let count = 0;
-        for (let b = start; b <= end; b++) {
-          sum += data[b];
-          count++;
+    const update = (now: number) => {
+      // If playing, try real FFT first; else drop to floor
+      if (isPlaying && a && data) {
+        a.getByteFrequencyData(data);
+        const nyquist = a.context.sampleRate / 2;
+        const freqPerBin = nyquist / data.length;
+        const ranges: Array<[number, number]> = [
+          [20, 250],
+          [250, 500],
+          [500, 2000],
+          [2000, 4000],
+          [4000, 16000],
+        ];
+
+        let totalEnergy = 0;
+        for (let i = 0; i < data.length; i++) totalEnergy += data[i];
+
+        for (let i = 0; i < 5; i++) {
+          const [startF, endF] = ranges[i];
+          const startIdx = Math.max(0, Math.floor(startF / freqPerBin));
+          const endIdx = Math.min(data.length - 1, Math.floor(endF / freqPerBin));
+          let sum = 0;
+          let count = 0;
+          for (let b = startIdx; b <= endIdx; b++) {
+            sum += data[b];
+            count++;
+          }
+          let level = count > 0 ? sum / (count * 255) : 0;
+
+          // If energy is zero (likely CORS-blocked FFT), use fallback animation
+          if (totalEnergy === 0) {
+            const amp = Math.max(0.15, volume * 0.85);
+            level = 0.3 + amp * (0.5 + 0.5 * Math.sin(now / 140 + phases[i]));
+          }
+
+          const bar = barRefs.current[i];
+          if (bar) {
+            const pct = Math.max(0.06, Math.min(1, level)) * 100;
+            bar.style.height = `${pct}%`;
+          }
         }
-        const avg = count > 0 ? sum / count : 0;
-        const level = Math.min(1, avg / 255);
-        const bar = barRefs.current[i];
-        if (bar) {
-          const pct = Math.max(0.06, level) * 100;
-          bar.style.height = `${pct}%`;
+      } else {
+        // Not playing or no analyser: fallback animation or floor
+        const amp = isPlaying ? Math.max(0.15, volume * 0.85) : 0;
+        for (let i = 0; i < 5; i++) {
+          const level = amp ? 0.3 + amp * (0.5 + 0.5 * Math.sin(now / 140 + phases[i])) : 0.08;
+          const bar = barRefs.current[i];
+          if (bar) {
+            const pct = Math.max(0.06, Math.min(1, level)) * 100;
+            bar.style.height = `${pct}%`;
+          }
         }
       }
+
       rafId = requestAnimationFrame(update);
     };
+
     rafId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(rafId);
-  }, [getAnalyser]);
+  }, [getAnalyser, isPlaying, volume]);
 
   return (
     <div className="sticky bottom-0 border-t border-gray-700 bg-gray-900/95 backdrop-blur-lg px-6 py-4 z-50">
       <div className="flex items-center gap-4">
         {/* Track Info (far left) */}
         <div className="w-64 shrink-0">
-          <p className="text-sm font-medium text-white truncate">
-            {trackName || "Track name"}
-          </p>
+          <p className="text-sm font-medium text-white truncate">{trackName || "Track name"}</p>
         </div>
 
         {/* Progress Bar */}
         <div className="flex items-center gap-2 flex-1 min-w-50">
-          <span className="text-xs text-gray-400 w-10 text-right">
-            {formatTime(currentTime)}
-          </span>
+          <span className="text-xs text-gray-400 w-10 text-right">{formatTime(currentTime)}</span>
           <input
             type="range"
             min={0}
@@ -122,58 +133,39 @@ export function FloatingAudioBar({
             className="h-1 flex-1 rounded-full bg-gray-700 accent-amber-500"
           />
           {/* FFT Visualizer: 5 vertical bars */}
-          <div className="h-6 flex items-end gap-1">
+          <div className="h-8 flex items-end gap-1">
             {[0, 1, 2, 3, 4].map((i) => (
               <div
                 key={i}
                 ref={(el) => {
                   if (el) barRefs.current[i] = el;
                 }}
-                className="w-1.5 bg-amber-500 rounded-sm"
+                className="w-2 bg-amber-500 rounded-sm"
                 style={{ height: "10%" }}
                 aria-hidden="true"
               />
             ))}
           </div>
-          <span className="text-xs text-gray-400 w-10">
-            {formatTime(duration)}
-          </span>
+          <span className="text-xs text-gray-400 w-10">{formatTime(duration)}</span>
         </div>
 
         {/* Controls */}
         <div className="flex items-center gap-2">
-          <button
-            className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white"
-            onClick={onSkipBack}
-          >
+          <button className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white" onClick={onSkipBack}>
             <SkipBack className="h-4 w-4" />
           </button>
 
-          <button
-            className="p-1.5 bg-amber-500 hover:bg-amber-600 rounded transition-colors text-white"
-            onClick={onPlayPause}
-          >
-            {isPlaying ? (
-              <Pause className="h-4 w-4 fill-white" />
-            ) : (
-              <Play className="h-4 w-4 fill-white" />
-            )}
+          <button className="p-1.5 bg-amber-500 hover:bg-amber-600 rounded transition-colors text-white" onClick={onPlayPause}>
+            {isPlaying ? <Pause className="h-4 w-4 fill-white" /> : <Play className="h-4 w-4 fill-white" />}
           </button>
 
-          <button
-            className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white"
-            onClick={onSkipForward}
-          >
+          <button className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white" onClick={onSkipForward}>
             <SkipForward className="h-4 w-4" />
           </button>
 
           {/* Volume */}
           <div className="flex items-center gap-1 ml-2 pl-2 border-l border-gray-600">
-            {volume === 0 ? (
-              <VolumeX className="h-4 w-4 text-gray-400" />
-            ) : (
-              <Volume2 className="h-4 w-4 text-gray-400" />
-            )}
+            {volume === 0 ? <VolumeX className="h-4 w-4 text-gray-400" /> : <Volume2 className="h-4 w-4 text-gray-400" />}
             <input
               type="range"
               min={0}
@@ -188,24 +180,15 @@ export function FloatingAudioBar({
           {/* Repeat */}
           <button
             className={`p-1.5 rounded transition-colors ml-2 ${
-              repeatMode !== "off"
-                ? "bg-amber-500/20 text-amber-400"
-                : "hover:bg-gray-700 text-gray-300 hover:text-white"
+              repeatMode !== "off" ? "bg-amber-500/20 text-amber-400" : "hover:bg-gray-700 text-gray-300 hover:text-white"
             }`}
             onClick={onToggleRepeat}
           >
-            {repeatMode === "one" ? (
-              <Repeat1 className="h-4 w-4" />
-            ) : (
-              <Repeat className="h-4 w-4" />
-            )}
+            {repeatMode === "one" ? <Repeat1 className="h-4 w-4" /> : <Repeat className="h-4 w-4" />}
           </button>
 
           {/* Close */}
-          <button
-            className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white ml-2"
-            onClick={onClose}
-          >
+          <button className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white ml-2" onClick={onClose}>
             <X className="h-4 w-4" />
           </button>
         </div>
