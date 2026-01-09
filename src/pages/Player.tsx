@@ -136,7 +136,13 @@ export default function Player() {
         const streamUrl = getStreamUrl();
         console.log("Loading stream:", streamUrl);
 
-        // The source element handles setting the stream
+        // Update the source element
+        const sourceElement = videoRef.current.querySelector("source");
+        if (sourceElement) {
+          sourceElement.src = streamUrl;
+        }
+        
+        // Reload the video element
         videoRef.current.load();
       } catch (e) {
         console.error("Error initializing player:", e);
@@ -636,7 +642,7 @@ export default function Player() {
         onPause={handlePauseEvent}
         onClick={togglePlayPause}
       >
-        <source src={getStreamUrl()} type="video/mp4" />
+        <source src="" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
