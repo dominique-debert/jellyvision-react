@@ -18,6 +18,8 @@ interface Library {
   CollectionType?: string | null;
 }
 
+import { CirclePause, Clapperboard, Drama, Music } from "lucide-react";
+
 export default function Home() {
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
@@ -133,13 +135,14 @@ export default function Home() {
 
   return (
     <Layout>
-      <main className="container">
+      <div className="container mx-auto px-8 py-8 flex flex-col gap-8">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-medium flex items-center">
-                <span className="mr-2">⏯</span> Continue watching
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+                <CirclePause className="size-5 inline-block mr-2" /> Continue
+                watching
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -162,7 +165,7 @@ export default function Home() {
             </div>
             <div
               ref={resumeScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {resumeItems.map((item) => (
@@ -181,9 +184,10 @@ export default function Home() {
         {/* Recently Added Movies */}
         {!loading && recentMovies.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-medium flex items-center">
-                <span className="mr-2">🎬</span> Recently added
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+                <Clapperboard className="size-5 inline-block mr-2" /> Recently
+                added in Movies
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -206,7 +210,7 @@ export default function Home() {
             </div>
             <div
               ref={moviesScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMovies.map((item) => (
@@ -221,9 +225,10 @@ export default function Home() {
         {/* Recently Added TV Shows */}
         {!loading && recentShows.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-medium flex items-center">
-                <span className="mr-2">📺</span> Recently added
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+                <Drama className="size-5 inline-block mr-2" /> Recently added in
+                TV Shows
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -246,7 +251,7 @@ export default function Home() {
             </div>
             <div
               ref={showsScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentShows.map((item) => (
@@ -261,9 +266,10 @@ export default function Home() {
         {/* Recently Added Music */}
         {!loading && recentMusic.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-medium flex items-center">
-                <span className="mr-2">🎵</span> Recently added
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-light h-18 flex items-center gap-3">
+                <Music className="size-5 inline-block mr-2" /> Recently added in
+                Music
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -286,7 +292,7 @@ export default function Home() {
             </div>
             <div
               ref={musicScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMusic.map((item) => (
@@ -301,7 +307,7 @@ export default function Home() {
             </div>
           </section>
         )}
-      </main>
+      </div>
     </Layout>
   );
 }
