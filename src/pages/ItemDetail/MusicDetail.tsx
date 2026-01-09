@@ -242,179 +242,169 @@ export default function MusicDetail() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-linear-to-br from-gray-900 to-black flex flex-col">
-        <div className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-8 py-8 max-w-400">
-            <Button
-              variant="ghost"
-              onClick={() => navigate(-1)}
-              className="mb-6"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
+      <div className="min-h-screen bg-linear-to-br from-gray-900 to-black relative">
+        <div className="container mx-auto px-8 py-8 max-w-400 pb-80">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
 
-            <div className="flex gap-8">
-              {/* Left Column - Album Art */}
-              <div className="w-80 shrink-0">
-                <div className="relative group">
-                  {primaryImageUrl ? (
-                    <img
-                      src={primaryImageUrl}
-                      alt={item.Name || "Album"}
-                      className="w-full rounded-lg shadow-2xl"
-                    />
-                  ) : (
-                    <div className="w-full aspect-2/3 bg-zinc-800 rounded-lg flex items-center justify-center">
-                      <span className="text-zinc-600">No Image</span>
+          <div className="flex gap-8">
+            {/* Left Column - Album Art */}
+            <div className="w-80 shrink-0">
+              <div className="relative group">
+                {primaryImageUrl ? (
+                  <img
+                    src={primaryImageUrl}
+                    alt={item.Name || "Album"}
+                    className="w-full rounded-lg shadow-2xl"
+                  />
+                ) : (
+                  <div className="w-full aspect-2/3 bg-zinc-800 rounded-lg flex items-center justify-center">
+                    <span className="text-zinc-600">No Image</span>
+                  </div>
+                )}
+                {/* Play Overlay */}
+                {albumTracks.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (albumTracks[0].Id) {
+                        handlePlayTrack(albumTracks[0].Id);
+                      }
+                    }}
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <div className="bg-amber-500 hover:bg-amber-600 rounded-full p-4">
+                      <Play className="h-8 w-8 text-white fill-white" />
                     </div>
-                  )}
-                  {/* Play Overlay */}
-                  {albumTracks.length > 0 && (
-                    <button
-                      onClick={() => {
-                        if (albumTracks[0].Id) {
-                          handlePlayTrack(albumTracks[0].Id);
-                        }
-                      }}
-                      className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <div className="bg-amber-500 hover:bg-amber-600 rounded-full p-4">
-                        <Play className="h-8 w-8 text-white fill-white" />
-                      </div>
-                    </button>
-                  )}
-                </div>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column - Details */}
+            <div className="flex-1 min-w-0 space-y-6">
+              <ItemHeader item={item} itemId={itemId!} />
+
+              <QualityBadges item={item} />
+
+              <MetadataTable item={item} />
+
+              <SynopsisSection item={item} />
+
+              {/* Album Info */}
+              <div className="space-y-2">
+                {item.AlbumArtist && (
+                  <div>
+                    <span className="text-zinc-400">Artist: </span>
+                    <span>{item.AlbumArtist}</span>
+                  </div>
+                )}
+                {item.ProductionYear && (
+                  <div>
+                    <span className="text-zinc-400">Released: </span>
+                    <span>{item.ProductionYear}</span>
+                  </div>
+                )}
               </div>
 
-              {/* Right Column - Details */}
-              <div className="flex-1 min-w-0 space-y-6">
-                <ItemHeader item={item} itemId={itemId!} />
-
-                <QualityBadges item={item} />
-
-                <MetadataTable item={item} />
-
-                <SynopsisSection item={item} />
-
-                {/* Album Info */}
-                <div className="space-y-2">
-                  {item.AlbumArtist && (
-                    <div>
-                      <span className="text-zinc-400">Artist: </span>
-                      <span>{item.AlbumArtist}</span>
-                    </div>
-                  )}
-                  {item.ProductionYear && (
-                    <div>
-                      <span className="text-zinc-400">Released: </span>
-                      <span>{item.ProductionYear}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Tracks */}
-                <div className="mt-6">
-                  <h3 className="text-2xl font-semibold mb-4">Tracks</h3>
-                  {loadingTracks ? (
-                    <div className="animate-pulse space-y-4">
-                      <div className="h-10 w-full bg-zinc-800 rounded" />
-                      <div className="h-32 w-full bg-zinc-800 rounded" />
-                    </div>
-                  ) : albumTracks.length === 0 ? (
-                    <div className="text-zinc-400">No tracks found.</div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      {Object.keys(tracksPerDisc).map((discNum) => (
-                        <div key={discNum} className="mb-6">
-                          {Object.keys(tracksPerDisc).length > 1 && (
-                            <div className="flex items-center gap-2 mb-2">
-                              <Disc className="h-4 w-4 text-zinc-400" />
-                              <span className="font-semibold">
-                                Disc {discNum}
-                              </span>
-                            </div>
-                          )}
-                          <table className="min-w-full text-sm border-separate border-spacing-y-1">
-                            <thead>
-                              <tr className="text-zinc-400">
-                                <th className="w-12 text-center">#</th>
-                                <th className="w-10"></th>
-                                <th className="text-left">Title</th>
-                                <th className="w-24 text-center">Duration</th>
+              {/* Tracks */}
+              <div className="mt-6">
+                <h3 className="text-2xl font-semibold mb-4">Tracks</h3>
+                {loadingTracks ? (
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-10 w-full bg-zinc-800 rounded" />
+                    <div className="h-32 w-full bg-zinc-800 rounded" />
+                  </div>
+                ) : albumTracks.length === 0 ? (
+                  <div className="text-zinc-400">No tracks found.</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    {Object.keys(tracksPerDisc).map((discNum) => (
+                      <div key={discNum} className="mb-6">
+                        {Object.keys(tracksPerDisc).length > 1 && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <Disc className="h-4 w-4 text-zinc-400" />
+                            <span className="font-semibold">
+                              Disc {discNum}
+                            </span>
+                          </div>
+                        )}
+                        <table className="min-w-full text-sm border-separate border-spacing-y-1">
+                          <thead>
+                            <tr className="text-zinc-400">
+                              <th className="w-12 text-center">#</th>
+                              <th className="w-10"></th>
+                              <th className="text-left">Title</th>
+                              <th className="w-24 text-center">Duration</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {tracksPerDisc[Number(discNum)].map((track) => (
+                              <tr
+                                key={track.Id}
+                                className={`group hover:bg-zinc-800 rounded cursor-pointer ${
+                                  track.Id === currentTrackId
+                                    ? "bg-amber-500/20"
+                                    : ""
+                                }`}
+                                onDoubleClick={() => {
+                                  if (track.Id) handlePlayTrack(track.Id);
+                                }}
+                              >
+                                <td className="text-center font-mono">
+                                  {track.IndexNumber}
+                                </td>
+                                <td className="text-center">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (track.Id) handlePlayTrack(track.Id);
+                                    }}
+                                  >
+                                    <Play className="h-5 w-5" />
+                                  </Button>
+                                </td>
+                                <td className="text-left">
+                                  <span className="font-medium">
+                                    {track.Name}
+                                  </span>
+                                  {track.ArtistItems &&
+                                    track.ArtistItems.length > 0 && (
+                                      <span className="ml-2 text-zinc-400">
+                                        {track.ArtistItems.map(
+                                          (a) => a.Name
+                                        ).join(", ")}
+                                      </span>
+                                    )}
+                                </td>
+                                <td className="text-center font-mono">
+                                  {formatTrackTime(track.RunTimeTicks)}
+                                </td>
                               </tr>
-                            </thead>
-                            <tbody>
-                              {tracksPerDisc[Number(discNum)].map((track) => (
-                                <tr
-                                  key={track.Id}
-                                  className={`group hover:bg-zinc-800 rounded cursor-pointer ${
-                                    track.Id === currentTrackId
-                                      ? "bg-amber-500/20"
-                                      : ""
-                                  }`}
-                                  onDoubleClick={() => {
-                                    if (track.Id) handlePlayTrack(track.Id);
-                                  }}
-                                >
-                                  <td className="text-center font-mono">
-                                    {track.IndexNumber}
-                                  </td>
-                                  <td className="text-center">
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (track.Id) handlePlayTrack(track.Id);
-                                      }}
-                                    >
-                                      <Play className="h-5 w-5" />
-                                    </Button>
-                                  </td>
-                                  <td className="text-left">
-                                    <span className="font-medium">
-                                      {track.Name}
-                                    </span>
-                                    {track.ArtistItems &&
-                                      track.ArtistItems.length > 0 && (
-                                        <span className="ml-2 text-zinc-400">
-                                          {track.ArtistItems.map(
-                                            (a) => a.Name
-                                          ).join(", ")}
-                                        </span>
-                                      )}
-                                  </td>
-                                  <td className="text-center font-mono">
-                                    {formatTrackTime(track.RunTimeTicks)}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Embedded Player - Bottom */}
+        {/* Floating Player - Bottom of Screen */}
         {currentTrackId && (
-          <div className="border-t border-gray-700 bg-gray-800/80 backdrop-blur-sm px-6 py-4">
+          <div className="sticky bottom-0 border-t border-gray-700 bg-gray-900/95 backdrop-blur-lg px-6 py-4 z-50">
             <div className="flex items-center gap-4">
-              {/* Track Info */}
-              <div className="min-w-0 flex-1">
-                <p className="text-sm text-white truncate">
-                  {albumTracks[currentTrackIndex]?.Name ||
-                    "Track name"}
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  {albumTracks[currentTrackIndex]?.AlbumArtist || "Artist"}
+              {/* Track Info (far left) */}
+              <div className="w-64 shrink-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {albumTracks[currentTrackIndex]?.Name || "Track name"}
                 </p>
               </div>
 
