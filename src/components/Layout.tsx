@@ -20,10 +20,10 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
       className="min-h-screen text-base-content w-full"
       style={{
         background: backdropUrl
-          ? `url(${backdropUrl}) calc(center + ${sidebarWidth / 2}px)/cover no-repeat fixed, ${defaultGradient}`
+          ? `url(${backdropUrl}) calc(50% + ${sidebarWidth}px)/cover no-repeat fixed, ${defaultGradient}`
           : defaultGradient,
         backgroundBlendMode: backdropUrl ? "multiply" : "normal",
-        backgroundPosition: backdropUrl ? `calc(50% + ${sidebarWidth / 2}px) center` : undefined,
+        backgroundPosition: backdropUrl ? `calc(50% + ${sidebarWidth}px) center` : undefined,
       }}
     >
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
