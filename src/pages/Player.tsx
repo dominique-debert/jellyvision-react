@@ -136,23 +136,8 @@ export default function Player() {
         const streamUrl = getStreamUrl();
         console.log("Loading stream:", streamUrl);
 
-        // Update the source element
-        const sourceElement = videoRef.current.querySelector("source");
-        if (sourceElement) {
-          sourceElement.src = streamUrl;
-        }
-
-        // Reload the video element
-        videoRef.current.load();
-      } catch (e) {
-        console.error("Error initializing player:", e);
-      }
-    };
-
-    if (item && !loading) {
-      initializePlayer();
-    }
-  }, [item, loading, itemId, getStreamUrl]);
+        // The video element will load automatically when the source element updates
+        // Don't manually call load() to avoid race conditions with autoPlay
 
   // Unmute video once it starts playing (for autoplay)
   useEffect(() => {
