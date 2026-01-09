@@ -1,4 +1,4 @@
-import { } from "react";
+import {} from "react";
 import {
   Play,
   Pause,
@@ -50,8 +50,6 @@ export function FloatingAudioBar({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  
-
   return (
     <div className="sticky bottom-0 border-t border-gray-700 bg-gray-900/95 backdrop-blur-lg px-6 py-4 z-50">
       <div className="flex items-center gap-4">
@@ -76,7 +74,7 @@ export function FloatingAudioBar({
             onChange={(e) => onSeek(Number(e.target.value))}
             className="h-1 flex-1 rounded-full bg-gray-700 accent-amber-500"
           />
-          
+
           <span className="text-xs text-gray-400 w-10">
             {formatTime(duration)}
           </span>

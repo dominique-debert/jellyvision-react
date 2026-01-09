@@ -10,13 +10,9 @@ import {
   Printer,
   MoreHorizontal,
   ArrowLeft,
-  Star,
-  Clock,
-  Calendar,
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { getImageUrl } from "@/lib/jellyfin/client";
-import { Card, CardContent } from "@/components/ui/card";
 
 export const formatRuntime = (ticks?: number) => {
   if (!ticks) return null;

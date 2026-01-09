@@ -155,7 +155,9 @@ export default function LibraryDetail() {
                   <CardContent className="p-0">
                     <div
                       className={`${
-                        libraryType === "music" ? "aspect-square" : "aspect-2/3"
+                        libraryType === "music"
+                          ? "aspect-square"
+                          : "aspect-video"
                       } bg-muted rounded`}
                     />
                   </CardContent>

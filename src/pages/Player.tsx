@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
+import Hls from "hls.js";
 import {
   getItem,
   getImageUrl,
@@ -43,15 +44,12 @@ export default function Player() {
   );
   const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [streamUrl, setStreamUrl] = useState("");
 
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
-  const playSessionIdRef = useRef<string>("");
-
-  // Initialize session ID on first render only
-  useEffect(() => {
-    playSessionIdRef.current =
-      Date.now().toString() + Math.random().toString(36).substr(2, 9);
-  }, []);
+  const [playSessionId] = useState(
+    () => Date.now().toString() + Math.random().toString(36).substr(2, 9)
+  );
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -93,73 +91,118 @@ export default function Player() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId, searchParams, setSearchParams]);
 
-  // getStreamUrl wrapped in useCallback to avoid redeclaration and dependency issues
-  const getStreamUrl = useCallback(
-    (subtitle?: number) => {
+  // Build stream URL
+  const buildStreamUrl = useCallback(
+    (subtitle?: number): string => {
       if (!serverUrl || !itemId || !accessToken) return "";
-      // Use Jellyfin's stream endpoint with transcoding parameters
       const params = new URLSearchParams();
       params.set("api_key", accessToken);
-      params.set("PlaySessionId", playSessionIdRef.current);
-      // Force transcoding to web-compatible formats
-      params.set("VideoCodec", "h264");
-      params.set("AudioCodec", "aac,mp3");
-      params.set("AudioStreamIndex", "1");
-      params.set("VideoStreamIndex", "0");
-      params.set("Level", "41");
-      params.set("MaxFramerate", "30");
-      params.set("MaxWidth", "1920");
-      params.set("MaxHeight", "1080");
-      params.set("VideoBitrate", "8000000");
-      params.set("AudioBitrate", "320000");
+      params.set("DeviceId", "jellyvision-web");
+      params.set("PlaySessionId", playSessionId);
+      params.set("SegmentContainer", "ts");
+      params.set("MinSegments", "1");
+      params.set("BreakOnNonKeyFrames", "True");
+      params.set("TranscodingMaxAudioChannels", "2");
+      params.set("h264-profile", "high,main,baseline,constrainedbaseline");
+      params.set("h264-level", "52");
       params.set("TranscodeReasons", "VideoCodecNotSupported");
       if (subtitle !== undefined) {
         params.set("SubtitleStreamIndex", String(subtitle));
       }
-      // In development (localhost), use the Vite proxy; otherwise use the server URL
       const baseUrl =
         typeof window !== "undefined" &&
         window.location.hostname === "localhost"
           ? "/jellyfin"
           : serverUrl;
-      return `${baseUrl}/Videos/${itemId}/stream?${params.toString()}`;
+      return `${baseUrl}/Videos/${itemId}/main.m3u8?${params.toString()}`;
     },
-    [serverUrl, itemId, accessToken]
+    [serverUrl, itemId, accessToken, playSessionId]
   );
 
-  // Initialize video player with stream
+  // Update stream URL state when buildStreamUrl changes
+  useEffect(() => {
+    const url = buildStreamUrl();
+    console.log("Stream URL updated:", url);
+    setStreamUrl(url);
+  }, [buildStreamUrl]);
+
+  // Initialize HLS player when streamUrl changes
+  useEffect(() => {
+    console.log(
+      "HLS effect triggered - streamUrl:",
+      !!streamUrl,
+      "videoRef:",
+      !!videoRef.current,
+      "item:",
+      !!item
+    );
+    if (!videoRef.current || !streamUrl || !item) return;
+
+    const video = videoRef.current;
+    console.log("Initializing HLS player with URL:", streamUrl);
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        debug: false,
+        enableWorker: true,
+      });
+
+      hls.loadSource(streamUrl);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.log("HLS manifest parsed, ready to play");
+      });
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error("HLS error:", data);
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error("Fatal network error, trying to recover");
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error("Fatal media error, trying to recover");
+              hls.recoverMediaError();
+              break;
+            default:
+              console.error("Fatal error, destroying HLS instance");
+              hls.destroy();
+              break;
+          }
+        }
+      });
+
+      return () => {
+        console.log("Cleaning up HLS instance");
+        hls.destroy();
+      };
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      // Native HLS support (Safari)
+      console.log("Using native HLS support");
+      video.src = streamUrl;
+    } else {
+      console.error("HLS is not supported in this browser");
+    }
+  }, [streamUrl, item]);
+
   useEffect(() => {
     const initializePlayer = async () => {
       if (!videoRef.current || !item || !itemId) return;
 
       try {
-        const streamUrl = getStreamUrl();
-        console.log("Loading stream:", streamUrl);
-
-        // The video element will load automatically when the source element updates
-        // Don't manually call load() to avoid race conditions with autoPlay
-
-  // Unmute video once it starts playing (for autoplay)
-  useEffect(() => {
-    if (!videoRef.current) return;
-
-    const handleCanPlay = () => {
-      // Unmute after a brief delay to allow autoplay to start
-      setTimeout(() => {
-        if (videoRef.current && videoRef.current.muted) {
-          videoRef.current.muted = false;
-          videoRef.current.volume = volume;
-        }
-      }, 100);
+        const url = buildStreamUrl();
+        console.log("Loading stream:", url);
+      } catch (e) {
+        console.error("Error initializing player:", e);
+      }
     };
 
-    const video = videoRef.current;
-    video.addEventListener("canplay", handleCanPlay);
-
-    return () => {
-      video.removeEventListener("canplay", handleCanPlay);
-    };
-  }, [volume]);
+    if (item && !loading) {
+      initializePlayer();
+    }
+  }, [item, loading, itemId, buildStreamUrl]);
 
   // Load subtitles by fetching track events and creating VTT cues (Jellyfin approach)
   useEffect(() => {
@@ -326,7 +369,7 @@ export default function Player() {
     };
 
     loadSubtitles();
-  }, [item, subtitleOptions, serverUrl, itemId, accessToken, getStreamUrl]);
+  }, [item, subtitleOptions, serverUrl, itemId, accessToken, buildStreamUrl]);
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -468,7 +511,7 @@ export default function Player() {
         accessToken,
         positionTicks,
         !isPlaying,
-        playSessionIdRef.current
+        playSessionId
       );
     };
 
@@ -491,7 +534,7 @@ export default function Player() {
             accessToken,
             positionTicks,
             false,
-            playSessionIdRef.current
+            playSessionId
           );
         } catch (e) {
           console.error("Failed to report progress on unload:", e);
@@ -517,6 +560,7 @@ export default function Player() {
     currentTime,
     isPlaying,
     duration,
+    playSessionId,
   ]);
 
   const handleSubtitleSelect = (index?: number) => {
@@ -565,7 +609,7 @@ export default function Player() {
         accessToken,
         positionTicks,
         false, // Don't mark as paused, just report the position
-        playSessionIdRef.current
+        playSessionId
       );
     }
 
@@ -626,8 +670,17 @@ export default function Player() {
         onPlay={handlePlayEvent}
         onPause={handlePauseEvent}
         onClick={togglePlayPause}
+        onError={(e) => {
+          console.error("Video error:", e);
+          console.error(
+            "Video element error code:",
+            (e.target as HTMLVideoElement).error?.code
+          );
+        }}
+        onLoadStart={() => console.log("Video: loadstart event")}
+        onCanPlay={() => console.log("Video: canplay event")}
+        onCanPlayThrough={() => console.log("Video: canplaythrough event")}
       >
-        {item && itemId && <source src={getStreamUrl()} type="video/mp4" />}
         Your browser does not support the video tag.
       </video>
 

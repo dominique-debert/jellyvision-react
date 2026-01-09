@@ -183,7 +183,10 @@ export default function MusicDetail() {
     params.set("static", "true");
     params.set("api_key", accessToken);
     // In development (localhost), use the Vite proxy; otherwise use the server URL
-    const baseUrl = typeof window !== "undefined" && window.location.hostname === "localhost" ? "/jellyfin" : serverUrl;
+    const baseUrl =
+      typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? "/jellyfin"
+        : serverUrl;
     return `${baseUrl}/Audio/${currentTrackId}/stream?${params.toString()}`;
   }, [serverUrl, accessToken, currentTrackId]);
 
