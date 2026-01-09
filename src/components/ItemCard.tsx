@@ -108,7 +108,7 @@ export function ItemCard({
           {/* Progress bar for resume items */}
           {item.UserData?.PlayedPercentage &&
             item.UserData.PlayedPercentage > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 h-2 bg-black/60">
+              <div className="absolute bottom-0 left-0 right-0 h-2">
                 <div
                   className="h-full"
                   style={{
@@ -123,13 +123,13 @@ export function ItemCard({
       </div>
       {/* Title and metadata below poster */}
       <div className="mt-2">
-        <h3 className="font-medium text-sm line-clamp-1">{item.Name}</h3>
+        <h3 className="font-medium text-md line-clamp-1">{item.Name}</h3>
         {item.Type === "Episode" ? (
-          <p className="text-xs text-base-content/60 mt-0.5">
+          <p className="text-sm text-base-content/60 mt-0.5">
             Season {item.ParentIndexNumber} · Episode {item.IndexNumber}
           </p>
         ) : item.ProductionYear ? (
-          <p className="text-xs text-base-content/60 mt-0.5">
+          <p className="text-sm text-base-content/60 mt-0.5">
             {item.ProductionYear}
           </p>
         ) : null}

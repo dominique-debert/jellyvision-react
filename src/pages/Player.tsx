@@ -691,10 +691,7 @@ export default function Player() {
       : undefined;
 
   return (
-    <div
-      className="relative h-screen bg-black overflow-hidden"
-      onMouseMove={handleMouseMove}
-    >
+    <div className="fixed inset-0 bg-black overflow-hidden" onMouseMove={handleMouseMove}>
       {/* Video Player */}
       <video
         ref={videoRef}
