@@ -70,53 +70,29 @@ export default function MusicDetail() {
   // Initialize Web Audio analyser when a track starts playing
   useEffect(() => {
     if (!currentTrackId || !audioRef.current) {
-      console.log(
-        "[MusicDetail] Skip analyser init: no currentTrackId or audioRef",
-        "currentTrackId:",
-        currentTrackId,
-        "audioRef.current:",
-        !!audioRef.current
-      );
       return;
     }
 
     // Only initialize once
     if (analyserInitializedRef.current) {
-      console.log("[MusicDetail] Analyser already initialized");
       return;
     }
-
-    console.log(
-      "[MusicDetail] Initializing analyser for first time, audio.src:",
-      audioRef.current.src
-    );
 
     // Small delay to ensure audio element is fully ready
     const timer = setTimeout(() => {
       const initAnalyser = () => {
-        console.log(
-          "[MusicDetail] Analyser init: audioRef.current =",
-          !!audioRef.current,
-          "analyserRef.current =",
-          !!analyserRef.current
-        );
         if (!audioRef.current) {
-          console.log("[MusicDetail] Early return: no audioRef");
           return;
         }
         const w = window as Window &
           typeof globalThis & { webkitAudioContext?: typeof AudioContext };
         const AudioCtxCtor = w.AudioContext || w.webkitAudioContext;
         if (!AudioCtxCtor) {
-          console.log("[MusicDetail] Early return: no AudioContext");
           return;
         }
         try {
-          console.log("[MusicDetail] Creating analyser...");
           const ctx = new AudioCtxCtor();
-          console.log("[MusicDetail] AudioContext created:", ctx.state);
           const source = ctx.createMediaElementSource(audioRef.current!);
-          console.log("[MusicDetail] MediaElementAudioSourceNode created");
           const analyser = ctx.createAnalyser();
           analyser.fftSize = 2048;
           analyser.smoothingTimeConstant = 0.85;
@@ -127,12 +103,8 @@ export default function MusicDetail() {
           audioSourceRef.current = source;
           analyserRef.current = analyser;
           analyserInitializedRef.current = true;
-          console.log(
-            "[MusicDetail] Analyser created successfully, frequencyBinCount:",
-            analyser.frequencyBinCount
-          );
         } catch (error) {
-          console.error("[MusicDetail] Error creating analyser:", error);
+          console.error("[EqualizerBars] Error creating analyser:", error);
         }
       };
 
@@ -145,7 +117,6 @@ export default function MusicDetail() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      console.log("[MusicDetail] Cleanup on unmount");
       if (analyserRef.current) {
         try {
           analyserRef.current.disconnect();
@@ -207,11 +178,13 @@ export default function MusicDetail() {
   };
 
   const getStreamUrl = useCallback(() => {
-    if (!serverUrl || !accessToken || !currentTrackId) return "";
+    if (!accessToken || !currentTrackId) return "";
     const params = new URLSearchParams();
     params.set("static", "true");
     params.set("api_key", accessToken);
-    return `${serverUrl}/Audio/${currentTrackId}/stream?${params.toString()}`;
+    // In development (localhost), use the Vite proxy; otherwise use the server URL
+    const baseUrl = typeof window !== "undefined" && window.location.hostname === "localhost" ? "/jellyfin" : serverUrl;
+    return `${baseUrl}/Audio/${currentTrackId}/stream?${params.toString()}`;
   }, [serverUrl, accessToken, currentTrackId]);
 
   const togglePlayPause = () => {

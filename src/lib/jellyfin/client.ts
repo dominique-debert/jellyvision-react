@@ -223,7 +223,14 @@ export interface JellyfinClientConfig {
 
 // Helper to determine if we should use proxy
 const getProxiedURL = (baseURL: string) => {
-  // No proxy needed - use direct connection
+  // In development, use the Vite proxy at /jellyfin
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "localhost"
+  ) {
+    return "/jellyfin";
+  }
+  // In production, use the direct connection
   return baseURL;
 };
 
