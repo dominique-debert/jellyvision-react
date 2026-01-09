@@ -19,6 +19,7 @@ import {
   ArrowLeft,
   Volume2,
 } from "lucide-react";
+import Hls from "hls.js";
 // Import muxjs and assign to window for shaka-player
 if (typeof window !== "undefined") {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -109,11 +110,12 @@ export default function Player() {
   const getStreamUrl = useCallback(
     (subtitle?: number) => {
       if (!serverUrl || !itemId || !accessToken) return "";
-      // Use direct streaming with optional subtitle parameter
+      // Use transcoding for better browser compatibility
       const params = new URLSearchParams();
-      params.set("static", "true");
+      params.set("VideoCodec", "h264");
+      params.set("AudioCodec", "aac");
+      params.set("Container", "ts,mp4");
       params.set("api_key", accessToken);
-      // Add PlaySessionId to the stream URL so it's associated with the playback session
       params.set("PlaySessionId", playSessionIdRef.current);
       if (subtitle !== undefined) {
         params.set("SubtitleStreamIndex", String(subtitle));
@@ -124,7 +126,7 @@ export default function Player() {
         window.location.hostname === "localhost"
           ? "/jellyfin"
           : serverUrl;
-      return `${baseUrl}/Videos/${itemId}/stream?${params.toString()}`;
+      return `${baseUrl}/Videos/${itemId}/master.m3u8?${params.toString()}`;
     },
     [serverUrl, itemId, accessToken]
   );
@@ -135,12 +137,35 @@ export default function Player() {
       if (!videoRef.current || !item || !itemId) return;
 
       try {
-        // Use native HTML5 video element instead of Shaka Player for simple MP4 streams
         const streamUrl = getStreamUrl();
         console.log("Loading stream:", streamUrl);
 
-        videoRef.current.src = streamUrl;
-        videoRef.current.load();
+        // Use HLS.js for HLS streaming
+        if (Hls.isSupported()) {
+          const hls = new Hls({
+            xhrSetup: (xhr) => {
+              xhr.withCredentials = false;
+            },
+          });
+          hls.loadSource(streamUrl);
+          hls.attachMedia(videoRef.current);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            console.log("HLS manifest loaded");
+          });
+          hls.on(Hls.Events.ERROR, (event, data) => {
+            console.error("HLS error:", data);
+          });
+          // Store hls instance for cleanup
+          (videoRef.current as any)._hls = hls;
+        } else if (
+          videoRef.current.canPlayType("application/vnd.apple.mpegurl")
+        ) {
+          // Native HLS support (Safari)
+          videoRef.current.src = streamUrl;
+          videoRef.current.load();
+        } else {
+          console.error("HLS not supported");
+        }
       } catch (e) {
         console.error("Error initializing player:", e);
       }
@@ -149,6 +174,16 @@ export default function Player() {
     if (item && !loading) {
       initializePlayer();
     }
+
+    // Cleanup HLS instance on unmount
+    return () => {
+      if (videoRef.current) {
+        const hls = (videoRef.current as any)._hls;
+        if (hls) {
+          hls.destroy();
+        }
+      }
+    };
   }, [item, loading, itemId, serverUrl, accessToken, getStreamUrl]);
 
   // Unmute video once it starts playing (for autoplay)
