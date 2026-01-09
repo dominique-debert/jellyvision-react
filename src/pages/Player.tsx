@@ -141,7 +141,7 @@ export default function Player() {
         if (sourceElement) {
           sourceElement.src = streamUrl;
         }
-        
+
         // Reload the video element
         videoRef.current.load();
       } catch (e) {
@@ -642,7 +642,7 @@ export default function Player() {
         onPause={handlePauseEvent}
         onClick={togglePlayPause}
       >
-        <source src="" type="video/mp4" />
+        {item && itemId && <source src={getStreamUrl()} type="video/mp4" />}
         Your browser does not support the video tag.
       </video>
 
