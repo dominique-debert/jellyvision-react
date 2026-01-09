@@ -5,6 +5,7 @@ import { Layout } from "@/components/Layout";
 import { getItem, getAlbumTracks } from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
 import { FloatingAudioBar } from "@/components/FloatingAudioBar";
+import EqualizerBars from "@/components/EqualizerBars";
 import { Disc, Play, ArrowLeft } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
@@ -362,6 +363,7 @@ export default function MusicDetail() {
                               <th className="w-12 text-center">#</th>
                               <th className="w-10"></th>
                               <th className="text-left">Title</th>
+                              <th className="w-16 text-center">EQ</th>
                               <th className="w-24 text-center">Duration</th>
                             </tr>
                           </thead>
@@ -407,6 +409,17 @@ export default function MusicDetail() {
                                       </span>
                                     )}
                                 </td>
+                                <td className="text-center">
+                                  {track.Id === currentTrackId ? (
+                                    <EqualizerBars
+                                      getAnalyser={() => analyserRef.current}
+                                      isPlaying={isPlaying}
+                                      className="mx-auto"
+                                    />
+                                  ) : (
+                                    <div className="h-6 w-12" />
+                                  )}
+                                </td>
                                 <td className="text-center font-mono">
                                   {formatTrackTime(track.RunTimeTicks)}
                                 </td>
@@ -439,7 +452,6 @@ export default function MusicDetail() {
             onVolumeChange={handleVolumeChange}
             onToggleRepeat={toggleRepeatMode}
             onClose={() => setCurrentTrackId(null)}
-            getAnalyser={() => analyserRef.current}
           />
         )}
 
