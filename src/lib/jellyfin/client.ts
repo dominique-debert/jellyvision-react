@@ -36,7 +36,6 @@ export const getAllAlbumsInLibrary = async (
       totalCount: response.data.TotalRecordCount || 0,
     };
   } catch (error: unknown) {
-    console.error("Get all albums error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch albums";
     return {
@@ -79,7 +78,6 @@ export const getAlbumTracks = async (
       data: response.data.Items || [],
     };
   } catch (error: unknown) {
-    console.error("Get album tracks error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch album tracks";
     return {
@@ -121,7 +119,6 @@ export const getResumeItems = async (
       data: response.data.Items || [],
     };
   } catch (error: unknown) {
-    console.error("Get resume items error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch resume items";
     return {
@@ -164,7 +161,6 @@ export const getLatestMedia = async (
       data: response.data || [],
     };
   } catch (error: unknown) {
-    console.error("Get latest media error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch latest media";
     return {
@@ -282,7 +278,6 @@ export const authenticateByName = async (
       serverUrl: proxiedURL === "/jellyfin" ? baseURL : proxiedURL,
     };
   } catch (error: unknown) {
-    console.error("Authentication error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Authentication failed";
     return {
@@ -312,7 +307,6 @@ export const getUserById = async (
       data: response.data,
     };
   } catch (error: unknown) {
-    console.error("Get user error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch user";
     return {
@@ -373,7 +367,6 @@ export const getUserViews = async (
       data: response.data.Items || [],
     };
   } catch (error: unknown) {
-    console.error("Get user views error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch user views";
     return {
@@ -427,7 +420,6 @@ export const getLibraryItems = async (
       totalCount: response.data.TotalRecordCount || 0,
     };
   } catch (error: unknown) {
-    console.error("Get library items error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch library items";
     return {
@@ -467,7 +459,6 @@ export const getItem = async (
       data: response.data,
     };
   } catch (error: unknown) {
-    console.error("Get artist info error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch artist info";
     return {
@@ -501,14 +492,11 @@ export const getSeasons = async (
       throw new Error("Failed to fetch seasons");
     }
 
-    console.log("getSeasons response for", seriesId, response.data);
-
     return {
       success: true,
       data: response.data.Items || [],
     };
   } catch (error: unknown) {
-    console.error("Get seasons error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch seasons";
     return {
@@ -548,7 +536,6 @@ export const getEpisodes = async (
       data: response.data.Items || [],
     };
   } catch (error: unknown) {
-    console.error("Get episodes error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch episodes";
     return {
@@ -576,9 +563,6 @@ export const reportPlaybackProgress = async (
   try {
     // Use the official Jellyfin API endpoint for playback progress
     // Correct endpoint: /Sessions/Playing/Progress (not /Playback/Progress)
-    console.log(
-      `Reporting progress to: /Sessions/Playing/Progress (ItemId: ${itemId}, Position: ${positionTicks} ticks, SessionId: ${playSessionId})`
-    );
     const response = await fetch(
       `${proxiedURL}/Sessions/Playing/Progress?api_key=${accessToken}`,
       {
@@ -595,18 +579,12 @@ export const reportPlaybackProgress = async (
       }
     );
 
-    console.log(
-      `Progress report response: ${response.status} ${response.statusText}`
-    );
-
     if (!response.ok) {
       throw new Error(`Failed to report progress: ${response.statusText}`);
     }
 
-    console.log(`✓ Progress reported: ${itemId} at ${positionTicks} ticks`);
     return { success: true };
   } catch (error: unknown) {
-    console.error("Report playback progress error:", error);
     const errorMessage =
       error instanceof Error
         ? error.message

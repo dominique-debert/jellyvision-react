@@ -63,8 +63,6 @@ export default function Player() {
 
       if (result.success && result.data) {
         setItem(result.data);
-        console.log("Item loaded:", result.data.Name);
-        console.log("Item UserData:", result.data.UserData);
         const subs =
           result.data.MediaStreams?.filter(
             (s) => s.Type === "Subtitle" && s.Index !== undefined
@@ -122,24 +120,14 @@ export default function Player() {
   // Update stream URL state when buildStreamUrl changes
   useEffect(() => {
     const url = buildStreamUrl();
-    console.log("Stream URL updated:", url);
     setStreamUrl(url);
   }, [buildStreamUrl]);
 
   // Initialize HLS player when streamUrl changes
   useEffect(() => {
-    console.log(
-      "HLS effect triggered - streamUrl:",
-      !!streamUrl,
-      "videoRef:",
-      !!videoRef.current,
-      "item:",
-      !!item
-    );
     if (!videoRef.current || !streamUrl || !item) return;
 
     const video = videoRef.current;
-    console.log("Initializing HLS player with URL:", streamUrl);
 
     if (Hls.isSupported()) {
       const hls = new Hls({
@@ -150,24 +138,18 @@ export default function Player() {
       hls.loadSource(streamUrl);
       hls.attachMedia(video);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        console.log("HLS manifest parsed, ready to play");
-      });
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {});
 
       hls.on(Hls.Events.ERROR, (_, data) => {
-        console.error("HLS error:", data);
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.error("Fatal network error, trying to recover");
               hls.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              console.error("Fatal media error, trying to recover");
               hls.recoverMediaError();
               break;
             default:
-              console.error("Fatal error, destroying HLS instance");
               hls.destroy();
               break;
           }
@@ -175,15 +157,11 @@ export default function Player() {
       });
 
       return () => {
-        console.log("Cleaning up HLS instance");
         hls.destroy();
       };
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       // Native HLS support (Safari)
-      console.log("Using native HLS support");
       video.src = streamUrl;
-    } else {
-      console.error("HLS is not supported in this browser");
     }
   }, [streamUrl, item]);
 
@@ -191,12 +169,7 @@ export default function Player() {
     const initializePlayer = async () => {
       if (!videoRef.current || !item || !itemId) return;
 
-      try {
-        const url = buildStreamUrl();
-        console.log("Loading stream:", url);
-      } catch (e) {
-        console.error("Error initializing player:", e);
-      }
+      buildStreamUrl();
     };
 
     if (item && !loading) {
@@ -235,9 +208,6 @@ export default function Player() {
       // Load ALL subtitle tracks (not just the first one)
       if (subtitleOptions.length > 0 && serverUrl && itemId && accessToken) {
         // Get PlaybackInfo once for all subtitles
-        console.log(
-          "Fetching PlaybackInfo to get all subtitle DeliveryUrls..."
-        );
         const baseUrl =
           typeof window !== "undefined" &&
           window.location.hostname === "localhost"
@@ -259,9 +229,6 @@ export default function Player() {
           );
 
           if (!playbackInfoResponse.ok) {
-            console.warn(
-              `Failed to fetch PlaybackInfo (${playbackInfoResponse.status})`
-            );
             return;
           }
 
@@ -274,9 +241,6 @@ export default function Player() {
             try {
               const optionIndex = subtitleOption.index;
               const optionLabel = subtitleOption.label;
-              console.log(
-                `Attempting to load subtitle: "${optionLabel}" (index=${optionIndex})`
-              );
 
               const playbackSubtitle = playbackMediaStreams.find(
                 (s: Record<string, unknown>) =>
@@ -284,9 +248,6 @@ export default function Player() {
               );
 
               if (!playbackSubtitle?.DeliveryUrl) {
-                console.warn(
-                  `No DeliveryUrl found for subtitle index ${optionIndex}`
-                );
                 continue;
               }
 
@@ -304,31 +265,17 @@ export default function Player() {
                 subtitleUrl = `${baseUrl}/${jsonDeliveryUrl}`;
               }
 
-              console.log(
-                `Fetching subtitle JSON from: ${subtitleUrl.substring(
-                  0,
-                  100
-                )}...`
-              );
-
               // Fetch the subtitle JSON content (not VTT)
               const response = await fetch(subtitleUrl);
 
               if (!response.ok) {
-                console.warn(
-                  `Failed to fetch subtitle (${response.status}): ${response.statusText}`
-                );
                 continue;
               }
 
               const subtitleData = await response.json();
               const trackEvents = subtitleData.TrackEvents || [];
-              console.log(
-                `✓ Successfully loaded ${trackEvents.length} subtitle events for "${optionLabel}"`
-              );
 
               if (trackEvents.length === 0) {
-                console.warn(`No subtitle events found for "${optionLabel}"`);
                 continue;
               }
 
@@ -360,19 +307,12 @@ export default function Player() {
               // Set initial visibility based on subtitle index
               // Show the subtitle that matches the current subtitleIndex state, or first by default
               track.mode = subtitleIndex === optionIndex ? "showing" : "hidden";
-            } catch (e) {
-              console.error(
-                `Error loading subtitle "${subtitleOption.label}":`,
-                e
-              );
+            } catch {
+              // Silent error
             }
           }
-
-          console.log(
-            `✓ Loaded all ${subtitleOptions.length} available subtitles`
-          );
-        } catch (e) {
-          console.error("Error loading subtitles:", e);
+        } catch {
+          // Silent error
         }
       }
     };
@@ -431,12 +371,6 @@ export default function Player() {
         const resumeSeconds = item.UserData.PlaybackPositionTicks / 10000000;
         videoRef.current.currentTime = resumeSeconds;
         setCurrentTime(resumeSeconds);
-        console.log(`✓ Resuming from ${formatTime(resumeSeconds)}`);
-      } else {
-        console.log(
-          "No PlaybackPositionTicks found in UserData:",
-          item.UserData
-        );
       }
       // Don't call play() here - let autoPlay attribute handle it
     }
@@ -545,8 +479,8 @@ export default function Player() {
             false,
             playSessionId
           );
-        } catch (e) {
-          console.error("Failed to report progress on unload:", e);
+        } catch {
+          // Silent error
         }
       }
     };
@@ -631,11 +565,6 @@ export default function Player() {
     // Report final progress before leaving
     if (serverUrl && userId && accessToken && itemId && currentTime > 0) {
       const positionTicks = Math.round(currentTime * 10000000);
-      console.log(
-        `Reporting final position: ${formatTime(
-          currentTime
-        )} (${positionTicks} ticks)`
-      );
       await reportPlaybackProgress(
         serverUrl,
         userId,
@@ -707,16 +636,6 @@ export default function Player() {
         onPlay={handlePlayEvent}
         onPause={handlePauseEvent}
         onClick={togglePlayPause}
-        onError={(e) => {
-          console.error("Video error:", e);
-          console.error(
-            "Video element error code:",
-            (e.target as HTMLVideoElement).error?.code
-          );
-        }}
-        onLoadStart={() => console.log("Video: loadstart event")}
-        onCanPlay={() => console.log("Video: canplay event")}
-        onCanPlayThrough={() => console.log("Video: canplaythrough event")}
       >
         Your browser does not support the video tag.
       </video>
