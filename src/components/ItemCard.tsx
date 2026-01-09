@@ -52,7 +52,7 @@ export function ItemCard({ item, serverUrl, onPlayClick }: ItemCardProps) {
       onClick={onPlayClick ? handlePlayClick : handleCardClick}
     >
       <div className="relative mb-2">
-        <div className="relative aspect-2/3 bg-zinc-800 rounded-lg overflow-hidden">
+        <div className="relative aspect-square bg-zinc-800 rounded-lg overflow-hidden">
           {primaryImageUrl ? (
             <img
               src={primaryImageUrl}
