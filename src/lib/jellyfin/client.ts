@@ -218,7 +218,7 @@ export interface JellyfinClientConfig {
 }
 
 // Helper to determine if we should use proxy
-const getProxiedURL = (baseURL: string) => {
+export const getProxiedURL = (baseURL: string) => {
   // In development, use the Vite proxy at /jellyfin
   if (
     typeof window !== "undefined" &&

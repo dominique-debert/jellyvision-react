@@ -1,5 +1,4 @@
-import { createJellyfinClient } from "@jellyfin/sdk";
-import { getProxiedURL } from "./client";
+import { createJellyfinClient, getProxiedURL } from "./client";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export const searchItems = async (
@@ -20,42 +19,45 @@ export const searchItems = async (
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
 
   try {
-    // Search for movies
-    const moviesResponse = await client.itemsApi.getItems({
+    // Search across all items without library restriction
+    const allItemsResponse = await client.itemsApi.getItems({
       userId,
       searchTerm,
-      includeItemTypes: ["Movie"],
+      recursive: true,
+      includeItemTypes: ["Movie", "Series", "Audio", "MusicAlbum"],
+      fields: [
+        "PrimaryImageAspectRatio",
+        "ProductionYear",
+        "ParentId",
+        "UserData",
+      ],
       sortBy: ["SortName"],
       sortOrder: ["Ascending"],
-      limit: 30,
+      limit: 100,
     });
 
-    // Search for TV shows
-    const showsResponse = await client.itemsApi.getItems({
-      userId,
-      searchTerm,
-      includeItemTypes: ["Series"],
-      sortBy: ["SortName"],
-      sortOrder: ["Ascending"],
-      limit: 30,
-    });
+    const allItems = allItemsResponse.data.Items || [];
 
-    // Search for music
-    const musicResponse = await client.itemsApi.getItems({
-      userId,
-      searchTerm,
-      includeItemTypes: ["Audio", "MusicAlbum"],
-      sortBy: ["SortName"],
-      sortOrder: ["Ascending"],
-      limit: 30,
+    // Separate results by type
+    const movies = allItems.filter((item) => item.Type === "Movie");
+    const shows = allItems.filter((item) => item.Type === "Series");
+    const music = allItems.filter(
+      (item) => item.Type === "Audio" || item.Type === "MusicAlbum"
+    );
+
+    console.log("Search results:", {
+      total: allItems.length,
+      movies: movies.length,
+      shows: shows.length,
+      music: music.length,
     });
 
     return {
       success: true,
       data: {
-        movies: moviesResponse.data.Items || [],
-        shows: showsResponse.data.Items || [],
-        music: musicResponse.data.Items || [],
+        movies: movies.slice(0, 30),
+        shows: shows.slice(0, 30),
+        music: music.slice(0, 30),
       },
     };
   } catch (error: unknown) {
