@@ -20,6 +20,14 @@ export function ItemCard({
 
   const getPrimaryImageUrl = () => {
     if (!serverUrl || !item?.Id) return undefined;
+    
+    // For episodes, use the season poster instead of episode thumbnail
+    if (item.Type === "Episode" && item.SeasonId) {
+      const width = aspectRatio === "square" ? 600 : 400;
+      const height = aspectRatio === "square" ? 600 : 600;
+      return getImageUrl(serverUrl, item.SeasonId, "Primary", width, height, 85);
+    }
+    
     if (item.ImageTags?.Primary) {
       // Request 400x600 thumbnail for 2/3 aspect ratio, 600x600 for square
       const width = aspectRatio === "square" ? 600 : 400;
@@ -86,9 +94,9 @@ export function ItemCard({
                 e.stopPropagation();
                 handlePlayClick(e);
               }}
-              className="h-16 w-16 rounded-full bg-primary hover:bg-primary/80 flex items-center justify-center transition-colors"
+              className="h-20 w-20 rounded-full bg-primary hover:bg-primary/90 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
             >
-              <Play className="h-8 w-8 text-primary-content fill-primary-content" />
+              <Play className="h-10 w-10 text-white/60 fill-white/60" />
             </button>
             <div className="w-full">
               <h3 className="font-semibold text-sm text-white text-center line-clamp-2">
