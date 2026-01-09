@@ -331,7 +331,7 @@ export default function MusicDetail() {
                     className="w-full rounded-lg shadow-2xl"
                   />
                 ) : (
-                  <div className="w-full aspect-2/3 bg-zinc-800 rounded-lg flex items-center justify-center">
+                  <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
                     <span className="text-zinc-600">No Image</span>
                   </div>
                 )}
@@ -384,8 +384,8 @@ export default function MusicDetail() {
                 <h3 className="text-2xl font-semibold mb-4">Tracks</h3>
                 {loadingTracks ? (
                   <div className="animate-pulse space-y-4">
-                    <div className="h-10 w-full bg-zinc-800 rounded" />
-                    <div className="h-32 w-full bg-zinc-800 rounded" />
+                    <div className="h-10 w-full bg-base-300 rounded" />
+                    <div className="h-32 w-full bg-base-300 rounded" />
                   </div>
                 ) : albumTracks.length === 0 ? (
                   <div className="text-zinc-400">No tracks found.</div>
@@ -415,7 +415,7 @@ export default function MusicDetail() {
                             {tracksPerDisc[Number(discNum)].map((track) => (
                               <tr
                                 key={track.Id}
-                                className={`group hover:bg-zinc-800 rounded cursor-pointer ${
+                                className={`group hover:bg-base-300 rounded cursor-pointer ${
                                   track.Id === currentTrackId
                                     ? "bg-amber-500/20"
                                     : ""

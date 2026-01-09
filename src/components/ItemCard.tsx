@@ -64,7 +64,7 @@ export function ItemCard({
         <div
           className={`relative ${
             aspectRatio === "square" ? "aspect-square" : "aspect-2/3"
-          } bg-zinc-800 rounded-lg overflow-hidden`}
+          } bg-base-300 rounded-lg overflow-hidden`}
         >
           {primaryImageUrl ? (
             <img

@@ -178,7 +178,7 @@ export default function ShowDetail() {
                   className="w-full rounded-lg shadow-2xl"
                 />
               ) : (
-                <div className="w-full aspect-2/3 bg-zinc-800 rounded-lg flex items-center justify-center">
+                <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
                   <span className="text-zinc-600">No Image</span>
                 </div>
               )}
@@ -205,7 +205,7 @@ export default function ShowDetail() {
                 <div className="space-y-3">
                   <h3 className="text-2xl font-semibold">Next Up</h3>
                   <Card
-                    className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer max-w-120"
+                    className="bg-base-200 border-base-300 hover:border-primary/50 transition-colors cursor-pointer max-w-120"
                     onClick={() => navigate(`/play/${nextUpEpisode.Id}`)}
                   >
                     <CardContent className="p-0">
@@ -225,7 +225,7 @@ export default function ShowDetail() {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                          <div className="w-full h-full bg-base-300 flex items-center justify-center">
                             <Play className="h-10 w-10 text-zinc-600" />
                           </div>
                         )}
@@ -252,8 +252,8 @@ export default function ShowDetail() {
                   <h3 className="text-2xl font-semibold mb-4">Seasons</h3>
                   {loadingSeasons ? (
                     <div className="animate-pulse space-y-4">
-                      <div className="h-10 w-full bg-zinc-800 rounded" />
-                      <div className="h-32 w-full bg-zinc-800 rounded" />
+                      <div className="h-10 w-full bg-base-300 rounded" />
+                      <div className="h-32 w-full bg-base-300 rounded" />
                     </div>
                   ) : (
                     <div className="space-y-6">
@@ -275,13 +275,13 @@ export default function ShowDetail() {
                                 selectedSeasonId === season.Id
                                   ? "border-amber-500"
                                   : "border-transparent"
-                              } bg-zinc-900 hover:border-amber-500 transition-colors snap-start`}
+                              } bg-base-200 hover:border-primary transition-colors snap-start`}
                               onClick={() =>
                                 setSelectedSeasonId(season.Id || null)
                               }
                             >
                               <div
-                                className="w-full bg-zinc-800 relative"
+                                className="w-full bg-base-300 relative"
                                 style={{ aspectRatio: "2 / 3" }}
                               >
                                 {season.ImageTags?.Primary &&
@@ -344,7 +344,7 @@ export default function ShowDetail() {
                           {seasonEpisodes[selectedSeasonId]?.map((episode) => (
                             <Card
                               key={episode.Id}
-                              className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors"
+                              className="bg-base-200 border-base-300 hover:border-primary/50 transition-colors"
                             >
                               <CardContent className="p-0">
                                 <div className="flex gap-4">
@@ -367,8 +367,8 @@ export default function ShowDetail() {
                                         loading="lazy"
                                       />
                                     ) : (
-                                      <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-l-lg">
-                                        <Play className="h-12 w-12 text-zinc-600" />
+                                      <div className="w-full h-full bg-base-300 flex items-center justify-center rounded-l-lg">
+                                        <Play className="h-12 w-12 text-base-content/40" />
                                       </div>
                                     )}
                                     <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">

@@ -136,7 +136,7 @@ export default function LibraryDetail() {
     return (
       <Layout>
         <div>
-          <header className="border-b border-gray-800">
+          <header className="border-b border-base-300">
             <div className="container mx-auto px-4 py-4">
               <Button
                 variant="ghost"
@@ -173,7 +173,7 @@ export default function LibraryDetail() {
   return (
     <Layout>
       <div>
-        <header className="border-b border-gray-800">
+        <header className="border-b border-base-300">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Button
               variant="ghost"

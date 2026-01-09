@@ -9,7 +9,7 @@ export function Layout({ children }: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 to-black text-white">
+    <div className="min-h-screen bg-base-300 text-base-content">
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       <div
         className={`fixed right-0 top-0 bottom-0 overflow-auto pl-8 transition-all duration-300 ${

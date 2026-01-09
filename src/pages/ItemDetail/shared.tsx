@@ -42,8 +42,8 @@ export const LoadingState = () => (
   <Layout>
     <div className="container mx-auto p-6">
       <div className="animate-pulse space-y-6">
-        <div className="h-8 w-32 bg-zinc-800 rounded" />
-        <div className="h-96 bg-zinc-800 rounded" />
+        <div className="h-8 w-32 bg-base-300 rounded" />
+        <div className="h-96 bg-base-300 rounded" />
       </div>
     </div>
   </Layout>
@@ -145,12 +145,12 @@ export const QualityBadges = ({ item }: { item: BaseItemDto }) => {
   return (
     <div className="flex gap-2">
       {has4K && (
-        <Badge className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3 py-1">
+        <Badge className="bg-base-300 hover:bg-base-content/20 text-base-content font-bold px-3 py-1">
           4K
         </Badge>
       )}
       {hasHDR && (
-        <Badge className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3 py-1">
+        <Badge className="bg-base-300 hover:bg-base-content/20 text-base-content font-bold px-3 py-1">
           HDR
         </Badge>
       )}
@@ -292,7 +292,7 @@ export const SubtitleSelector = ({
             e.target.value === "none" ? undefined : Number(e.target.value)
           )
         }
-        className="bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white text-sm"
+        className="bg-base-200 border border-base-300 rounded px-3 py-2 text-base-content text-sm"
       >
         <option value="none">None</option>
         {subtitleStreams.map((s) => (

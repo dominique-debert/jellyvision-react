@@ -90,13 +90,13 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full bg-zinc-900 border-r border-zinc-800 flex flex-col z-50 transition-all duration-300 ${
+      className={`fixed left-0 top-0 h-full bg-base-200 border-r border-base-300 flex flex-col z-50 transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
-      <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+      <div className="p-6 border-b border-base-300 flex items-center justify-between">
         {!isCollapsed && (
-          <h1 className="text-2xl font-bold text-blue-500 flex items-center">
+          <h1 className="text-2xl font-bold text-primary flex items-center">
             <svg
               className="w-8 h-8 mr-2"
               viewBox="0 0 512 512"
@@ -109,7 +109,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-base-300 rounded-lg transition-colors"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <Menu className="w-5 h-5" />
@@ -126,10 +126,10 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               disabled={item.disabled}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 item.isActive
-                  ? "bg-blue-600 text-white"
+                  ? "bg-primary text-primary-content"
                   : item.disabled
-                  ? "text-zinc-600 cursor-not-allowed"
-                  : "text-zinc-300 hover:bg-zinc-800"
+                  ? "text-base-content/40 cursor-not-allowed"
+                  : "text-base-content hover:bg-base-300"
               } ${isCollapsed ? "justify-center" : ""}`}
               title={isCollapsed ? item.label : undefined}
             >

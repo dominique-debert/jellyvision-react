@@ -51,7 +51,7 @@ export function FloatingAudioBar({
   };
 
   return (
-    <div className="sticky bottom-0 border-t border-gray-700 bg-gray-900/95 backdrop-blur-lg px-6 py-4 z-50">
+    <div className="sticky bottom-0 border-t border-base-300 bg-base-200/95 backdrop-blur-lg px-6 py-4 z-50">
       <div className="flex items-center gap-4">
         {/* Track Info (far left) */}
         <div className="w-64 shrink-0">

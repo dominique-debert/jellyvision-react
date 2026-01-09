@@ -77,7 +77,7 @@ export default function MovieDetail() {
                   className="w-full rounded-lg shadow-2xl"
                 />
               ) : (
-                <div className="w-full aspect-2/3 bg-zinc-800 rounded-lg flex items-center justify-center">
+                <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
                   <span className="text-zinc-600">No Image</span>
                 </div>
               )}
