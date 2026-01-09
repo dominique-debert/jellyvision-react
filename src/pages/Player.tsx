@@ -136,8 +136,7 @@ export default function Player() {
         const streamUrl = getStreamUrl();
         console.log("Loading stream:", streamUrl);
 
-        // Use native video element - Jellyfin will transcode if needed
-        videoRef.current.src = streamUrl;
+        // The source element handles setting the stream
         videoRef.current.load();
       } catch (e) {
         console.error("Error initializing player:", e);
@@ -636,7 +635,10 @@ export default function Player() {
         onPlay={handlePlayEvent}
         onPause={handlePauseEvent}
         onClick={togglePlayPause}
-      />
+      >
+        <source src={getStreamUrl()} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
       {/* Controls Overlay */}
       <div
