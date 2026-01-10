@@ -280,86 +280,84 @@ export default function ShowDetail() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <div className="relative">
-                        <div
-                          className="flex gap-3 overflow-x-auto scroll-smooth pb-2 w-full"
-                          ref={seasonsRowRef}
-                          style={{
-                            scrollbarWidth: "none",
-                            msOverflowStyle: "none",
-                          }}
-                        >
-                          {seasons.map((season) => (
-                            <Button
-                              key={season.Id}
-                              variant="ghost"
-                              className={`relative flex h-auto min-h-0 flex-col items-start p-0 text-left rounded-lg overflow-hidden border shrink-0 ${
-                                selectedSeasonId === season.Id
-                                  ? "border-primary/40"
-                                  : "border-transparent"
-                              } bg-base-200 hover:border-primary transition-colors snap-start`}
-                              style={{ width: "calc(16.666% - 8px)" }}
-                              onClick={() =>
-                                setSelectedSeasonId(season.Id || null)
-                              }
-                            >
-                              <div
-                                className="w-full bg-base-300 relative"
-                                style={{ aspectRatio: "2 / 3" }}
-                              >
-                                {season.ImageTags?.Primary &&
-                                serverUrl &&
-                                season.Id ? (
-                                  <img
-                                    src={getImageUrl(
-                                      serverUrl,
-                                      season.Id,
-                                      "Primary",
-                                      400,
-                                      600,
-                                      85
-                                    )}
-                                    alt={season.Name || "Season"}
-                                    className="w-full h-full object-cover"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-zinc-500">
-                                    <Play className="h-8 w-8" />
-                                  </div>
-                                )}
-                                <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-                                  {seasonEpisodes[season.Id || ""]?.length || 0}
-                                </div>
-                              </div>
-                              <div className="w-full p-3 text-left">
-                                <div className="text-white font-semibold line-clamp-1">
-                                  {season.Name}
-                                </div>
-                              </div>
-                            </Button>
-                          ))}
-                        </div>
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-1">
+                      <div className="flex items-center justify-between w-full mb-2">
+                        <div className="flex gap-2 ml-2">
                           <Button
-                            size="icon"
                             variant="ghost"
-                            className="pointer-events-auto bg-black/60 text-white hover:bg-black/80"
+                            size="icon"
                             onClick={() => scrollSeasons(-1)}
+                            className="h-8 w-8"
                           >
                             <ChevronLeft className="size-5" />
                           </Button>
-                        </div>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                           <Button
-                            size="icon"
                             variant="ghost"
-                            className="pointer-events-auto bg-black/60 text-white hover:bg-black/80"
+                            size="icon"
                             onClick={() => scrollSeasons(1)}
+                            className="h-8 w-8"
                           >
                             <ChevronRight className="size-5" />
                           </Button>
                         </div>
+                      </div>
+                      <div
+                        className="flex gap-3 overflow-x-auto scroll-smooth pb-2 w-full"
+                        ref={seasonsRowRef}
+                        style={{
+                          scrollbarWidth: "none",
+                          msOverflowStyle: "none",
+                        }}
+                      >
+                        {seasons.map((season) => (
+                          <Button
+                            key={season.Id}
+                            variant="ghost"
+                            className={`relative flex h-auto min-h-0 flex-col items-start p-0 text-left rounded-lg overflow-hidden border shrink-0 ${
+                              selectedSeasonId === season.Id
+                                ? "border-primary/40"
+                                : "border-transparent"
+                            } bg-base-200 hover:border-primary transition-colors snap-start`}
+                            style={{ width: "calc(16.666% - 8px)" }}
+                            onClick={() =>
+                              setSelectedSeasonId(season.Id || null)
+                            }
+                          >
+                            <div
+                              className="w-full bg-base-300 relative"
+                              style={{ aspectRatio: "2 / 3" }}
+                            >
+                              {season.ImageTags?.Primary &&
+                              serverUrl &&
+                              season.Id ? (
+                                <img
+                                  src={getImageUrl(
+                                    serverUrl,
+                                    season.Id,
+                                    "Primary",
+                                    400,
+                                    600,
+                                    85
+                                  )}
+                                  alt={season.Name || "Season"}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                                  <Play className="h-8 w-8" />
+                                </div>
+                              )}
+                              <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                                {seasonEpisodes[season.Id || ""]?.length || 0}
+                              </div>
+                            </div>
+                            <div className="w-full p-3 text-left">
+                              <div className="text-white font-semibold line-clamp-1">
+                                {season.Name}
+                              </div>
+                            </div>
+                          </Button>
+                        ))}
                       </div>
 
                       {selectedSeasonId && (
