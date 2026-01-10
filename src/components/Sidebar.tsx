@@ -92,32 +92,30 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 ml-6 top-6 bg-transparent h-full flex flex-col z-50 transition-all duration-300 ${
+      className={`fixed left-0 ml-5 top-6 h-full flex flex-col z-50 transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
-      <div
-        className={`flex items-center ${
-          isCollapsed ? "justify-center pb-5 pt-6" : "justify-between p-6 pb-5"
-        } gap-3 bg-card/30 rounded-tl-xl rounded-tr-xl`}
-      >
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="ghost cursor-pointer"
-          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+      <nav className="flex flex-col pt-3 pl-0.5 pr-3.5 gap-4 bg-transparent">
+        <div
+          className={`flex items-center ${
+            isCollapsed
+              ? "justify-center pb-5 pt-4"
+              : "justify-between pl-4 pt-4 pb-6"
+          } gap-3`}
         >
-          {isCollapsed ? (
-            <img src={visionIcon} alt="Vision" className="h-5 w-auto" />
-          ) : (
-            <img src={visionLogo} alt="Vision" className="h-5 w-auto" />
-          )}
-        </button>
-      </div>
-
-      <nav
-        className="flex flex-col pt-6 pl-3.5 pr-3.5 gap-4 bg-card/30 rounded-bl-xl rounded-br-xl"
-        style={{ height: "calc(100% - 105px)" }}
-      >
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="ghost cursor-pointer"
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <img src={visionIcon} alt="Vision" className="h-7 w-auto" />
+            ) : (
+              <img src={visionLogo} alt="Vision" className="h-7 w-auto" />
+            )}
+          </button>
+        </div>
         {navItems.map((item) => {
           const Icon = item.icon;
           return (

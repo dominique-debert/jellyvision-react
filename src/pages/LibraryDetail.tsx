@@ -138,7 +138,7 @@ export default function LibraryDetail() {
       <Layout>
         <div>
           <header className="border-b border-base-300">
-            <div className="container mx-auto px-4 py-4">
+            {/* <div className="container mx-auto px-4 py-4">
               <Button
                 variant="ghost"
                 onClick={() => navigate("/")}
@@ -147,10 +147,10 @@ export default function LibraryDetail() {
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
-            </div>
+            </div> */}
           </header>
-          <main className="mx-auto px-4 py-8 pb-30">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <main className="ml-15 mr-10 px-4 py-8 pt-4 pb-30">
+            {/* <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {[...Array(12)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
                   <CardContent className="p-0">
@@ -159,12 +159,12 @@ export default function LibraryDetail() {
                         libraryType === "music"
                           ? "aspect-square"
                           : "aspect-video"
-                      } bg-muted rounded`}
+                      } bg-transparent rounded`}
                     />
                   </CardContent>
                 </Card>
               ))}
-            </div>
+            </div> */}
           </main>
         </div>
       </Layout>
@@ -198,7 +198,7 @@ export default function LibraryDetail() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
               {items.map((item) => (
                 <div
                   key={item.Id}
