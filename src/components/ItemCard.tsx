@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "@/lib/jellyfin/client";
-import { Play, CheckCircle } from "lucide-react";
+import { Play, CircleCheck } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 interface ItemCardProps {
@@ -98,8 +98,8 @@ export function ItemCard({
             item.Type !== "Audio" &&
             item.Type !== "MusicAlbum" &&
             item.Type !== "MusicArtist" && (
-              <div className="absolute top-2 right-2 bg-green-500/90 rounded-full p-1 shadow-lg">
-                <CheckCircle className="h-5 w-5 text-white" />
+              <div className="absolute top-2 right-2 rounded-full p-1 shadow-lg">
+                <CircleCheck className="size-6 text-green-700/90" />
               </div>
             )}
           {/* Hover overlay with play button only */}

@@ -18,7 +18,7 @@ import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
-  CheckCircle,
+  CircleCheck,
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
@@ -396,8 +396,8 @@ export default function ShowDetail() {
                                     )}
                                     {/* Watched indicator */}
                                     {episode.UserData?.Played && (
-                                      <div className="absolute top-2 right-2 bg-green-500/90 rounded-full p-1 shadow-lg">
-                                        <CheckCircle className="h-5 w-5 text-white" />
+                                      <div className="absolute top-2 right-2 rounded-full p-1 shadow-lg">
+                                        <CircleCheck className="size-6  text-green-700/90" />
                                       </div>
                                     )}
                                     <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">
@@ -448,16 +448,6 @@ export default function ShowDetail() {
                                           )}
                                         </div>
                                       </div>
-                                      {/* <Button
-                                        size="sm"
-                                        className="bg-white text-black hover:bg-gray-200"
-                                        onClick={() =>
-                                          navigate(`/play/${episode.Id}`)
-                                        }
-                                      >
-                                        <Play className="h-4 w-4 mr-2" />
-                                        Play
-                                      </Button> */}
                                     </div>
                                     {episode.Overview && (
                                       <p className="text-sm text-zinc-400 text-left line-clamp-2 mt-2">

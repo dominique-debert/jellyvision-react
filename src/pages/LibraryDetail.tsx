@@ -10,7 +10,7 @@ import {
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, CheckCircle } from "lucide-react";
+import { ArrowLeft, Play, CircleCheck } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 
 interface MediaItem {
@@ -215,8 +215,8 @@ export default function LibraryDetail() {
                       )}
                       {/* Watched indicator - only for non-music items */}
                       {item.UserData?.Played && libraryType !== "music" && (
-                        <div className="absolute top-2 right-2 bg-green-500/90 rounded-full p-1 shadow-lg">
-                          <CheckCircle className="h-5 w-5 text-white" />
+                        <div className="absolute top-2 right-2 rounded-full p-1 shadow-lg">
+                          <CircleCheck className="size-6  text-green-700/90" />
                         </div>
                       )}
                       {/* Hover overlay with play button centered and title at bottom */}
