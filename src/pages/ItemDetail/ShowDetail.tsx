@@ -282,23 +282,23 @@ export default function ShowDetail() {
                     <div className="space-y-6">
                       <div className="relative">
                         <div
-                          className="flex gap-3 overflow-hidden scroll-smooth pb-2 pr-12 w-full"
+                          className="flex gap-3 overflow-x-auto scroll-smooth pb-2 w-full"
                           ref={seasonsRowRef}
                           style={{
                             scrollbarWidth: "none",
                             msOverflowStyle: "none",
-                            maxWidth: "calc((100% / 6) * 6)",
                           }}
                         >
                           {seasons.map((season) => (
                             <Button
                               key={season.Id}
                               variant="ghost"
-                              className={`relative flex flex-1 h-auto min-h-0 flex-col items-start p-0 text-left rounded-lg overflow-hidden border ${
+                              className={`relative flex h-auto min-h-0 flex-col items-start p-0 text-left rounded-lg overflow-hidden border shrink-0 ${
                                 selectedSeasonId === season.Id
                                   ? "border-primary/40"
                                   : "border-transparent"
                               } bg-base-200 hover:border-primary transition-colors snap-start`}
+                              style={{ width: "calc(16.666% - 8px)" }}
                               onClick={() =>
                                 setSelectedSeasonId(season.Id || null)
                               }
