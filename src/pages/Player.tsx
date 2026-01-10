@@ -698,16 +698,9 @@ export default function Player() {
               step={0.1}
               value={currentTime}
               onChange={(e) => handleSeek([Number(e.target.value)])}
-              className="flex-1 h-2 rounded-full bg-white/20"
+              className="progress-gradient flex-1"
               style={{
-                accentColor: "transparent",
-                backgroundImage:
-                  "linear-gradient(to right, rgb(168, 85, 247), rgb(59, 130, 246), rgb(6, 182, 212))",
-                backgroundSize: `${
-                  (currentTime / (duration || 1)) * 100
-                }% 100%`,
-                backgroundRepeat: "no-repeat",
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                backgroundSize: `${(currentTime / (duration || 1)) * 100}% 100%`,
               }}
             />
             <span className="text-white font-medium min-w-20">

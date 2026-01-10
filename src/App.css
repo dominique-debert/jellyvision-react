@@ -237,3 +237,45 @@ main {
     @apply ring-1 ring-primary outline-none ring-offset-0;
   }
 }
+
+/* Gradient progress styling for range inputs (video/music players) */
+.progress-gradient {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 0.5rem; /* roughly h-2 */
+  border-radius: 9999px; /* rounded-full */
+  background-color: rgba(255, 255, 255, 0.2);
+  background-image: linear-gradient(
+    to right,
+    rgb(168, 85, 247),
+    rgb(59, 130, 246),
+    rgb(6, 182, 212)
+  );
+  background-repeat: no-repeat;
+}
+
+.progress-gradient::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+}
+.progress-gradient::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+.progress-gradient::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+.progress-gradient::-moz-range-thumb {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
