@@ -59,14 +59,14 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
     <div className="h-screen text-base-content relative">
       {backdropUrl && (
         <div
-          className="absolute inset-0 z-0 opacity-10"
+          className="fixed left-0 inset-0 z-0 opacity-10"
           style={{
             backgroundImage: `url(${backdropUrl})`,
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             backgroundAttachment: "fixed",
             backgroundBlendMode: "multiply",
-            backgroundPosition: "center",
+            backgroundPosition: "top left",
           }}
         />
       )}
