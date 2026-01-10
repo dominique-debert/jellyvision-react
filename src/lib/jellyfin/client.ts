@@ -1,3 +1,32 @@
+// Importing necessary modules from Jellyfin SDK
+import { Jellyfin } from "@jellyfin/sdk";
+import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
+import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
+import { getImageApi } from "@jellyfin/sdk/lib/utils/api/image-api";
+import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
+import { getItemsApi } from "@jellyfin/sdk/lib/utils/api/items-api";
+import { getUserLibraryApi } from "@jellyfin/sdk/lib/utils/api/user-library-api";
+import { getTvShowsApi } from "@jellyfin/sdk/lib/utils/api/tv-shows-api";
+import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+
+// Generate a simple UUID v4
+const generateUUID = () => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
+// Get or create device ID
+const getDeviceId = () => {
+  let deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) {
+    deviceId = generateUUID();
+    localStorage.setItem("deviceId", deviceId);
+  }
+  return deviceId;
+};
 export const getAllAlbumsInLibrary = async (
   baseURL: string,
   userId: string,
@@ -171,33 +200,44 @@ export const getLatestMedia = async (
   }
 };
 
-import { Jellyfin } from "@jellyfin/sdk";
-import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
-import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
-import { getImageApi } from "@jellyfin/sdk/lib/utils/api/image-api";
-import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
-import { getItemsApi } from "@jellyfin/sdk/lib/utils/api/items-api";
-import { getUserLibraryApi } from "@jellyfin/sdk/lib/utils/api/user-library-api";
-import { getTvShowsApi } from "@jellyfin/sdk/lib/utils/api/tv-shows-api";
-import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+// Get Next Up episodes for user
+export const getNextUpItems = async (
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+  limit: number = 12
+): Promise<{
+  success: boolean;
+  data: BaseItemDto[];
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
 
-// Generate a simple UUID v4
-const generateUUID = () => {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
-
-// Get or create device ID
-const getDeviceId = () => {
-  let deviceId = localStorage.getItem("deviceId");
-  if (!deviceId) {
-    deviceId = generateUUID();
-    localStorage.setItem("deviceId", deviceId);
+  try {
+    const response = await client.tvShowsApi.getNextUp({
+      userId,
+      limit,
+      enableImages: true,
+      enableImageTypes: ["Primary", "Backdrop", "Thumb"],
+      enableUserData: true,
+    });
+    if (response.status !== 200 || !response.data.Items) {
+      throw new Error("Failed to fetch Next Up items");
+    }
+    return {
+      success: true,
+      data: response.data.Items,
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch Next Up items";
+    return {
+      success: false,
+      error: errorMessage,
+      data: [],
+    };
   }
-  return deviceId;
 };
 
 // Initialize the Jellyfin SDK
@@ -445,10 +485,11 @@ export const getItem = async (
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
 
   try {
+    // The correct method is userLibraryApi.getItem
     const response = await client.userLibraryApi.getItem({
       userId,
       itemId,
-    } as any);
+    });
 
     if (response.status !== 200 || !response.data) {
       throw new Error("Failed to fetch item");
@@ -486,7 +527,7 @@ export const getSeasons = async (
     const response = await client.tvShowsApi.getSeasons({
       userId,
       seriesId,
-    } as any);
+    });
 
     if (response.status !== 200) {
       throw new Error("Failed to fetch seasons");
@@ -610,7 +651,8 @@ export const markAsPlayed = async (
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
 
   try {
-    const response = await client.userPlayedItemsApi.markPlayedItem({
+    // Use userLibraryApi.markPlayedItem
+    const response = await client.userLibraryApi.markPlayedItem({
       userId,
       itemId,
     });
@@ -644,7 +686,8 @@ export const markAsUnplayed = async (
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
 
   try {
-    const response = await client.userPlayedItemsApi.markUnplayedItem({
+    // Use userLibraryApi.markUnplayedItem
+    const response = await client.userLibraryApi.markUnplayedItem({
       userId,
       itemId,
     });
