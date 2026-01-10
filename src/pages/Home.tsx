@@ -7,9 +7,9 @@ import {
   getResumeItems,
   getLatestMedia,
   getUserViews,
+  getNextUpItems,
 } from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 interface Library {
@@ -18,7 +18,14 @@ interface Library {
   CollectionType?: string | null;
 }
 
-import { CirclePause, Clapperboard, Drama, Music } from "lucide-react";
+import {
+  CirclePause,
+  Clapperboard,
+  Drama,
+  Music,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -28,10 +35,12 @@ export default function Home() {
   const [recentShows, setRecentShows] = useState<BaseItemDto[]>([]);
   const [recentMusic, setRecentMusic] = useState<BaseItemDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [nextUpItems, setNextUpItems] = useState<BaseItemDto[]>([]);
   const moviesScrollRef = useRef<HTMLDivElement>(null);
   const showsScrollRef = useRef<HTMLDivElement>(null);
   const musicScrollRef = useRef<HTMLDivElement>(null);
   const resumeScrollRef = useRef<HTMLDivElement>(null);
+  const nextUpScrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (
     ref: React.RefObject<HTMLDivElement | null>,
@@ -68,6 +77,17 @@ export default function Home() {
       );
       if (resumeResult.success) {
         setResumeItems(resumeResult.data);
+      }
+
+      // Fetch Next Up items
+      const nextUpResult = await getNextUpItems(
+        serverUrl,
+        userId,
+        accessToken,
+        12
+      );
+      if (nextUpResult.success) {
+        setNextUpItems(nextUpResult.data);
       }
 
       // Fetch user libraries
@@ -142,7 +162,7 @@ export default function Home() {
             <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <CirclePause className="size-5 inline-block mr-2" /> Continue
-                watching
+                watching <ChevronRight className="size-6 mt-1 inline-block" />
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -181,13 +201,59 @@ export default function Home() {
           </section>
         )}
 
+        {/* Next Up Section */}
+        {!loading && nextUpItems.length > 0 && (
+          <section className="mr-10">
+            <div className="flex items-center justify-between ml-16">
+              <h2 className="text-3xl font-light flex items-center gap-3">
+                <ChevronRight className="size-5 inline-block mr-2" /> Next Up
+                <ChevronRight className="size-6 mt-1 inline-block" />
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => scroll(nextUpScrollRef, "left")}
+                  className="size-8 hover:bg-primary/20"
+                >
+                  <ChevronLeft className="size-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => scroll(nextUpScrollRef, "right")}
+                  className="size-8 hover:bg-primary/20"
+                >
+                  <ChevronRight className="size-5" />
+                </Button>
+              </div>
+            </div>
+            <div
+              ref={nextUpScrollRef}
+              className="flex ml-16 gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {nextUpItems.map((item) => (
+                <div key={item.Id} className="flex-none w-48">
+                  <ItemCard
+                    item={item}
+                    serverUrl={serverUrl!}
+                    onPlayClick={() => navigate(`/play/${item.Id}?from=home`)}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Recently Added Movies */}
         {!loading && recentMovies.length > 0 && (
           <section className="mr-10">
             <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Clapperboard className="size-5 inline-block mr-2" /> Recently
-                added in Movies
+                added in Movies{" "}
+                <ChevronRight className="size-6 mt-1 inline-block" />
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -228,7 +294,7 @@ export default function Home() {
             <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Drama className="size-5 inline-block mr-2" /> Recently added in
-                TV Shows
+                TV Shows <ChevronRight className="size-6 mt-1 inline-block" />
               </h2>
               <div className="flex gap-2">
                 <Button
@@ -269,7 +335,7 @@ export default function Home() {
             <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Music className="size-5 inline-block mr-2" /> Recently added in
-                Music
+                Music <ChevronRight className="size-6 mt-1 inline-block" />
               </h2>
               <div className="flex gap-2">
                 <Button
