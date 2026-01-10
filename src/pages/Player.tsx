@@ -700,7 +700,9 @@ export default function Player() {
               onChange={(e) => handleSeek([Number(e.target.value)])}
               className="progress-gradient flex-1"
               style={{
-                backgroundSize: `${(currentTime / (duration || 1)) * 100}% 100%`,
+                backgroundSize: `${
+                  (currentTime / (duration || 1)) * 100
+                }% 100%`,
               }}
             />
             <span className="text-white font-medium min-w-20">

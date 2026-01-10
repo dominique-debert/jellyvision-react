@@ -100,9 +100,9 @@ export function ItemCard({
                 e.stopPropagation();
                 handlePlayClick(e);
               }}
-              className="h-16 w-16 rounded-full bg-white/90 hover:bg-white hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-xl"
+              className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
             >
-              <Play className="h-8 w-8 text-black fill-black ml-0.5" />
+              <Play className="h-10 w-10 text-white/60 fill-white/60" />
             </button>
           </div>
           {/* Progress bar for resume items */}

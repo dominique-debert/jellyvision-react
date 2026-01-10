@@ -78,13 +78,12 @@ export const ItemHeader = ({
     <div className="flex items-start justify-between">
       <h1 className="text-5xl font-bold text-amber-500">{item.Name}</h1>
       <div className="flex gap-3">
-        <Button
-          size="icon"
-          className="h-12 w-12 rounded-full bg-white hover:bg-gray-200"
+        <button
+          className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
           onClick={onPlayClick || (() => navigate(`/play/${itemId}`))}
         >
-          <Play className="h-6 w-6 text-black fill-black" />
-        </Button>
+          <Play className="h-10 w-10 text-white/60 fill-white/60" />
+        </button>
         <Button size="icon" variant="ghost" className="h-12 w-12 rounded-sm">
           <Film className="h-6 w-6" />
         </Button>

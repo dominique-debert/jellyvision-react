@@ -381,15 +381,12 @@ export default function ShowDetail() {
                                       </div>
                                     )}
                                     <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">
-                                      <Button
-                                        size="icon"
-                                        className="h-12 w-12 rounded-full"
-                                        onClick={() =>
-                                          navigate(`/play/${episode.Id}`)
-                                        }
+                                      <button
+                                        className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
+                                        onClick={() => navigate(`/play/${episode.Id}`)}
                                       >
-                                        <Play className="h-6 w-6" />
-                                      </Button>
+                                        <Play className="h-10 w-10 text-white/60 fill-white/60" />
+                                      </button>
                                     </div>
                                   </div>
 
