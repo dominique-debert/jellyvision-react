@@ -2,6 +2,15 @@
 
 @import "tailwindcss";
 
+#root {
+  min-height: 100vh;
+  background: linear-gradient(
+    to top right,
+    oklch(23% 0.01 325.81),
+    oklch(19% 0.02 284.13)
+  );
+}
+
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
@@ -157,7 +166,6 @@ main {
 }
 
 #root {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;

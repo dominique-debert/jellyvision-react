@@ -4,7 +4,6 @@ import { Sidebar } from "./Sidebar";
 import { Search, User, LogOut, Settings, Menu } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserById, getUserImageUrl } from "@/lib/jellyfin/client";
-import visionLogo from "@/assets/vision.png";
 
 interface LayoutProps {
   children: ReactNode;
@@ -49,47 +48,34 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
     navigate("/login");
   };
 
-  const defaultGradient =
-    "linear-gradient(to bottom right, transparent, transparent))";
-
   // Calculate sidebar width in pixels: collapsed = 80px (left-20 = 5rem), expanded = 256px (left-64 = 16rem)
   const sidebarWidth = isCollapsed ? 80 : 256;
 
   return (
-    <div
-      className="min-h-screen text-base-content w-full"
-      style={{
-        background: backdropUrl
-          ? `url(${backdropUrl}) calc(50% + ${sidebarWidth}px)/cover no-repeat fixed, ${defaultGradient}`
-          : "transparent",
-        backgroundBlendMode: backdropUrl ? "multiply" : "normal",
-        backgroundPosition: backdropUrl
-          ? `calc(50% + ${sidebarWidth}px) center`
-          : undefined,
-      }}
-    >
+    <div className="h-screen text-base-content w-full relative">
+      {backdropUrl && (
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            background: `url(${backdropUrl}) calc(50% + ${sidebarWidth}px)/cover no-repeat fixed`,
+            backgroundBlendMode: "multiply",
+            backgroundPosition: `calc(50% + ${sidebarWidth}px) center`,
+          }}
+        />
+      )}
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-      <header className="fixed top-0 left-0 right-0 h-16 bg-base-300/80 backdrop-blur-sm border-b border-base-content/10 z-40 flex items-center px-6 gap-4">
-        <button
-          onClick={() => setIsCollapsed((prev) => !prev)}
-          className="btn btn-ghost btn-circle"
-          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-        <img src={visionLogo} alt="Vision" className="h-6 w-auto" />
-
+      <header className="fixed top-0 left-0 right-0 h-20 backdrop-blur-sm z-40 flex items-center px-10 gap-4">
         <div className="flex items-center gap-4 ml-auto">
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <div className="relative">
-              <Search className="w-4 h-4 text-primary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+              <Search className="w-4 h-4 text-white/30 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search..."
-                className="input input-sm input-bordered w-80 pr-12 focus:outline-none focus:ring-1 focus:ring-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                className="input input-md input-bordered w-80 pr-12 focus:outline-none focus:ring-1 focus:ring-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               />
             </div>
           </form>
@@ -153,7 +139,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
       </header>
 
       <div
-        className={`fixed right-0 top-16 bottom-10 overflow-auto transition-all duration-300 ${
+        className={`fixed right-0 top-20 bottom-0 overflow-auto transition-all duration-300 z-10 ${
           isCollapsed ? "left-20" : "left-64"
         }`}
       >

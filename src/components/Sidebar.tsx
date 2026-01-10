@@ -92,30 +92,32 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed bg-base-300 left-0 top-0 h-full flex flex-col z-50 transition-all duration-300 ${
+      className={`fixed left-0 ml-6 top-6 h-full shadow-2xl flex flex-col z-50 transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
       <div
         className={`flex items-center ${
-          isCollapsed ? "justify-center pt-6 pb-5" : "justify-between p-6 pb-5"
-        } gap-3`}
+          isCollapsed ? "justify-center pb-5 pt-6" : "justify-between p-6 pb-5"
+        } gap-3 bg-card/60 rounded-tl-xl rounded-tr-xl`}
       >
-        {isCollapsed ? (
-          <img src={visionIcon} alt="Vision" className="h-6 w-auto" />
-        ) : (
-          <img src={visionLogo} alt="Vision" className="h-6 w-auto" />
-        )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hover:bg-base-300 rounded-lg transition-colors"
+          className="ghost cursor-pointer"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          <Menu className="w-5 h-5" />
+          {isCollapsed ? (
+            <img src={visionIcon} alt="Vision" className="h-5 w-auto" />
+          ) : (
+            <img src={visionLogo} alt="Vision" className="h-5 w-auto" />
+          )}
         </button>
       </div>
 
-      <nav className="flex flex-col p-6 gap-6 mt-4">
+      <nav
+        className="flex flex-col pt-6 pl-3.5 pr-3.5 gap-4 bg-card/60 rounded-bl-xl rounded-br-xl"
+        style={{ height: "calc(100% - 105px)" }}
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -123,12 +125,12 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               key={item.label}
               onClick={() => !item.disabled && navigate(item.path)}
               disabled={item.disabled}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-colors ${
+              className={`w-full cursor-pointer flex items-center gap-4 px-4 py-3 rounded-lg transition-colors border border-transparent ${
                 item.isActive
-                  ? "bg-primary text-white font-medium"
+                  ? "bg-white/2 backdrop-blur-md border border-white/10 text-white font-medium"
                   : item.disabled
                   ? "text-base-content/40 cursor-not-allowed"
-                  : "text-base-content hover:bg-primary/20 hover:text-white/80"
+                  : "text-base-content hover:bg-white/2 hover:backdrop-blur-md hover:border hover:border-white/20"
               } ${isCollapsed ? "justify-center" : ""}`}
               title={isCollapsed ? item.label : undefined}
             >

@@ -139,7 +139,7 @@ export default function Home() {
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section className="mr-10">
-            <div className="flex items-center justify-between ml-10">
+            <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <CirclePause className="size-5 inline-block mr-2" /> Continue
                 watching
@@ -165,7 +165,7 @@ export default function Home() {
             </div>
             <div
               ref={resumeScrollRef}
-              className="flex ml-10 gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              className="flex ml-16 gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {resumeItems.map((item) => (
@@ -184,7 +184,7 @@ export default function Home() {
         {/* Recently Added Movies */}
         {!loading && recentMovies.length > 0 && (
           <section className="mr-10">
-            <div className="flex items-center justify-between ml-10">
+            <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Clapperboard className="size-5 inline-block mr-2" /> Recently
                 added in Movies
@@ -210,7 +210,7 @@ export default function Home() {
             </div>
             <div
               ref={moviesScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-10"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMovies.map((item) => (
@@ -225,7 +225,7 @@ export default function Home() {
         {/* Recently Added TV Shows */}
         {!loading && recentShows.length > 0 && (
           <section className="mr-10">
-            <div className="flex items-center justify-between ml-10">
+            <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Drama className="size-5 inline-block mr-2" /> Recently added in
                 TV Shows
@@ -251,7 +251,7 @@ export default function Home() {
             </div>
             <div
               ref={showsScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-10"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentShows.map((item) => (
@@ -266,7 +266,7 @@ export default function Home() {
         {/* Recently Added Music */}
         {!loading && recentMusic.length > 0 && (
           <section className="mr-10">
-            <div className="flex items-center justify-between ml-10">
+            <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
                 <Music className="size-5 inline-block mr-2" /> Recently added in
                 Music
@@ -292,7 +292,7 @@ export default function Home() {
             </div>
             <div
               ref={musicScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-10"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMusic.map((item) => (
