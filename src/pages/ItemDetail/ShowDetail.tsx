@@ -175,7 +175,7 @@ export default function ShowDetail() {
 
   return (
     <Layout backdropUrl={backdropUrl}>
-      <div className="min-h-screen">
+      <div className="min-h-screen pb-40">
         <div className="mx-auto pr-10 pl-15 py-2">
           <div className="flex">
             <Button
@@ -281,7 +281,7 @@ export default function ShowDetail() {
                   ) : (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between w-full mb-2">
-                        <div className="flex gap-2 ml-2">
+                        <div className="flex gap-2">
                           <Button
                             variant="ghost"
                             size="icon"

@@ -56,27 +56,29 @@ export const CastAndCrewSection = ({
         <div className="flex-1 min-w-0">
           <h3 className="text-white/70 font-medium mb-4 text-left">Actors</h3>
           {actors.filter((a) => a.PrimaryImageTag).length > 0 ? (
-            <div className="grid grid-cols-2 items-start md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {actors
                 .filter(
                   (actor) => actor.PrimaryImageTag && serverUrl && actor.Id
                 )
-                .slice(0, 10)
+                .slice(0, 12)
                 .map((actor) => (
-                  <div key={actor.Id} className="flex flex-col items-start">
-                    <img
-                      src={getImageUrl(
-                        serverUrl!,
-                        actor.Id!,
-                        "Primary",
-                        160,
-                        160,
-                        85
-                      )}
-                      alt={actor.Name || "Actor"}
-                      className="w-20 h-20 rounded-full object-cover mb-2"
-                      loading="lazy"
-                    />
+                  <div key={actor.Id} className="flex flex-col items-center justify-center text-center">
+                    <div className="w-full flex justify-center">
+                      <img
+                        src={getImageUrl(
+                          serverUrl!,
+                          actor.Id!,
+                          "Primary",
+                          200,
+                          300,
+                          85
+                        )}
+                        alt={actor.Name || "Actor"}
+                        className="w-full max-w-[120px] aspect-[2/3] object-cover rounded-lg mb-2 mx-auto"
+                        loading="lazy"
+                      />
+                    </div>
                     <p className="text-white text-xs font-medium text-center line-clamp-2">
                       {actor.Name}
                     </p>
