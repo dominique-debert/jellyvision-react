@@ -149,7 +149,7 @@ export default function LibraryDetail() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <div className="container mx-auto px-4 py-0 flex items-center justify-between">
+          <div className="mx-auto px-17 flex items-center justify-between">
             <Button
               variant="ghost"
               onClick={() => navigate("/")}

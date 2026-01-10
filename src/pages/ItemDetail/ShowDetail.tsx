@@ -176,7 +176,7 @@ export default function ShowDetail() {
   return (
     <Layout backdropUrl={backdropUrl}>
       <div className="min-h-screen">
-        <div className="mx-auto px-10 pl-20 py-8">
+        <div className="mx-auto pr-10 pl-5 py-8">
           <div className="flex">
             <Button
               variant="ghost"
@@ -194,10 +194,10 @@ export default function ShowDetail() {
                 <img
                   src={primaryImageUrl}
                   alt={item.Name || "Show"}
-                  className="w-full rounded-lg shadow-2xl"
+                  className="w-full rounded-lg shadow-lg"
                 />
               ) : (
-                <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
+                <div className="w-full aspect-2/3 shadow-lg rounded-lg flex items-center justify-center">
                   <span className="text-zinc-600">No Image</span>
                 </div>
               )}

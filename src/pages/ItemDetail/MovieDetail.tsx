@@ -74,7 +74,7 @@ export default function MovieDetail() {
   return (
     <Layout backdropUrl={backdropUrl}>
       <div className="min-h-screen w-full">
-        <div className="mx-auto px-10 pl-20 py-8">
+        <div className="mx-auto pr-10 pl-5 py-8">
           <div className="flex">
             <Button
               variant="ghost"
@@ -89,7 +89,7 @@ export default function MovieDetail() {
           <div className="flex gap-8">
             {/* Left Column - Poster */}
             <div className="w-80 shrink-0">
-              <div className="relative group rounded-lg overflow-hidden">
+              <div className="relative group rounded-lg overflow-hidden border border-primary/20 shadow-lg">
                 {primaryImageUrl ? (
                   <img
                     src={primaryImageUrl}

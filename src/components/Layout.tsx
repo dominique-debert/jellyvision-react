@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
-import { Search, User, LogOut, Settings, Menu } from "lucide-react";
+import { Search, User, LogOut, Settings } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserById, getUserImageUrl } from "@/lib/jellyfin/client";
 
@@ -11,11 +11,18 @@ interface LayoutProps {
 }
 
 export function Layout({ children, backdropUrl }: LayoutProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem("sidebarCollapsed");
+    return saved ? JSON.parse(saved) : false;
+  });
   const [searchInput, setSearchInput] = useState("");
   const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { username, logout, serverUrl, userId, accessToken } = useAuthStore();
+
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
 
   useEffect(() => {
     const fetchUserImage = async () => {
@@ -28,7 +35,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
           { Id: userId, PrimaryImageTag: result.data.PrimaryImageTag },
           accessToken
         );
-        setUserImageUrl(imageUrl);
+        setUserImageUrl(imageUrl ?? null);
       }
     };
 

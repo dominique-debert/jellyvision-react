@@ -121,7 +121,12 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
           return (
             <button
               key={item.label}
-              onClick={() => !item.disabled && navigate(item.path)}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!item.disabled) {
+                  navigate(item.path);
+                }
+              }}
               disabled={item.disabled}
               className={`w-full cursor-pointer flex items-center gap-4 px-4 py-3 rounded-lg transition-colors border border-transparent ${
                 item.isActive
