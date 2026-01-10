@@ -10,14 +10,8 @@ import {
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  ChevronsLeft,
-  ChevronsRight,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-} from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
+import { Pagination } from "@/components/Pagination";
 
 interface MediaItem {
   Id?: string;
@@ -105,34 +99,6 @@ export default function LibraryDetail() {
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 7;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 4) {
-        for (let i = 1; i <= 5; i++) pages.push(i);
-        pages.push(-1);
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 3) {
-        pages.push(1);
-        pages.push(-1);
-        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push(-1);
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
-        pages.push(-1);
-        pages.push(totalPages);
-      }
-    }
-    return pages;
-  };
-
   if (loading) {
     return (
       <Layout>
@@ -198,18 +164,18 @@ export default function LibraryDetail() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10">
               {items.map((item) => (
                 <div
                   key={item.Id}
                   className="cursor-pointer group"
                   onClick={() => navigate(`/item/${item.Id}`)}
                 >
-                  <div className="relative">
+                  <div className="relative rounded-xl overflow-hidden border border-white/10">
                     <div
                       className={`${
                         libraryType === "music" ? "aspect-square" : "aspect-2/3"
-                      } bg-muted rounded-lg overflow-hidden`}
+                      } bg-muted overflow-hidden`}
                     >
                       {item.Id && item.ImageTags?.["Primary"] && serverUrl ? (
                         <img
@@ -222,7 +188,7 @@ export default function LibraryDetail() {
                             85
                           )}
                           alt={item.Name || "Media item"}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          className="w-full h-full rounded-xl border border-white/10 object-cover transition-transform group-hover:scale-110"
                           loading="lazy"
                           onError={(e) => {
                             e.currentTarget.style.display = "none";
@@ -251,12 +217,12 @@ export default function LibraryDetail() {
                               navigate(`/play/${item.Id}`);
                             }
                           }}
-                          className="h-20 w-20 rounded-full bg-primary hover:bg-primary/90 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
+                          className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
                         >
                           <Play className="h-10 w-10 text-white/60 fill-white/60" />
                         </button>
                         <div className="w-full">
-                          <h3 className="font-semibold text-sm text-white text-center line-clamp-2">
+                          <h3 className="font-semibold text-lg text-white text-center line-clamp-2">
                             {item.Name}
                           </h3>
                           {item.Type === "Series" && item.ChildCount && (
@@ -266,7 +232,7 @@ export default function LibraryDetail() {
                             </p>
                           )}
                           {item.ProductionYear && (
-                            <p className="text-xs text-white/80 mt-1 text-center">
+                            <p className="text-lg text-white/80 mt-1 text-center">
                               {item.ProductionYear}
                             </p>
                           )}
@@ -279,70 +245,12 @@ export default function LibraryDetail() {
             </div>
           )}
 
-          {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
-              <Button
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1 || loading}
-                variant="outline"
-                size="icon"
-                title="First page"
-              >
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1 || loading}
-                variant="outline"
-                size="icon"
-                title="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              {getPageNumbers().map((page, idx) =>
-                page === -1 ? (
-                  <span
-                    key={`ellipsis-${idx}`}
-                    className="px-2 text-muted-foreground"
-                  >
-                    ...
-                  </span>
-                ) : (
-                  <Button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    disabled={loading}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="icon"
-                  >
-                    {page}
-                  </Button>
-                )
-              )}
-
-              <Button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage === totalPages || loading}
-                variant="outline"
-                size="icon"
-                title="Next page"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages || loading}
-                variant="outline"
-                size="icon"
-                title="Last page"
-              >
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            loading={loading}
+            onPageChange={setCurrentPage}
+          />
         </main>
       </div>
     </Layout>

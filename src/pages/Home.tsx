@@ -135,7 +135,7 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="flex flex-col gap-8 mt-10 mb-30">
+      <div className="flex flex-col gap-10 mt-10 mb-30">
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section className="mr-10">
@@ -165,7 +165,7 @@ export default function Home() {
             </div>
             <div
               ref={resumeScrollRef}
-              className="flex ml-16 gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              className="flex ml-16 gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {resumeItems.map((item) => (
@@ -210,7 +210,7 @@ export default function Home() {
             </div>
             <div
               ref={moviesScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
+              className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMovies.map((item) => (
@@ -237,7 +237,7 @@ export default function Home() {
                   onClick={() => scroll(showsScrollRef, "left")}
                   className="h-8 w-8"
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="size-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -245,13 +245,13 @@ export default function Home() {
                   onClick={() => scroll(showsScrollRef, "right")}
                   className="h-8 w-8"
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="size-5" />
                 </Button>
               </div>
             </div>
             <div
               ref={showsScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
+              className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentShows.map((item) => (
@@ -276,7 +276,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(musicScrollRef, "left")}
-                  className="h-8 w-8"
+                  className="size-8"
                 >
                   <ChevronLeft className="size-5" />
                 </Button>
@@ -284,7 +284,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(musicScrollRef, "right")}
-                  className="h-8 w-8"
+                  className="size-8"
                 >
                   <ChevronRight className="size-5" />
                 </Button>
@@ -292,7 +292,7 @@ export default function Home() {
             </div>
             <div
               ref={musicScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
+              className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6 ml-16"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {recentMusic.map((item) => (
