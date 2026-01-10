@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "@/lib/jellyfin/client";
-import { Play } from "lucide-react";
+import { Play, CheckCircle } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 interface ItemCardProps {
@@ -93,6 +93,15 @@ export function ItemCard({
               No Image
             </div>
           )}
+          {/* Watched indicator - only for non-music items */}
+          {item.UserData?.Played &&
+            item.Type !== "Audio" &&
+            item.Type !== "MusicAlbum" &&
+            item.Type !== "MusicArtist" && (
+              <div className="absolute top-2 right-2 bg-green-500/90 rounded-full p-1 shadow-lg">
+                <CheckCircle className="h-5 w-5 text-white" />
+              </div>
+            )}
           {/* Hover overlay with play button only */}
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
             <button

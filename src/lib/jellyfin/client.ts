@@ -595,3 +595,73 @@ export const reportPlaybackProgress = async (
     };
   }
 };
+
+// Mark item as played/watched
+export const markAsPlayed = async (
+  baseURL: string,
+  userId: string,
+  itemId: string,
+  accessToken: string
+): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.userPlayedItemsApi.markPlayedItem({
+      userId,
+      itemId,
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to mark item as played");
+    }
+
+    return { success: true };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to mark item as played";
+    return {
+      success: false,
+      error: errorMessage,
+    };
+  }
+};
+
+// Mark item as unplayed/unwatched
+export const markAsUnplayed = async (
+  baseURL: string,
+  userId: string,
+  itemId: string,
+  accessToken: string
+): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
+  const proxiedURL = getProxiedURL(baseURL);
+  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
+
+  try {
+    const response = await client.userPlayedItemsApi.markUnplayedItem({
+      userId,
+      itemId,
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to mark item as unplayed");
+    }
+
+    return { success: true };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Failed to mark item as unplayed";
+    return {
+      success: false,
+      error: errorMessage,
+    };
+  }
+};

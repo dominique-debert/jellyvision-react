@@ -18,6 +18,7 @@ import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
+  CheckCircle,
 } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
@@ -74,6 +75,15 @@ export default function ShowDetail() {
 
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId]);
+
+  const refetchItem = async () => {
+    if (!serverUrl || !userId || !accessToken || !itemId) return;
+
+    const result = await getItem(serverUrl, userId, itemId, accessToken);
+    if (result.success && result.data) {
+      setItem(result.data);
+    }
+  };
 
   useEffect(() => {
     const fetchSeasons = async () => {
@@ -195,7 +205,11 @@ export default function ShowDetail() {
 
             {/* Right Column - Details */}
             <div className="flex-1 min-w-0 space-y-6">
-              <ItemHeader item={item} itemId={itemId!} />
+              <ItemHeader
+                item={item}
+                itemId={itemId!}
+                onWatchedToggle={refetchItem}
+              />
 
               <SubtitleSelector
                 item={item}
@@ -378,6 +392,12 @@ export default function ShowDetail() {
                                     ) : (
                                       <div className="w-full h-full bg-base-300 flex items-center justify-center rounded-l-lg">
                                         <Play className="h-12 w-12 text-base-content/40" />
+                                      </div>
+                                    )}
+                                    {/* Watched indicator */}
+                                    {episode.UserData?.Played && (
+                                      <div className="absolute top-2 right-2 bg-green-500/90 rounded-full p-1 shadow-lg">
+                                        <CheckCircle className="h-5 w-5 text-white" />
                                       </div>
                                     )}
                                     <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-l-lg">

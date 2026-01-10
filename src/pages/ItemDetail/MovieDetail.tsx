@@ -4,7 +4,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
 import { getItem, getImageUrl } from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
   LoadingState,
@@ -53,6 +53,15 @@ export default function MovieDetail() {
     fetchItem();
   }, [serverUrl, userId, accessToken, itemId]);
 
+  const refetchItem = async () => {
+    if (!serverUrl || !userId || !accessToken || !itemId) return;
+
+    const result = await getItem(serverUrl, userId, itemId, accessToken);
+    if (result.success && result.data) {
+      setItem(result.data);
+    }
+  };
+
   if (loading) return <LoadingState />;
   if (!item) return <NotFoundState />;
 
@@ -80,22 +89,37 @@ export default function MovieDetail() {
           <div className="flex gap-8">
             {/* Left Column - Poster */}
             <div className="w-80 shrink-0">
-              {primaryImageUrl ? (
-                <img
-                  src={primaryImageUrl}
-                  alt={item.Name || "Movie"}
-                  className="w-full rounded-lg shadow-2xl"
-                />
-              ) : (
-                <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
-                  <span className="text-zinc-600">No Image</span>
+              <div className="relative group rounded-lg overflow-hidden">
+                {primaryImageUrl ? (
+                  <img
+                    src={primaryImageUrl}
+                    alt={item.Name || "Movie"}
+                    className="w-full rounded-lg shadow-2xl"
+                  />
+                ) : (
+                  <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
+                    <span className="text-zinc-600">No Image</span>
+                  </div>
+                )}
+                {/* Play button overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                  <button
+                    className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
+                    onClick={() => navigate(`/play/${itemId}`)}
+                  >
+                    <Play className="h-10 w-10 text-white/60 fill-white/60" />
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Right Column - Details */}
             <div className="flex-1 min-w-0 space-y-6">
-              <ItemHeader item={item} itemId={itemId!} />
+              <ItemHeader
+                item={item}
+                itemId={itemId!}
+                onWatchedToggle={refetchItem}
+              />
 
               <SubtitleSelector
                 item={item}

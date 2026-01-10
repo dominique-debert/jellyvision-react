@@ -10,7 +10,7 @@ import {
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play } from "lucide-react";
+import { ArrowLeft, Play, CheckCircle } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 
 interface MediaItem {
@@ -21,6 +21,9 @@ interface MediaItem {
   ProductionYear?: number | null;
   ChildCount?: number;
   RecursiveItemCount?: number;
+  UserData?: {
+    Played?: boolean;
+  };
 }
 
 export default function LibraryDetail() {
@@ -208,6 +211,12 @@ export default function LibraryDetail() {
                             : item.Type === "Audio"
                             ? "🎵"
                             : "📁"}
+                        </div>
+                      )}
+                      {/* Watched indicator - only for non-music items */}
+                      {item.UserData?.Played && libraryType !== "music" && (
+                        <div className="absolute top-2 right-2 bg-green-500/90 rounded-full p-1 shadow-lg">
+                          <CheckCircle className="h-5 w-5 text-white" />
                         </div>
                       )}
                       {/* Hover overlay with play button centered and title at bottom */}
