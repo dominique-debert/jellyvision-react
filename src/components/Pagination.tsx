@@ -59,7 +59,7 @@ export function Pagination({
         variant="outline"
         size="icon"
         title="First page"
-        className="rounded-full"
+        className="rounded-full cursor-pointer"
       >
         <ChevronsLeft className="size-4" />
       </Button>
@@ -69,7 +69,7 @@ export function Pagination({
         variant="outline"
         size="icon"
         title="Previous page"
-        className="rounded-full"
+        className="rounded-full cursor-pointer"
       >
         <ChevronLeft className="size-4" />
       </Button>
@@ -86,6 +86,7 @@ export function Pagination({
             disabled={loading}
             variant={currentPage === page ? "default" : "outline"}
             size="icon"
+            className="rounded-full cursor-pointer"
           >
             {page}
           </Button>
@@ -98,6 +99,7 @@ export function Pagination({
         variant="outline"
         size="icon"
         title="Next page"
+        className="rounded-full cursor-pointer"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
@@ -107,6 +109,7 @@ export function Pagination({
         variant="outline"
         size="icon"
         title="Last page"
+        className="rounded-full cursor-pointer"
       >
         <ChevronsRight className="h-4 w-4" />
       </Button>

@@ -34,6 +34,11 @@ export default function LibraryDetail() {
   const [libraryType, setLibraryType] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 60;
 
+  // Reset pagination when library changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [libraryId]);
+
   // Fetch library info to determine type
   useEffect(() => {
     const fetchLibraryInfo = async () => {
