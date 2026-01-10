@@ -149,7 +149,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(resumeScrollRef, "left")}
-                  className="h-8 w-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronLeft className="size-5" />
                 </Button>
@@ -157,7 +157,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(resumeScrollRef, "right")}
-                  className="h-8 w-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronRight className="size-5" />
                 </Button>
@@ -194,7 +194,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(moviesScrollRef, "left")}
-                  className="h-8 w-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronLeft className="size-5" />
                 </Button>
@@ -202,7 +202,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(moviesScrollRef, "right")}
-                  className="h-8 w-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronRight className="size-5" />
                 </Button>
@@ -235,7 +235,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(showsScrollRef, "left")}
-                  className="h-8 w-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronLeft className="size-5" />
                 </Button>
@@ -243,7 +243,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(showsScrollRef, "right")}
-                  className="h-8 w-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronRight className="size-5" />
                 </Button>
@@ -276,7 +276,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(musicScrollRef, "left")}
-                  className="size-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronLeft className="size-5" />
                 </Button>
@@ -284,7 +284,7 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => scroll(musicScrollRef, "right")}
-                  className="size-8"
+                  className="size-8 hover:bg-primary/20"
                 >
                   <ChevronRight className="size-5" />
                 </Button>

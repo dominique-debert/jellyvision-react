@@ -362,7 +362,7 @@ export default function MusicDetail() {
                     className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <div className="bg-primary/40 hover:bg-amber-600 rounded-full p-4">
-                      <Play className="h-8 w-8 text-white fill-white" />
+                      <Play className="size-8 text-white fill-white" />
                     </div>
                   </button>
                 )}

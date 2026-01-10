@@ -286,7 +286,7 @@ export default function ShowDetail() {
                             variant="ghost"
                             size="icon"
                             onClick={() => scrollSeasons(-1)}
-                            className="h-8 w-8"
+                            className="size-8"
                           >
                             <ChevronLeft className="size-5" />
                           </Button>
@@ -294,7 +294,7 @@ export default function ShowDetail() {
                             variant="ghost"
                             size="icon"
                             onClick={() => scrollSeasons(1)}
-                            className="h-8 w-8"
+                            className="size-8"
                           >
                             <ChevronRight className="size-5" />
                           </Button>
@@ -344,7 +344,7 @@ export default function ShowDetail() {
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-zinc-500">
-                                  <Play className="h-8 w-8" />
+                                  <Play className="size-8" />
                                 </div>
                               )}
                               <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">

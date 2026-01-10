@@ -99,7 +99,7 @@ export function UserProfile() {
               className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center"
               style={{ display: avatarUrl ? "none" : "flex" }}
             >
-              <UserIcon className="h-8 w-8 text-primary" />
+              <UserIcon className="size-8 text-primary" />
             </div>
           </div>
           <div className="flex-1">

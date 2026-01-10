@@ -768,7 +768,7 @@ export default function Player() {
                 className="text-white hover:bg-white/20 h-12 w-12"
                 onClick={handleSkipBack}
               >
-                <SkipBack className="h-8 w-8" />
+                <SkipBack className="size-8" />
               </Button>
               <button
                 className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
@@ -786,7 +786,7 @@ export default function Player() {
                 className="text-white hover:bg-white/20 h-12 w-12"
                 onClick={handleSkipForward}
               >
-                <SkipForward className="h-8 w-8" />
+                <SkipForward className="size-8" />
               </Button>
             </div>
 

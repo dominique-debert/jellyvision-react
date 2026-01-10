@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserViews } from "@/lib/jellyfin/client";
-import { Home, Film, Tv, Music, Menu } from "lucide-react";
+import { Home, Film, Tv, Music } from "lucide-react";
 import visionLogo from "@/assets/vision.png";
 import visionIcon from "@/assets/vision-icon.png";
 
