@@ -770,17 +770,16 @@ export default function Player() {
               >
                 <SkipBack className="h-8 w-8" />
               </Button>
-              <Button
-                size="icon"
-                className="bg-white hover:bg-gray-200 h-16 w-16 rounded-full"
+              <button
+                className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
                 onClick={togglePlayPause}
               >
                 {isPlaying ? (
-                  <Pause className="h-10 w-10 text-black fill-black" />
+                  <Pause className="h-10 w-10 text-white/60 fill-white/60" />
                 ) : (
-                  <Play className="h-10 w-10 text-black fill-black" />
+                  <Play className="h-10 w-10 text-white/60 fill-white/60" />
                 )}
-              </Button>
+              </button>
               <Button
                 size="icon"
                 variant="ghost"

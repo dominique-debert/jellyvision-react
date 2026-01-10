@@ -94,13 +94,13 @@ export function FloatingAudioBar({
           </button>
 
           <button
-            className="p-1.5 bg-amber-500 hover:bg-amber-600 rounded transition-colors text-white"
+            className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
             onClick={onPlayPause}
           >
             {isPlaying ? (
-              <Pause className="h-4 w-4 fill-white" />
+              <Pause className="h-10 w-10 text-white/60 fill-white/60" />
             ) : (
-              <Play className="h-4 w-4 fill-white" />
+              <Play className="h-10 w-10 text-white/60 fill-white/60" />
             )}
           </button>
 
