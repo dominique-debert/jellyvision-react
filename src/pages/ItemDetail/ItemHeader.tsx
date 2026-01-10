@@ -4,6 +4,7 @@ import { Film, Bookmark, Check, Printer, MoreHorizontal } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { markAsPlayed, markAsUnplayed } from "@/lib/jellyfin/client";
 import { useAuthStore } from "@/store/useAuthStore";
+import { getLogoUrl } from "./utils";
 
 export const ItemHeader = ({
   item,
@@ -53,10 +54,22 @@ export const ItemHeader = ({
     }
   };
 
+  const logoUrl = getLogoUrl(serverUrl, item, 400);
+
   return (
     <div className="flex items-start justify-between">
-      <h1 className="text-5xl font-bold text-white/70">{item.Name}</h1>
-      <div className="flex gap-3">
+      <div className="flex-1">
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={item.Name || "Title"}
+            className="max-h-24 max-w-96 object-contain"
+          />
+        ) : (
+          <h1 className="text-5xl font-bold text-white/70">{item.Name}</h1>
+        )}
+      </div>
+      <div className="flex gap-3 shrink-0">
         <Button size="icon" variant="ghost" className="h-12 w-12 rounded-sm">
           <Film className="h-6 w-6" />
         </Button>

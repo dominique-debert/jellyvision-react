@@ -1,5 +1,5 @@
 // Re-export all components and utilities for backward compatibility
-export { formatRuntime, getPrimaryImageUrl } from "./utils";
+export { formatRuntime, getPrimaryImageUrl, getLogoUrl } from "./utils";
 export { LoadingState } from "./LoadingState";
 export { NotFoundState } from "./NotFoundState";
 export { ItemHeader } from "./ItemHeader";

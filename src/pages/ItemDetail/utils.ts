@@ -24,3 +24,16 @@ export const getPrimaryImageUrl = (
   }
   return undefined;
 };
+
+export const getLogoUrl = (
+  serverUrl: string | null,
+  item: BaseItemDto | null,
+  maxWidth?: number,
+  maxHeight?: number
+) => {
+  if (!serverUrl || !item?.Id) return undefined;
+  if (item.ImageTags?.Logo) {
+    return getImageUrl(serverUrl, item.Id, "Logo", maxWidth, maxHeight, 90);
+  }
+  return undefined;
+};
