@@ -361,7 +361,7 @@ export default function MusicDetail() {
                     }}
                     className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <div className="bg-amber-500 hover:bg-amber-600 rounded-full p-4">
+                    <div className="bg-primary/40 hover:bg-amber-600 rounded-full p-4">
                       <Play className="h-8 w-8 text-white fill-white" />
                     </div>
                   </button>
@@ -433,7 +433,7 @@ export default function MusicDetail() {
                                 key={track.Id}
                                 className={`group hover:bg-base-300 rounded cursor-pointer ${
                                   track.Id === currentTrackId
-                                    ? "bg-amber-500/20"
+                                    ? "bg-primary/40/20"
                                     : ""
                                 }`}
                                 onDoubleClick={() => {
@@ -453,7 +453,7 @@ export default function MusicDetail() {
                                       if (track.Id) handlePlayTrack(track.Id);
                                     }}
                                   >
-                                    <Play className="h-5 w-5" />
+                                    <Play className="size-5" />
                                   </Button>
                                 </td>
                                 <td className="text-left">

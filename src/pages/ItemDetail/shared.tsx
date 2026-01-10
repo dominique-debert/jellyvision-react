@@ -119,7 +119,7 @@ export const ItemHeader = ({
 
   return (
     <div className="flex items-start justify-between">
-      <h1 className="text-5xl font-bold text-amber-500">{item.Name}</h1>
+      <h1 className="text-5xl font-bold text-white/70">{item.Name}</h1>
       <div className="flex gap-3">
         <Button size="icon" variant="ghost" className="h-12 w-12 rounded-sm">
           <Film className="h-6 w-6" />
@@ -152,7 +152,7 @@ export const ItemHeader = ({
 export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
   <div className="grid grid-cols-4 gap-6 text-sm">
     <div className="flex flex-col items-start">
-      <div className="text-amber-500 font-medium mb-1">Date</div>
+      <div className="text-white/70 font-medium mb-1">Date</div>
       <div className="text-white">
         {item.ProductionYear || item.PremiereDate
           ? new Date(
@@ -162,17 +162,17 @@ export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
       </div>
     </div>
     <div className="flex flex-col items-start">
-      <div className="text-amber-500 font-medium mb-1">Duration</div>
+      <div className="text-white/70 font-medium mb-1">Duration</div>
       <div className="text-white">
         {item.RunTimeTicks ? formatRuntime(item.RunTimeTicks) : "-"}
       </div>
     </div>
     <div className="flex flex-col items-start">
-      <div className="text-amber-500 font-medium mb-1">Certification</div>
+      <div className="text-white/70 font-medium mb-1">Certification</div>
       <div className="text-white">{item.OfficialRating || "-"}</div>
     </div>
     <div className="flex flex-col items-start">
-      <div className="text-amber-500 font-medium mb-1">Genre</div>
+      <div className="text-white/70 font-medium mb-1">Genre</div>
       <div className="text-white">{item.Genres?.join(", ") || "-"}</div>
     </div>
   </div>
@@ -206,8 +206,8 @@ export const SynopsisSection = ({ item }: { item: BaseItemDto }) => {
   if (!item.Overview) return null;
   return (
     <div className="flex flex-col items-start">
-      <h2 className="text-amber-500 font-medium mb-2">Synopsis</h2>
-      <p className="text-zinc-300 p-0 m-0 leading-relaxed text-left">
+      <h2 className="text-white/70 font-medium mb-2">Synopsis</h2>
+      <p className="text-zinc-300 font-light text-justify p-0 m-0 leading-relaxed">
         {item.Overview}
       </p>
     </div>
@@ -232,7 +232,7 @@ export const CastAndCrewSection = ({
         <div className="w-56 shrink-0 space-y-6">
           {/* Directors */}
           <div className="flex flex-col items-start space-y-1">
-            <h3 className="text-amber-500 font-medium mb-3">Directors</h3>
+            <h3 className="text-white/70 font-medium mb-3">Directors</h3>
             {directors.length > 0 ? (
               <div className="space-y-1">
                 {directors.map((director) => (
@@ -248,7 +248,7 @@ export const CastAndCrewSection = ({
 
           {/* Screenwriters */}
           <div className="flex flex-col items-start space-y-1">
-            <h3 className="text-amber-500 font-medium mb-3">Screenwriters</h3>
+            <h3 className="text-white/70 font-medium mb-3">Screenwriters</h3>
             {writers.length > 0 ? (
               <div className="space-y-1">
                 {writers.map((writer) => (
@@ -267,7 +267,7 @@ export const CastAndCrewSection = ({
 
         {/* Right: Actors (Grid) */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-amber-500 font-medium mb-4 text-left">Actors</h3>
+          <h3 className="text-white/70 font-medium mb-4 text-left">Actors</h3>
           {actors.filter((a) => a.PrimaryImageTag).length > 0 ? (
             <div className="grid grid-cols-2 items-start md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {actors
@@ -330,7 +330,7 @@ export const SubtitleSelector = ({
 
   return (
     <div className="flex items-center gap-3 text-sm text-white">
-      <span className="text-amber-500 font-medium">Subtitles:</span>
+      <span className="text-white/70 font-medium">Subtitles:</span>
       <select
         value={selectedSubtitle ?? "none"}
         onChange={(e) =>

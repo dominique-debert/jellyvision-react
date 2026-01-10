@@ -296,7 +296,7 @@ export default function ShowDetail() {
                               variant="ghost"
                               className={`relative flex flex-1 h-auto min-h-0 flex-col items-start p-0 text-left rounded-lg overflow-hidden border ${
                                 selectedSeasonId === season.Id
-                                  ? "border-amber-500"
+                                  ? "border-primary/40"
                                   : "border-transparent"
                               } bg-base-200 hover:border-primary transition-colors snap-start`}
                               onClick={() =>
@@ -347,7 +347,7 @@ export default function ShowDetail() {
                             className="pointer-events-auto bg-black/60 text-white hover:bg-black/80"
                             onClick={() => scrollSeasons(-1)}
                           >
-                            <ChevronLeft className="h-5 w-5" />
+                            <ChevronLeft className="size-5" />
                           </Button>
                         </div>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -357,7 +357,7 @@ export default function ShowDetail() {
                             className="pointer-events-auto bg-black/60 text-white hover:bg-black/80"
                             onClick={() => scrollSeasons(1)}
                           >
-                            <ChevronRight className="h-5 w-5" />
+                            <ChevronRight className="size-5" />
                           </Button>
                         </div>
                       </div>

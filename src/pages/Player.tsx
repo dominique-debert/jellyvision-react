@@ -652,7 +652,7 @@ export default function Player() {
             className="text-white hover:bg-white/20"
             onClick={handleBack}
           >
-            <ArrowLeft className="h-5 w-5 mr-2" />
+            <ArrowLeft className="size-5 mr-2" />
             Back
           </Button>
         </div>
@@ -730,7 +730,7 @@ export default function Player() {
                 <MessageSquare className="h-6 w-6" />
               </Button>
               <div className="flex items-center gap-2 text-white w-36">
-                <Volume2 className="h-5 w-5" />
+                <Volume2 className="size-5" />
                 <input
                   type="range"
                   min={0}

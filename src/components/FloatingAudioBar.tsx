@@ -125,7 +125,7 @@ export function FloatingAudioBar({
               step={0.01}
               value={volume}
               onChange={(e) => onVolumeChange(Number(e.target.value))}
-              className="w-16 h-1 rounded-full bg-gray-700 accent-amber-500"
+              className="w-16 h-1 rounded-full bg-gray-700 accent-primary/40"
             />
           </div>
 
@@ -133,7 +133,7 @@ export function FloatingAudioBar({
           <button
             className={`p-1.5 rounded transition-colors ml-2 ${
               repeatMode !== "off"
-                ? "bg-amber-500/20 text-amber-400"
+                ? "bg-primary/40/20 text-amber-400"
                 : "hover:bg-gray-700 text-gray-300 hover:text-white"
             }`}
             onClick={onToggleRepeat}
