@@ -51,7 +51,7 @@ export function FloatingAudioBar({
   };
 
   return (
-    <div className="sticky bottom-0 border-t border-base-300 bg-base-200/95 backdrop-blur-lg px-6 py-4 z-50">
+    <div className="sticky bottom-0 backdrop-blur-lg px-6 py-4 z-50">
       <div className="flex items-center gap-4">
         {/* Track Info (far left) */}
         <div className="w-64 shrink-0">
@@ -74,8 +74,12 @@ export function FloatingAudioBar({
             onChange={(e) => onSeek(Number(e.target.value))}
             className="h-1 flex-1 rounded-full bg-gray-700"
             style={{
-              accentColor: 'transparent',
-              background: `linear-gradient(to right, #a855f7 0%, #3b82f6 ${(currentTime / (duration || 1)) * 50}%, #06b6d4 ${(currentTime / (duration || 1)) * 100}%, rgb(55,65,81) ${(currentTime / (duration || 1)) * 100}%)`
+              accentColor: "transparent",
+              background: `linear-gradient(to right, #a855f7 0%, #3b82f6 ${
+                (currentTime / (duration || 1)) * 50
+              }%, #06b6d4 ${
+                (currentTime / (duration || 1)) * 100
+              }%, rgb(55,65,81) ${(currentTime / (duration || 1)) * 100}%)`,
             }}
           />
 

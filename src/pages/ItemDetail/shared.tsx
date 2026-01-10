@@ -107,7 +107,7 @@ export const ItemHeader = ({
 
 export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
   <div className="grid grid-cols-4 gap-6 text-sm">
-    <div>
+    <div className="flex flex-col items-start">
       <div className="text-amber-500 font-medium mb-1">Date</div>
       <div className="text-white">
         {item.ProductionYear || item.PremiereDate
@@ -117,17 +117,17 @@ export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
           : "-"}
       </div>
     </div>
-    <div>
+    <div className="flex flex-col items-start">
       <div className="text-amber-500 font-medium mb-1">Duration</div>
       <div className="text-white">
         {item.RunTimeTicks ? formatRuntime(item.RunTimeTicks) : "-"}
       </div>
     </div>
-    <div>
+    <div className="flex flex-col items-start">
       <div className="text-amber-500 font-medium mb-1">Certification</div>
       <div className="text-white">{item.OfficialRating || "-"}</div>
     </div>
-    <div>
+    <div className="flex flex-col items-start">
       <div className="text-amber-500 font-medium mb-1">Genre</div>
       <div className="text-white">{item.Genres?.join(", ") || "-"}</div>
     </div>
@@ -161,9 +161,11 @@ export const QualityBadges = ({ item }: { item: BaseItemDto }) => {
 export const SynopsisSection = ({ item }: { item: BaseItemDto }) => {
   if (!item.Overview) return null;
   return (
-    <div>
+    <div className="flex flex-col items-start">
       <h2 className="text-amber-500 font-medium mb-2">Synopsis</h2>
-      <p className="text-zinc-300 leading-relaxed">{item.Overview}</p>
+      <p className="text-zinc-300 p-0 m-0 leading-relaxed text-left">
+        {item.Overview}
+      </p>
     </div>
   );
 };
@@ -181,11 +183,11 @@ export const CastAndCrewSection = ({
 
   return (
     <div>
-      <div className="flex gap-8">
+      <div className="flex items-start gap-8">
         {/* Left: Crew List (Vertical) */}
         <div className="w-56 shrink-0 space-y-6">
           {/* Directors */}
-          <div>
+          <div className="flex flex-col items-start space-y-1">
             <h3 className="text-amber-500 font-medium mb-3">Directors</h3>
             {directors.length > 0 ? (
               <div className="space-y-1">
@@ -201,7 +203,7 @@ export const CastAndCrewSection = ({
           </div>
 
           {/* Screenwriters */}
-          <div>
+          <div className="flex flex-col items-start space-y-1">
             <h3 className="text-amber-500 font-medium mb-3">Screenwriters</h3>
             {writers.length > 0 ? (
               <div className="space-y-1">
@@ -221,16 +223,16 @@ export const CastAndCrewSection = ({
 
         {/* Right: Actors (Grid) */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-amber-500 font-medium mb-4">Actors</h3>
+          <h3 className="text-amber-500 font-medium mb-4 text-left">Actors</h3>
           {actors.filter((a) => a.PrimaryImageTag).length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 items-start md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {actors
                 .filter(
                   (actor) => actor.PrimaryImageTag && serverUrl && actor.Id
                 )
                 .slice(0, 10)
                 .map((actor) => (
-                  <div key={actor.Id} className="flex flex-col items-center">
+                  <div key={actor.Id} className="flex flex-col items-start">
                     <img
                       src={getImageUrl(
                         serverUrl!,

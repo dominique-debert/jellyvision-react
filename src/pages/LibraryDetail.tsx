@@ -149,7 +149,7 @@ export default function LibraryDetail() {
               </Button>
             </div>
           </header>
-          <main className="container mx-auto px-4 py-8">
+          <main className="mx-auto px-4 py-8 pb-30">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {[...Array(12)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
@@ -174,8 +174,8 @@ export default function LibraryDetail() {
   return (
     <Layout>
       <div>
-        <header className="border-b border-base-300">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <header className="border-b border-base-300 pb-0 pt-4">
+          <div className="container mx-auto px-4 py-0 flex items-center justify-between">
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
@@ -190,7 +190,7 @@ export default function LibraryDetail() {
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-8">
+        <main className="ml-15 mr-10 px-4 py-8 pt-4 pb-30">
           {items.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center text-muted-foreground">

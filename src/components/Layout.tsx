@@ -48,24 +48,21 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
     navigate("/login");
   };
 
-  // Calculate sidebar width in pixels: collapsed = 80px (left-20 = 5rem), expanded = 256px (left-64 = 16rem)
-  const sidebarWidth = isCollapsed ? 80 : 256;
-
   return (
-    <div className="h-screen text-base-content w-full relative">
+    <div className="h-screen text-base-content relative">
       {backdropUrl && (
         <div
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 opacity-10"
           style={{
-            background: `url(${backdropUrl}) calc(50% + ${sidebarWidth}px)/cover no-repeat fixed`,
+            background: `url(${backdropUrl}) cover no-repeat fixed`,
             backgroundBlendMode: "multiply",
-            backgroundPosition: `calc(50% + ${sidebarWidth}px) center`,
+            backgroundPosition: `center`,
           }}
         />
       )}
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-      <header className="fixed top-0 left-0 right-0 h-20 backdrop-blur-sm z-40 flex items-center px-10 gap-4">
+      <header className="fixed top-0 left-0 right-0 h-20 bg-transparent backdrop-blur-sm z-40 flex items-center px-10 gap-4">
         <div className="flex items-center gap-4 ml-auto">
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <div className="relative">
@@ -139,7 +136,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
       </header>
 
       <div
-        className={`fixed right-0 top-20 bottom-0 overflow-auto transition-all duration-300 z-10 ${
+        className={`fixed h-full right-0 top-20 bottom-0 overflow-auto transition-all duration-300 z-10 ${
           isCollapsed ? "left-20" : "left-64"
         }`}
       >

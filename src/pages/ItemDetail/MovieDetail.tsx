@@ -65,11 +65,17 @@ export default function MovieDetail() {
   return (
     <Layout backdropUrl={backdropUrl}>
       <div className="min-h-screen w-full">
-        <div className="px-8 w-full">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+        <div className="mx-auto px-10 pl-20 py-8">
+          <div className="flex">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="mb-6"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+          </div>
 
           <div className="flex gap-8">
             {/* Left Column - Poster */}

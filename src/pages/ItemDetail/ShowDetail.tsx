@@ -165,13 +165,18 @@ export default function ShowDetail() {
 
   return (
     <Layout backdropUrl={backdropUrl}>
-      <div className="min-h-screen bg-linear-to-br from-gray-900 to-black">
-        <div className="container mx-auto px-8 py-8 max-w-400">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-
+      <div className="min-h-screen">
+        <div className="mx-auto px-10 pl-20 py-8">
+          <div className="flex">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="mb-6"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+          </div>
           <div className="flex gap-8">
             {/* Left Column - Poster */}
             <div className="w-80 shrink-0">
@@ -206,7 +211,7 @@ export default function ShowDetail() {
 
               {/* Next Up */}
               {isSeries && nextUpEpisode && (
-                <div className="space-y-3">
+                <div className="flex flex-col items-start space-y-3">
                   <h3 className="text-2xl font-semibold">Next Up</h3>
                   <Card
                     className="bg-base-200 border-base-300 hover:border-primary/50 transition-colors cursor-pointer max-w-120"
@@ -252,7 +257,7 @@ export default function ShowDetail() {
 
               {/* Seasons & Episodes */}
               {isSeries && seasons.length > 0 && (
-                <div className="mt-8">
+                <div className="flex flex-col items-start space-y-3">
                   <h3 className="text-2xl font-semibold mb-4">Seasons</h3>
                   {loadingSeasons ? (
                     <div className="animate-pulse space-y-4">
@@ -391,13 +396,13 @@ export default function ShowDetail() {
                                   {/* Episode Info */}
                                   <div className="flex-1 p-4">
                                     <div className="flex items-start justify-between mb-2">
-                                      <div>
+                                      <div className="flex flex-col items-start">
                                         <h4 className="text-lg font-semibold">
                                           {episode.IndexNumber &&
                                             `${episode.IndexNumber}. `}
                                           {episode.Name}
                                         </h4>
-                                        <div className="flex items-center gap-3 text-sm text-zinc-400 mt-1">
+                                        <div className="flex items-start gap-3 text-sm text-zinc-400 mt-1">
                                           {episode.RunTimeTicks && (
                                             <div className="flex items-center gap-1">
                                               <Clock className="h-3 w-3" />
@@ -424,7 +429,7 @@ export default function ShowDetail() {
                                           )}
                                         </div>
                                       </div>
-                                      <Button
+                                      {/* <Button
                                         size="sm"
                                         className="bg-white text-black hover:bg-gray-200"
                                         onClick={() =>
@@ -433,10 +438,10 @@ export default function ShowDetail() {
                                       >
                                         <Play className="h-4 w-4 mr-2" />
                                         Play
-                                      </Button>
+                                      </Button> */}
                                     </div>
                                     {episode.Overview && (
-                                      <p className="text-sm text-zinc-400 line-clamp-2 mt-2">
+                                      <p className="text-sm text-zinc-400 text-left line-clamp-2 mt-2">
                                         {episode.Overview}
                                       </p>
                                     )}

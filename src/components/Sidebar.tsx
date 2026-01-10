@@ -92,14 +92,14 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 ml-6 top-6 h-full shadow-2xl flex flex-col z-50 transition-all duration-300 ${
+      className={`fixed left-0 ml-6 top-6 bg-transparent h-full flex flex-col z-50 transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
       <div
         className={`flex items-center ${
           isCollapsed ? "justify-center pb-5 pt-6" : "justify-between p-6 pb-5"
-        } gap-3 bg-card/60 rounded-tl-xl rounded-tr-xl`}
+        } gap-3 bg-card/30 rounded-tl-xl rounded-tr-xl`}
       >
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -115,7 +115,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       </div>
 
       <nav
-        className="flex flex-col pt-6 pl-3.5 pr-3.5 gap-4 bg-card/60 rounded-bl-xl rounded-br-xl"
+        className="flex flex-col pt-6 pl-3.5 pr-3.5 gap-4 bg-card/30 rounded-bl-xl rounded-br-xl"
         style={{ height: "calc(100% - 105px)" }}
       >
         {navItems.map((item) => {

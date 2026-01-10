@@ -324,11 +324,17 @@ export default function MusicDetail() {
   return (
     <Layout>
       <div className="min-h-screen relative">
-        <div className="container mx-auto px-8 py-8 max-w-400 pb-80">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+        <div className="mx-auto px-10 pl-20 py-8">
+          <div className="flex">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="mb-6"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+          </div>
 
           <div className="flex gap-8">
             {/* Left Column - Album Art */}
