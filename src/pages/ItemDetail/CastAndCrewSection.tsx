@@ -53,7 +53,7 @@ export const CastAndCrewSection = ({
         </div>
 
         {/* Right: Actors (Grid) */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pb-40">
           <h3 className="text-white/70 font-medium mb-4 text-left">Actors</h3>
           {actors.filter((a) => a.PrimaryImageTag).length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
@@ -63,7 +63,10 @@ export const CastAndCrewSection = ({
                 )
                 .slice(0, 12)
                 .map((actor) => (
-                  <div key={actor.Id} className="flex flex-col items-center justify-center text-center">
+                  <div
+                    key={actor.Id}
+                    className="flex flex-col items-center justify-center text-center"
+                  >
                     <div className="w-full flex justify-center">
                       <img
                         src={getImageUrl(

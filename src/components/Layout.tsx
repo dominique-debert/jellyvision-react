@@ -61,9 +61,12 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
         <div
           className="absolute inset-0 z-0 opacity-10"
           style={{
-            background: `url(${backdropUrl}) cover no-repeat fixed`,
+            backgroundImage: `url(${backdropUrl})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
             backgroundBlendMode: "multiply",
-            backgroundPosition: `center`,
+            backgroundPosition: "center",
           }}
         />
       )}
