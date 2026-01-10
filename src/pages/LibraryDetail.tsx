@@ -149,7 +149,7 @@ export default function LibraryDetail() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <div className="mx-auto px-17 flex items-center justify-between">
+          <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
@@ -164,7 +164,7 @@ export default function LibraryDetail() {
           </div>
         </header>
 
-        <main className="ml-15 mr-10 px-4 py-8 pt-4 pb-30">
+        <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-30">
           {items.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center text-muted-foreground">

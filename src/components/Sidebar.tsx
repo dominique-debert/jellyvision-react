@@ -92,7 +92,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 ml-5 top-6 h-full flex flex-col z-50 transition-all duration-300 ${
+      className={`fixed left-0 ml-2 top-2 h-full flex flex-col z-50 transition-all duration-300 border-r border-white/5 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
@@ -130,7 +130,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               disabled={item.disabled}
               className={`w-full cursor-pointer flex items-center gap-4 px-4 py-3 rounded-lg transition-colors border border-transparent ${
                 item.isActive
-                  ? "bg-white/2 backdrop-blur-md border border-white/10 text-white font-medium"
+                  ? "bg-primary/2 backdrop-blur-md border border-primary/10 text-primary font-medium"
                   : item.disabled
                   ? "text-base-content/40 cursor-not-allowed"
                   : "text-base-content hover:bg-white/2 hover:backdrop-blur-md hover:border hover:border-white/20"

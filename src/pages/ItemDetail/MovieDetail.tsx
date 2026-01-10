@@ -74,7 +74,7 @@ export default function MovieDetail() {
   return (
     <Layout backdropUrl={backdropUrl}>
       <div className="min-h-screen w-full">
-        <div className="mx-auto pr-10 pl-5 py-8">
+        <div className="mx-auto pr-10 pl-15 py-2">
           <div className="flex">
             <Button
               variant="ghost"

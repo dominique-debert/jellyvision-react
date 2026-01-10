@@ -324,7 +324,7 @@ export default function MusicDetail() {
   return (
     <Layout>
       <div className="min-h-screen relative">
-        <div className="mx-auto pr-10 pl-5 py-8">
+        <div className="mx-auto pr-10 pl-15 py-2">
           <div className="flex">
             <Button
               variant="ghost"
