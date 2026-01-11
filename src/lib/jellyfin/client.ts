@@ -8,6 +8,10 @@ import { getItemsApi } from "@jellyfin/sdk/lib/utils/api/items-api";
 import { getUserLibraryApi } from "@jellyfin/sdk/lib/utils/api/user-library-api";
 import { getTvShowsApi } from "@jellyfin/sdk/lib/utils/api/tv-shows-api";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import {
+  ItemSortBy,
+  SortOrder,
+} from "@jellyfin/sdk/lib/generated-client/models";
 
 // Generate a simple UUID v4
 const generateUUID = () => {
@@ -51,8 +55,8 @@ export const getAllAlbumsInLibrary = async (
       parentId: libraryId,
       includeItemTypes: ["MusicAlbum"],
       recursive: true,
-      sortBy: [sortBy],
-      sortOrder: [sortOrder],
+      sortBy: [sortBy as ItemSortBy],
+      sortOrder: [sortOrder as SortOrder],
       startIndex,
       limit,
     });
@@ -442,8 +446,8 @@ export const getLibraryItems = async (
     const response = await client.itemsApi.getItems({
       userId,
       parentId,
-      sortBy: [sortBy],
-      sortOrder: [sortOrder],
+      sortBy: [sortBy as ItemSortBy],
+      sortOrder: [sortOrder as SortOrder],
       recursive: true,
       startIndex,
       limit,
@@ -652,19 +656,18 @@ export const markAsPlayed = async (
   error?: string;
 }> => {
   const proxiedURL = getProxiedURL(baseURL);
-  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
 
   try {
-    // Use userLibraryApi.markPlayedItem
-    const response = await client.userLibraryApi.markPlayedItem({
-      userId,
-      itemId,
+    const url = `${proxiedURL}/Users/${userId}/PlayedItems/${itemId}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "X-Emby-Token": accessToken,
+      },
     });
-
-    if (response.status !== 200) {
+    if (!response.ok) {
       throw new Error("Failed to mark item as played");
     }
-
     return { success: true };
   } catch (error: unknown) {
     const errorMessage =
@@ -687,19 +690,16 @@ export const markAsUnplayed = async (
   error?: string;
 }> => {
   const proxiedURL = getProxiedURL(baseURL);
-  const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
-
   try {
-    // Use userLibraryApi.markUnplayedItem
-    const response = await client.userLibraryApi.markUnplayedItem({
-      userId,
-      itemId,
+    const url = `${proxiedURL}/Users/${userId}/PlayedItems/${itemId}`;
+    const response = await fetch(url, {
+      headers: {
+        "X-Emby-Token": accessToken,
+      },
     });
-
-    if (response.status !== 200) {
+    if (!response.ok) {
       throw new Error("Failed to mark item as unplayed");
     }
-
     return { success: true };
   } catch (error: unknown) {
     const errorMessage =
