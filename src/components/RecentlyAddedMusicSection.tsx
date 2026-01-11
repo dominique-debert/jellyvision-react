@@ -28,7 +28,7 @@ export function RecentlyAddedMusicSection({
     <section className="mr-10">
       <div className="flex items-center justify-between ml-16">
         <button
-          className="text-3xl font-light flex items-center gap-3 hover:underline hover:text-primary"
+          className="text-3xl font-light flex items-center gap-3 hover:text-primary cursor-pointer"
           onClick={() => navigate("/recently-added/music")}
         >
           <Music className="size-5 inline-block mr-2" /> Recently added in Music

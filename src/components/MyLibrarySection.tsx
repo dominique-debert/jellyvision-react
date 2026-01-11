@@ -1,5 +1,4 @@
-import { Library, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { Library } from "lucide-react";
 import { getImageUrl } from "@/lib/jellyfin/client";
 import { useNavigate } from "react-router-dom";
 

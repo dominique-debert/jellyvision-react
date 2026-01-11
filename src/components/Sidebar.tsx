@@ -133,7 +133,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                   ? "bg-primary/2 backdrop-blur-md border border-primary/10 text-primary font-medium"
                   : item.disabled
                   ? "text-base-content/40 cursor-not-allowed"
-                  : "text-base-content hover:bg-white/2 hover:backdrop-blur-md hover:border hover:border-white/20"
+                  : "text-base-content hover:backdrop-blur-md hover:bg-primary/2 hover:text-primary"
               } ${isCollapsed ? "justify-center" : ""}`}
               title={isCollapsed ? item.label : undefined}
             >
