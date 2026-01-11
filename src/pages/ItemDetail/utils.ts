@@ -15,12 +15,22 @@ export const formatRuntime = (ticks?: number) => {
 export const getPrimaryImageUrl = (
   serverUrl: string | null,
   item: BaseItemDto | null,
-  maxWidth?: number,
-  maxHeight?: number
+  aspectRatio: "square" | "2/3" = "2/3"
 ) => {
   if (!serverUrl || !item?.Id) return undefined;
+
+  // For episodes, use the season poster instead of episode thumbnail
+  if (item.Type === "Episode" && item.SeasonId) {
+    const width = aspectRatio === "square" ? 600 : 400;
+    const height = aspectRatio === "square" ? 600 : 600;
+    return getImageUrl(serverUrl, item.SeasonId, "Primary", width, height, 85);
+  }
+
   if (item.ImageTags?.Primary) {
-    return getImageUrl(serverUrl, item.Id, "Primary", maxWidth, maxHeight, 90);
+    // Request 400x600 thumbnail for 2/3 aspect ratio, 600x600 for square
+    const width = aspectRatio === "square" ? 600 : 400;
+    const height = aspectRatio === "square" ? 600 : 600;
+    return getImageUrl(serverUrl, item.Id, "Primary", width, height, 85);
   }
   return undefined;
 };

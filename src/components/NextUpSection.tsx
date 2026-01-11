@@ -28,7 +28,7 @@ export function NextUpSection({
     <section className="mr-10">
       <div className="flex items-center justify-between ml-16">
         <button
-          className="text-3xl font-light flex items-center gap-3 hover:text-primary cursor-pointer"
+          className="text-2xl font-light flex items-center gap-3 hover:text-primary cursor-pointer"
           onClick={() => navigate("/next-up")}
         >
           <Calendar className="size-5 inline-block mr-2" /> Next Up
@@ -59,7 +59,7 @@ export function NextUpSection({
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {items.map((item) => (
-          <div key={item.Id} className="flex-none w-48">
+          <div key={item.Id} className="flex-none w-48 aspect-3/2">
             <ItemCard
               item={item}
               serverUrl={serverUrl}

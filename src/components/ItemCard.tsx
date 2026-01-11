@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { getImageUrl } from "@/lib/jellyfin/client";
 import { Play, CircleCheck } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { getPrimaryImageUrl } from "@/pages/ItemDetail/utils";
 
 interface ItemCardProps {
   item: BaseItemDto;
@@ -18,44 +18,7 @@ export function ItemCard({
 }: ItemCardProps) {
   const navigate = useNavigate();
 
-  const getPrimaryImageUrl = () => {
-    if (!serverUrl || !item?.Id) return undefined;
-
-    // For episodes, use the season poster instead of episode thumbnail
-    if (item.Type === "Episode" && item.SeasonId) {
-      const width = aspectRatio === "square" ? 600 : 400;
-      const height = aspectRatio === "square" ? 600 : 600;
-      return getImageUrl(
-        serverUrl,
-        item.SeasonId,
-        "Primary",
-        width,
-        height,
-        85
-      );
-    }
-
-    if (item.ImageTags?.Primary) {
-      // Request 400x600 thumbnail for 2/3 aspect ratio, 600x600 for square
-      const width = aspectRatio === "square" ? 600 : 400;
-      const height = aspectRatio === "square" ? 600 : 600;
-      return getImageUrl(serverUrl, item.Id, "Primary", width, height, 85);
-    }
-    return undefined;
-  };
-
-  const getSubtitle = () => {
-    if (item.Type === "Episode") {
-      return `Season ${item.ParentIndexNumber} · Episode ${item.IndexNumber}`;
-    }
-    return item.ProductionYear?.toString() || "";
-  };
-
-  const getSeriesBadges = () => {
-    return null;
-  };
-
-  const primaryImageUrl = getPrimaryImageUrl();
+  const primaryImageUrl = getPrimaryImageUrl(serverUrl, item, aspectRatio);
 
   const handleCardClick = () => {
     navigate(`/item/${item.Id}`);
