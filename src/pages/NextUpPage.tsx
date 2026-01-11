@@ -3,12 +3,11 @@ import { MediaGrid } from "@/components/MediaGrid";
 import { MediaSortDropdown } from "@/components/MediaSortDropdown";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { fetchRecentlyAddedMovies } from "@/lib/jellyfin/extraMediaFetchers";
-import { Button } from "@/components/ui/button";
+import { fetchNextUp } from "@/lib/jellyfin/extraMediaFetchers";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function RecentlyAddedMoviesPage() {
+export default function NextUpPage() {
   const { serverUrl, accessToken, userId } = useAuthStore();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,16 +17,20 @@ export default function RecentlyAddedMoviesPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!serverUrl || !userId || !accessToken) return;
+    if (!serverUrl || !userId || !accessToken) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    fetchRecentlyAddedMovies(serverUrl, userId, accessToken).then((result) => {
-      setItems(result.success ? result.data : []);
+    fetchNextUp(serverUrl, userId, accessToken).then((result) => {
+      setItems(result && result.success ? result.data : []);
       setLoading(false);
     });
   }, [serverUrl, userId, accessToken]);
 
   const sortedItems = useMemo(() => {
-    if (!items) return [];
+    if (!items || items.length === 0) return [];
     const copy = [...items];
     const getVal = (it: any) => {
       switch (sortBy) {
@@ -63,32 +66,41 @@ export default function RecentlyAddedMoviesPage() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
+          <div className="mx-auto pl-4 pr-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button
+              <button
                 className="btn btn-md btn-ghost gap-2"
                 onClick={() => navigate(-1)}
+                type="button"
               >
                 <ArrowLeft className="size-6" />
                 Back
-              </Button>
+              </button>
             </div>
             <div className="flex items-center gap-4">
-              <MediaSortDropdown
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                sortOrder={sortOrder}
-                setSortOrder={setSortOrder}
-                showDropdown={showDropdown}
-                setShowDropdown={setShowDropdown}
-              />
+              {MediaSortDropdown ? (
+                <MediaSortDropdown
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  sortOrder={sortOrder}
+                  setSortOrder={setSortOrder}
+                  showDropdown={showDropdown}
+                  setShowDropdown={setShowDropdown}
+                />
+              ) : null}
             </div>
           </div>
         </header>
 
-        <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-30">
-          <h1 className="text-2xl font-bold mb-6">Recently Added Movies</h1>
-          <MediaGrid items={sortedItems} loading={loading} />
+        <main className="px-4 py-8 pt-4">
+          <h1 className="text-2xl font-bold mb-6">Next Up</h1>
+          {MediaGrid ? (
+            <MediaGrid items={sortedItems} loading={loading} />
+          ) : (
+            <div className="alert alert-error mt-4">
+              MediaGrid component missing
+            </div>
+          )}
         </main>
       </div>
     </Layout>

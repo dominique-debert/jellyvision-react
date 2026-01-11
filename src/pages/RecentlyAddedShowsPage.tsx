@@ -1,6 +1,6 @@
 import { Layout } from "@/components/Layout";
-import MediaGrid from "@/components/MediaGrid";
-import MediaSortDropdown from "@/components/MediaSortDropdown";
+import { MediaGrid } from "@/components/MediaGrid";
+import { MediaSortDropdown } from "@/components/MediaSortDropdown";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { fetchRecentlyAddedShows } from "@/lib/jellyfin/extraMediaFetchers";

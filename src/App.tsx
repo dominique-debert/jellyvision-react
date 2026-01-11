@@ -6,6 +6,10 @@ import LibraryDetail from "./pages/LibraryDetail";
 import ItemDetail from "@/pages/ItemDetail";
 import Player from "@/pages/Player";
 import SearchResults from "@/pages/SearchResults";
+import NextUpPage from "./pages/NextUpPage";
+import RecentlyAddedMoviesPage from "./pages/RecentlyAddedMoviesPage";
+import RecentlyAddedMusicPage from "./pages/RecentlyAddedMusicPage";
+import RecentlyAddedShowsPage from "./pages/RecentlyAddedShowsPage";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -23,6 +27,19 @@ function App() {
           <Route path="/library/:libraryId" element={<LibraryDetail />} />
           <Route path="/item/:itemId" element={<ItemDetail />} />
           <Route path="/play/:itemId" element={<Player />} />
+          <Route path="/nextup" element={<NextUpPage />} />
+          <Route
+            path="/recentlyaddedmovies"
+            element={<RecentlyAddedMoviesPage />}
+          />
+          <Route
+            path="/recentlyaddedmusic"
+            element={<RecentlyAddedMusicPage />}
+          />
+          <Route
+            path="/recentlyaddedshows"
+            element={<RecentlyAddedShowsPage />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
       ) : (
