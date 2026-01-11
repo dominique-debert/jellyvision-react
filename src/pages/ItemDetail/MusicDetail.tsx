@@ -322,7 +322,7 @@ export default function MusicDetail() {
     }
   }
 
-  const primaryImageUrl = getPrimaryImageUrl(serverUrl, item);
+  const primaryImageUrl = getPrimaryImageUrl(serverUrl, item, "square");
 
   return (
     <Layout>
@@ -497,37 +497,36 @@ export default function MusicDetail() {
               </div>
             </div>
           </div>
-        </div>
+          {/* Floating Player - Bottom of Screen */}
+          {currentTrackId && (
+            <FloatingAudioBar
+              trackName={albumTracks[currentTrackIndex]?.Name || "Track name"}
+              currentTime={currentTime}
+              duration={duration}
+              isPlaying={isPlaying}
+              volume={volume}
+              repeatMode={repeatMode}
+              onSeek={(value) => handleSeek(value)}
+              onPlayPause={togglePlayPause}
+              onSkipBack={handleSkipBack}
+              onSkipForward={handleSkipForward}
+              onVolumeChange={handleVolumeChange}
+              onToggleRepeat={toggleRepeatMode}
+              onClose={() => setCurrentTrackId(null)}
+            />
+          )}
 
-        {/* Floating Player - Bottom of Screen */}
-        {currentTrackId && (
-          <FloatingAudioBar
-            trackName={albumTracks[currentTrackIndex]?.Name || "Track name"}
-            currentTime={currentTime}
-            duration={duration}
-            isPlaying={isPlaying}
-            volume={volume}
-            repeatMode={repeatMode}
-            onSeek={(value) => handleSeek(value)}
-            onPlayPause={togglePlayPause}
-            onSkipBack={handleSkipBack}
-            onSkipForward={handleSkipForward}
-            onVolumeChange={handleVolumeChange}
-            onToggleRepeat={toggleRepeatMode}
-            onClose={() => setCurrentTrackId(null)}
+          {/* Hidden Audio Element */}
+          <audio
+            ref={audioRef}
+            crossOrigin="anonymous"
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onEnded={handleEnded}
           />
-        )}
-
-        {/* Hidden Audio Element */}
-        <audio
-          ref={audioRef}
-          crossOrigin="anonymous"
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onEnded={handleEnded}
-        />
+        </div>
       </div>
     </Layout>
   );
