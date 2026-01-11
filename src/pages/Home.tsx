@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
 import { ItemCard } from "@/components/ItemCard";
-import {
   getResumeItems,
   getLatestMedia,
   getUserViews,
   getNextUpItems,
+  getImageUrl,
 } from "@/lib/jellyfin/client";
 import { Button } from "@/components/ui/button";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
@@ -16,6 +16,7 @@ interface Library {
   Id?: string;
   Name?: string | null;
   CollectionType?: string | null;
+  PrimaryImageTag?: string | null;
 }
 
 import {
@@ -106,9 +107,7 @@ export default function Home() {
         const showsLibrary = libs.find(
           (lib) => lib.CollectionType === "tvshows"
         );
-        const musicLibrary = libs.find(
-          (lib) => lib.CollectionType === "music"
-        );
+        const musicLibrary = libs.find((lib) => lib.CollectionType === "music");
 
         // Fetch recently added for each library type
         if (moviesLibrary?.Id) {
@@ -191,16 +190,40 @@ export default function Home() {
               className="flex ml-16 gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              {libraries.map((lib) => (
-                <div key={lib.Id} className="flex-none w-48">
-                  <div className="card bg-base-200 shadow-md cursor-pointer h-full flex flex-col items-center justify-center p-6 hover:bg-primary/10 transition"
-                    onClick={() => lib.Id && navigate(`/library/${lib.Id}`)}
-                  >
-                    <div className="text-xl font-semibold text-center mb-2">{lib.Name}</div>
-                    <div className="text-sm text-base-content/70 text-center capitalize">{lib.CollectionType}</div>
+              {libraries.map((lib) => {
+                const posterUrl =
+                  lib.PrimaryImageTag && lib.Id && serverUrl
+                    ? getImageUrl(serverUrl, lib.Id, "Primary", 400, 600)
+                    : null;
+                return (
+                  <div key={lib.Id} className="flex-none w-48">
+                    <div
+                      className="card bg-base-200 shadow-md cursor-pointer h-full flex flex-col items-center justify-center p-0 hover:bg-primary/10 transition overflow-hidden"
+                      onClick={() => lib.Id && navigate(`/library/${lib.Id}`)}
+                    >
+                      {posterUrl ? (
+                        <img
+                          src={posterUrl}
+                          alt={lib.Name || "Library poster"}
+                          className="w-full h-64 object-cover object-center mb-2"
+                        />
+                      ) : (
+                        <div className="w-full h-64 flex items-center justify-center bg-base-300 text-base-content/40">
+                          No Image
+                        </div>
+                      )}
+                      <div className="p-4 w-full flex flex-col items-center">
+                        <div className="text-xl font-semibold text-center mb-2">
+                          {lib.Name}
+                        </div>
+                        <div className="text-sm text-base-content/70 text-center capitalize">
+                          {lib.CollectionType}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
