@@ -10,7 +10,7 @@ import {
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, CircleCheck } from "lucide-react";
+import { ArrowLeft, Play, CircleCheck, ChevronDown } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 
 interface MediaItem {
@@ -27,20 +27,27 @@ interface MediaItem {
 }
 
 export default function LibraryDetail() {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [sortBy, setSortBy] = useState(
+    () => localStorage.getItem("librarySortBy") || "Name"
+  );
+  const [sortOrder, setSortOrder] = useState(
+    () => localStorage.getItem("librarySortOrder") || "Ascending"
+  );
+  const [items, setItems] = useState<MediaItem[]>([]);
   const { libraryId } = useParams<{ libraryId: string }>();
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [libraryType, setLibraryType] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 60;
 
-  // Reset pagination when library changes
   useEffect(() => {
-    setCurrentPage(1);
-  }, [libraryId]);
+    localStorage.setItem("librarySortBy", sortBy);
+    localStorage.setItem("librarySortOrder", sortOrder);
+  }, [sortBy, sortOrder]);
 
   // Fetch library info to determine type
   useEffect(() => {
@@ -64,6 +71,13 @@ export default function LibraryDetail() {
       setLoading(true);
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
+      // Map sortBy to Jellyfin API sortBy fields
+      // Map sortBy to Jellyfin API sortBy fields
+
+      // Map sortBy to Jellyfin API fields
+      let apiSortBy = sortBy;
+      if (sortBy === "DateAdded") apiSortBy = "DateCreated";
+
       // Use different fetch strategy based on library type
       if (libraryType === "music") {
         // For music libraries, fetch albums recursively
@@ -73,7 +87,9 @@ export default function LibraryDetail() {
           libraryId,
           accessToken,
           startIndex,
-          ITEMS_PER_PAGE
+          ITEMS_PER_PAGE,
+          apiSortBy,
+          sortOrder
         );
         if (albumsResult.success) {
           setItems(albumsResult.data as MediaItem[]);
@@ -89,7 +105,9 @@ export default function LibraryDetail() {
           accessToken,
           startIndex,
           ITEMS_PER_PAGE,
-          includeTypes
+          includeTypes,
+          apiSortBy,
+          sortOrder
         );
         if (itemsResult.success) {
           setItems(itemsResult.data as MediaItem[]);
@@ -103,16 +121,29 @@ export default function LibraryDetail() {
     if (libraryType !== null) {
       fetchItems();
     }
-  }, [serverUrl, userId, accessToken, libraryId, currentPage, libraryType]);
+  }, [
+    serverUrl,
+    userId,
+    accessToken,
+    libraryId,
+    currentPage,
+    libraryType,
+    sortBy,
+    sortOrder,
+  ]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   if (loading) {
-    return (
-      <Layout>
-        <div>
-          <header className="border-b border-base-300">
-            {/* <div className="container mx-auto px-4 py-4">
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Layout>
+      <div>
+        <header className="border-b border-base-300 pb-0 pt-4">
+          <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 onClick={() => navigate("/")}
@@ -121,43 +152,70 @@ export default function LibraryDetail() {
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
-            </div> */}
-          </header>
-          <main className="ml-15 mr-10 px-4 py-8 pt-4 pb-30">
-            {/* <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {[...Array(12)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-0">
-                    <div
-                      className={`${
-                        libraryType === "music"
-                          ? "aspect-square"
-                          : "aspect-video"
-                      } bg-transparent rounded`}
-                    />
-                  </CardContent>
-                </Card>
-              ))}
-            </div> */}
-          </main>
-        </div>
-      </Layout>
-    );
-  }
-
-  return (
-    <Layout>
-      <div>
-        <header className="border-b border-base-300 pb-0 pt-4">
-          <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+              <div className="relative">
+                <button
+                  className="btn btn-ghost flex items-center gap-2"
+                  onClick={() => setShowDropdown((v) => !v)}
+                >
+                  <span>Sort</span>
+                  <ChevronDown className="size-4" />
+                </button>
+                {showDropdown && (
+                  <div className="absolute left-0 mt-2 w-64 bg-base-200 rounded-xl shadow-lg z-50 p-4 flex flex-col gap-4">
+                    <div>
+                      <div className="font-semibold mb-2">Sort By</div>
+                      <div className="flex flex-col gap-1">
+                        {[
+                          { label: "Name", value: "Name" },
+                          {
+                            label: "Community Rating",
+                            value: "CommunityRating",
+                          },
+                          { label: "Date Added", value: "DateAdded" },
+                          { label: "Release Date", value: "ReleaseDate" },
+                        ].map((option) => (
+                          <label
+                            key={option.value}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="sortBy"
+                              value={option.value}
+                              checked={sortBy === option.value}
+                              onChange={() => setSortBy(option.value)}
+                              className="radio radio-sm"
+                            />
+                            <span>{option.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-semibold mb-2">Sort Order</div>
+                      <div className="flex flex-col gap-1">
+                        {["Ascending", "Descending"].map((option) => (
+                          <label
+                            key={option}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="sortOrder"
+                              value={option}
+                              checked={sortOrder === option}
+                              onChange={() => setSortOrder(option)}
+                              className="radio radio-sm"
+                            />
+                            <span>{option}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <p className="text-sm text-muted-foreground">
               {totalCount} {totalCount === 1 ? "item" : "items"}
             </p>

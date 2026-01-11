@@ -33,7 +33,9 @@ export const getAllAlbumsInLibrary = async (
   libraryId: string,
   accessToken: string,
   startIndex: number = 0,
-  limit: number = 60
+  limit: number = 60,
+  sortBy: string = "SortName",
+  sortOrder: string = "Ascending"
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -49,8 +51,8 @@ export const getAllAlbumsInLibrary = async (
       parentId: libraryId,
       includeItemTypes: ["MusicAlbum"],
       recursive: true,
-      sortBy: ["SortName"],
-      sortOrder: ["Ascending"],
+      sortBy: [sortBy],
+      sortOrder: [sortOrder],
       startIndex,
       limit,
     });
@@ -424,7 +426,9 @@ export const getLibraryItems = async (
   accessToken: string,
   startIndex: number = 0,
   limit: number = 50,
-  includeItemTypes?: string[]
+  includeItemTypes?: string[],
+  sortBy: string = "SortName",
+  sortOrder: string = "Ascending"
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -438,8 +442,8 @@ export const getLibraryItems = async (
     const response = await client.itemsApi.getItems({
       userId,
       parentId,
-      sortBy: ["SortName"],
-      sortOrder: ["Ascending"],
+      sortBy: [sortBy],
+      sortOrder: [sortOrder],
       recursive: true,
       startIndex,
       limit,
