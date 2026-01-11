@@ -8,7 +8,6 @@ import {
   VolumeX,
   Repeat,
   Repeat1,
-  X,
 } from "lucide-react";
 
 export type RepeatMode = "off" | "all" | "one";
@@ -42,7 +41,6 @@ export function FloatingAudioBar({
   onSkipForward,
   onVolumeChange,
   onToggleRepeat,
-  onClose,
 }: FloatingAudioBarProps) {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -51,8 +49,8 @@ export function FloatingAudioBar({
   };
 
   return (
-    <div className="sticky bottom-20 backdrop-blur-lg z-50">
-      <div className="flex items-center gap-4">
+    <div className="sticky bottom-20 backdrop-blur-lg py-4 pl-92 pr-7 z-50">
+      <div className="flex items-center gap-6">
         {/* Track Info (far left) */}
         <div className="w-64 shrink-0">
           <p className="text-sm font-medium text-white truncate">
@@ -60,32 +58,26 @@ export function FloatingAudioBar({
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="flex items-center gap-2 flex-1 min-w-50">
-          <span className="text-xs text-gray-400 w-10 text-right">
-            {formatTime(currentTime)}
-          </span>
+        {/* Volume */}
+        <div className="flex items-center gap-4 pr-4 pl-4 border-r border-l border-gray-600">
+          {volume === 0 ? (
+            <VolumeX className="h-4 w-4 text-gray-400" />
+          ) : (
+            <Volume2 className="h-4 w-4 text-gray-400" />
+          )}
           <input
             type="range"
             min={0}
-            max={duration || 0}
-            step={0.1}
-            value={currentTime}
-            onChange={(e) => onSeek(Number(e.target.value))}
-            className="progress-gradient h-1 flex-1"
-            style={{
-              backgroundColor: "rgb(55, 65, 81)",
-              backgroundSize: `${(currentTime / (duration || 1)) * 100}% 100%`,
-            }}
+            max={1}
+            step={0.01}
+            value={volume}
+            onChange={(e) => onVolumeChange(Number(e.target.value))}
+            className="w-32 h-1 rounded-full bg-gray-700 accent-primary/40"
           />
-
-          <span className="text-xs text-gray-400 w-10">
-            {formatTime(duration)}
-          </span>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <button
             className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white"
             onClick={onSkipBack}
@@ -94,13 +86,13 @@ export function FloatingAudioBar({
           </button>
 
           <button
-            className="h-20 w-20 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
+            className="size-15 rounded-full hover:bg-white/30 hover:scale-110 flex items-center justify-center transition-all cursor-pointer shadow-2xl border-2 border-white/20"
             onClick={onPlayPause}
           >
             {isPlaying ? (
-              <Pause className="h-10 w-10 text-white/60 fill-white/60" />
+              <Pause className="size-6 text-white/60 fill-white/60" />
             ) : (
-              <Play className="h-10 w-10 text-white/60 fill-white/60" />
+              <Play className="size-6 text-white/60 fill-white/60" />
             )}
           </button>
 
@@ -110,24 +102,6 @@ export function FloatingAudioBar({
           >
             <SkipForward className="h-4 w-4" />
           </button>
-
-          {/* Volume */}
-          <div className="flex items-center gap-1 ml-2 pl-2 border-l border-gray-600">
-            {volume === 0 ? (
-              <VolumeX className="h-4 w-4 text-gray-400" />
-            ) : (
-              <Volume2 className="h-4 w-4 text-gray-400" />
-            )}
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={(e) => onVolumeChange(Number(e.target.value))}
-              className="w-16 h-1 rounded-full bg-gray-700 accent-primary/40"
-            />
-          </div>
 
           {/* Repeat */}
           <button
@@ -144,14 +118,30 @@ export function FloatingAudioBar({
               <Repeat className="h-4 w-4" />
             )}
           </button>
+        </div>
 
-          {/* Close */}
-          <button
-            className="p-1.5 hover:bg-gray-700 rounded transition-colors text-gray-300 hover:text-white ml-2"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </button>
+        {/* Progress Bar */}
+        <div className="flex w-24 items-center gap-6 flex-1 border-l border-slate-600">
+          <span className="text-xs text-gray-400 w-10 text-right">
+            {formatTime(currentTime)}
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={duration || 0}
+            step={0.1}
+            value={currentTime}
+            onChange={(e) => onSeek(Number(e.target.value))}
+            className="progress-gradient w-24 h-1 flex-1"
+            style={{
+              backgroundColor: "rgb(55, 65, 81)",
+              backgroundSize: `${(currentTime / (duration || 1)) * 100}% 100%`,
+            }}
+          />
+
+          <span className="text-xs text-gray-400 w-10">
+            {formatTime(duration)}
+          </span>
         </div>
       </div>
     </div>

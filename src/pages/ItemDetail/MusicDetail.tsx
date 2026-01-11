@@ -3,7 +3,6 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
 import { getItem, getAlbumTracks } from "@/lib/jellyfin/client";
-import { Button } from "@/components/ui/button";
 import { FloatingAudioBar } from "@/components/FloatingAudioBar";
 import EqualizerBars from "@/components/EqualizerBars";
 import { Disc, Play, ArrowLeft } from "lucide-react";
@@ -327,16 +326,15 @@ export default function MusicDetail() {
   return (
     <Layout>
       <div className="min-h-screen relative">
-        <div className="mx-auto pr-10 pl-15 py-2">
+        <div className="mx-auto pr-10 pl-15 py-2 mb-30">
           <div className="flex">
-            <Button
-              variant="ghost"
+            <button
               onClick={() => navigate(-1)}
-              className="mb-6"
+              className="btn btn-primary mb-6"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
-            </Button>
+            </button>
           </div>
 
           <div className="flex gap-8">
@@ -426,7 +424,7 @@ export default function MusicDetail() {
                               <th className="w-12 text-center">#</th>
                               <th className="w-10"></th>
                               <th className="text-left">Title</th>
-                              <th className="w-16 text-center">EQ</th>
+                              <th className="w-16 text-center"></th>
                               <th className="w-24 text-center">Duration</th>
                             </tr>
                           </thead>
@@ -447,30 +445,20 @@ export default function MusicDetail() {
                                   {track.IndexNumber}
                                 </td>
                                 <td className="text-center">
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                  <button
+                                    className="opacity-0 btn btn-ghost group-hover:opacity-100 transition-opacity"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (track.Id) handlePlayTrack(track.Id);
                                     }}
                                   >
                                     <Play className="size-5" />
-                                  </Button>
+                                  </button>
                                 </td>
                                 <td className="text-left">
                                   <span className="font-medium">
                                     {track.Name}
                                   </span>
-                                  {track.ArtistItems &&
-                                    track.ArtistItems.length > 0 && (
-                                      <span className="ml-2 text-zinc-400">
-                                        {track.ArtistItems.map(
-                                          (a) => a.Name
-                                        ).join(", ")}
-                                      </span>
-                                    )}
                                 </td>
                                 <td className="text-center">
                                   {track.Id === currentTrackId ? (
