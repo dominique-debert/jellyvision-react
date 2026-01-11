@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
@@ -10,6 +10,7 @@ import {
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+
 import {
   ArrowLeft,
   Play,
@@ -34,14 +35,23 @@ interface MediaItem {
 
 export default function LibraryDetail() {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [sortBy, setSortBy] = useState(
-    () => localStorage.getItem("librarySortBy") || "Name"
-  );
-  const [sortOrder, setSortOrder] = useState(
-    () => localStorage.getItem("librarySortOrder") || "Ascending"
-  );
-  const [items, setItems] = useState<MediaItem[]>([]);
+  // Store sortBy and sortOrder per-library in localStorage
   const { libraryId } = useParams<{ libraryId: string }>();
+  const getSortKey = useCallback(
+    (key: string) => `librarySort_${libraryId}_${key}`,
+    [libraryId]
+  );
+  const [sortBy, setSortBy] = useState(() => {
+    if (!libraryId) return "Name";
+    return localStorage.getItem(`librarySort_${libraryId}_By`) || "Name";
+  });
+  const [sortOrder, setSortOrder] = useState(() => {
+    if (!libraryId) return "Ascending";
+    return (
+      localStorage.getItem(`librarySort_${libraryId}_Order`) || "Ascending"
+    );
+  });
+  const [items, setItems] = useState<MediaItem[]>([]);
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
   const [loading, setLoading] = useState(true);
@@ -51,9 +61,10 @@ export default function LibraryDetail() {
   const ITEMS_PER_PAGE = 60;
 
   useEffect(() => {
-    localStorage.setItem("librarySortBy", sortBy);
-    localStorage.setItem("librarySortOrder", sortOrder);
-  }, [sortBy, sortOrder]);
+    if (!libraryId) return;
+    localStorage.setItem(getSortKey("By"), sortBy);
+    localStorage.setItem(getSortKey("Order"), sortOrder);
+  }, [sortBy, sortOrder, libraryId, getSortKey]);
 
   // Combined effect: fetch library type and items in sequence to avoid double-fetch
   useEffect(() => {
@@ -131,8 +142,15 @@ export default function LibraryDetail() {
     return () => {
       isMounted = false;
     };
-  }, [serverUrl, userId, accessToken, libraryId, currentPage, sortBy, sortOrder]);
-
+  }, [
+    serverUrl,
+    userId,
+    accessToken,
+    libraryId,
+    currentPage,
+    sortBy,
+    sortOrder,
+  ]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
