@@ -66,7 +66,10 @@ export default function NextUpPage() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <div className="mx-auto pl-4 pr-4 flex items-center justify-between">
+          <h1 className="text-4xl font-light w-full text-left mb-6 mt-6 ml-8">
+            Next Up
+          </h1>
+          <div className="mx-auto pl-4 pr-4 flex items-center justify-start">
             <div className="flex items-center gap-4">
               <button
                 className="btn btn-md btn-ghost gap-2"
@@ -92,8 +95,7 @@ export default function NextUpPage() {
           </div>
         </header>
 
-        <main className="px-4 py-8 pt-4">
-          <h1 className="text-2xl font-bold mb-6">Next Up</h1>
+        <main className="px-8 py-8 pt-4">
           {MediaGrid ? (
             <MediaGrid items={sortedItems} loading={loading} />
           ) : (

@@ -63,31 +63,36 @@ export default function RecentlyAddedMoviesPage() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
+          <h1 className="text-4xl font-light w-full text-left mb-6 mt-6 ml-14">
+            Recently Added Movies
+          </h1>
+          <div className="mx-auto pl-10 pr-4 flex items-center justify-start">
             <div className="flex items-center gap-4">
-              <Button
+              <button
                 className="btn btn-md btn-ghost gap-2"
                 onClick={() => navigate(-1)}
+                type="button"
               >
                 <ArrowLeft className="size-6" />
                 Back
-              </Button>
+              </button>
             </div>
             <div className="flex items-center gap-4">
-              <MediaSortDropdown
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                sortOrder={sortOrder}
-                setSortOrder={setSortOrder}
-                showDropdown={showDropdown}
-                setShowDropdown={setShowDropdown}
-              />
+              {MediaSortDropdown ? (
+                <MediaSortDropdown
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  sortOrder={sortOrder}
+                  setSortOrder={setSortOrder}
+                  showDropdown={showDropdown}
+                  setShowDropdown={setShowDropdown}
+                />
+              ) : null}
             </div>
           </div>
         </header>
 
-        <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-30">
-          <h1 className="text-2xl font-bold mb-6">Recently Added Movies</h1>
+        <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-10">
           <MediaGrid items={sortedItems} loading={loading} />
         </main>
       </div>

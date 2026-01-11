@@ -27,17 +27,17 @@ function App() {
           <Route path="/library/:libraryId" element={<LibraryDetail />} />
           <Route path="/item/:itemId" element={<ItemDetail />} />
           <Route path="/play/:itemId" element={<Player />} />
-          <Route path="/nextup" element={<NextUpPage />} />
+          <Route path="/next-up" element={<NextUpPage />} />
           <Route
-            path="/recentlyaddedmovies"
+            path="/recently-added/movies"
             element={<RecentlyAddedMoviesPage />}
           />
           <Route
-            path="/recentlyaddedmusic"
+            path="/recently-added/music"
             element={<RecentlyAddedMusicPage />}
           />
           <Route
-            path="/recentlyaddedshows"
+            path="/recently-added/shows"
             element={<RecentlyAddedShowsPage />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />

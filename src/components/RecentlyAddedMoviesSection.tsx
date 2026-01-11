@@ -29,7 +29,7 @@ export function RecentlyAddedMoviesSection({
       <div className="flex items-center justify-between ml-16">
         <button
           className="text-3xl font-light flex items-center gap-3 hover:underline hover:text-primary"
-          onClick={() => navigate("/recentlyaddedmovies")}
+          onClick={() => navigate("/recently-added/movies")}
         >
           <Clapperboard className="size-5 inline-block mr-2" /> Recently added
           in Movies

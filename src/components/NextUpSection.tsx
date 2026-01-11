@@ -29,7 +29,7 @@ export function NextUpSection({
       <div className="flex items-center justify-between ml-16">
         <button
           className="text-3xl font-light flex items-center gap-3 hover:underline hover:text-primary"
-          onClick={() => navigate("/nextup")}
+          onClick={() => navigate("/next-up")}
         >
           <Calendar className="size-5 inline-block mr-2" /> Next Up
           <ChevronRight className="size-6 mt-1 inline-block" />
