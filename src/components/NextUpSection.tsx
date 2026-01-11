@@ -59,11 +59,12 @@ export function NextUpSection({
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {items.map((item) => (
-          <div key={item.Id} className="flex-none w-48 aspect-3/2">
+          <div key={item.Id} className="flex-none w-48">
             <ItemCard
               item={item}
               serverUrl={serverUrl}
               onPlayClick={() => navigate(`/play/${item.Id}?from=home`)}
+              // aspectRatio="3/2"
             />
           </div>
         ))}

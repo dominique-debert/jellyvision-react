@@ -12,25 +12,53 @@ export const formatRuntime = (ticks?: number) => {
   return `${minutes}m`;
 };
 
+// readonly Primary: "Primary";
+// readonly Art: "Art";
+// readonly Backdrop: "Backdrop";
+// readonly Banner: "Banner";
+// readonly Logo: "Logo";
+// readonly Thumb: "Thumb";
+// readonly Disc: "Disc";
+// readonly Box: "Box";
+// readonly Screenshot: "Screenshot";
+// readonly Menu: "Menu";
+// readonly Chapter: "Chapter";
+// readonly BoxRear: "BoxRear";
+// readonly Profile: "Profile";
+
 export const getPrimaryImageUrl = (
   serverUrl: string | null,
   item: BaseItemDto | null,
-  aspectRatio: "square" | "2/3" = "2/3"
+  aspectRatio: "square" | "2/3" | "3/2"
 ) => {
   if (!serverUrl || !item?.Id) return undefined;
 
   // For episodes, use the season poster instead of episode thumbnail
   if (item.Type === "Episode" && item.SeasonId) {
-    const width = aspectRatio === "square" ? 600 : 400;
-    const height = aspectRatio === "square" ? 600 : 600;
-    return getImageUrl(serverUrl, item.SeasonId, "Primary", width, height, 85);
+    let width = 400,
+      height = 600;
+    if (aspectRatio === "square") {
+      width = 600;
+      height = 600;
+    } else if (aspectRatio === "3/2") {
+      width = 600;
+      height = 400;
+    }
+    return getImageUrl(serverUrl, item.SeasonId, "Primary", width, height, 100);
   }
 
   if (item.ImageTags?.Primary) {
-    // Request 400x600 thumbnail for 2/3 aspect ratio, 600x600 for square
-    const width = aspectRatio === "square" ? 600 : 400;
-    const height = aspectRatio === "square" ? 600 : 600;
-    return getImageUrl(serverUrl, item.Id, "Primary", width, height, 85);
+    // Request correct thumbnail size for aspect ratio
+    let width = 400,
+      height = 600;
+    if (aspectRatio === "square") {
+      width = 600;
+      height = 600;
+    } else if (aspectRatio === "3/2") {
+      width = 600;
+      height = 400;
+    }
+    return getImageUrl(serverUrl, item.Id, "Primary", width, height, 100);
   }
   return undefined;
 };

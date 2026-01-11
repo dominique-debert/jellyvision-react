@@ -7,7 +7,7 @@ interface ItemCardProps {
   item: BaseItemDto;
   serverUrl: string;
   onPlayClick?: (e: React.MouseEvent) => void;
-  aspectRatio?: "square" | "2/3";
+  aspectRatio?: "square" | "2/3" | "3/2";
 }
 
 export function ItemCard({
@@ -41,14 +41,18 @@ export function ItemCard({
       >
         <div
           className={`relative ${
-            aspectRatio === "square" ? "aspect-square" : "aspect-2/3"
+            aspectRatio === "square"
+              ? "aspect-square"
+              : aspectRatio === "2/3"
+              ? "aspect-2/3"
+              : "aspect-3/2"
           } bg-base-300 rounded-md overflow-hidden`}
         >
           {primaryImageUrl ? (
             <img
               src={primaryImageUrl}
               alt={item.Name || "Item"}
-              className="w-full h-full object-cover"
+              className="w-full object-cover"
               loading="lazy"
             />
           ) : (
