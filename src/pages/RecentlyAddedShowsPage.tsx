@@ -63,13 +63,13 @@ export default function RecentlyAddedShowsPage() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <h1 className="text-4xl font-light w-full text-left mb-6 mt-6 ml-14">
+          <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-14">
             Recently Added TV Shows
           </h1>
-          <div className="pl-10 pr-4 flex items-center justify-start">
+          <div className="pl-15 mb-4 pr-4 flex items-center justify-start">
             <div className="flex items-center gap-4">
               <button
-                className="btn btn-md btn-ghost gap-2"
+                className="btn btn-md btn-primary gap-2"
                 onClick={() => navigate(-1)}
                 type="button"
               >

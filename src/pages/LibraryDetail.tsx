@@ -9,7 +9,7 @@ import {
   getItem,
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 
 import {
   ArrowLeft,
@@ -164,13 +164,14 @@ export default function LibraryDetail() {
         <header className="border-b border-base-300 pb-0 pt-4">
           <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button
-                className="btn btn-md btn-ghost gap-2"
+              <button
+                className="btn btn-md btn-primary gap-2"
                 onClick={() => navigate("/")}
+                type="button"
               >
                 <ArrowLeft className="size-6" />
                 Back
-              </Button>
+              </button>
               <div className="relative">
                 <button
                   className="btn btn-md btn-ghost gap-2"

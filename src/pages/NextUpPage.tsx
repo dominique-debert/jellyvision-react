@@ -70,10 +70,10 @@ export default function NextUpPage() {
           <h1 className="text-4xl font-light w-full text-left mb-6 mt-6 ml-8">
             Next Up
           </h1>
-          <div className="mx-auto pl-4 pr-4 flex items-center justify-start">
+          <div className="mx-auto pl-8 mb-4 pr-4 flex items-center justify-start">
             <div className="flex items-center gap-4">
               <button
-                className="btn btn-md btn-ghost gap-2"
+                className="btn btn-md btn-primary gap-2"
                 onClick={() => navigate(-1)}
                 type="button"
               >
