@@ -25,6 +25,7 @@ import {
   Music,
   ChevronLeft,
   ChevronRight,
+  Calendar,
 } from "lucide-react";
 
 export default function Home() {
@@ -36,6 +37,8 @@ export default function Home() {
   const [recentMusic, setRecentMusic] = useState<BaseItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [nextUpItems, setNextUpItems] = useState<BaseItemDto[]>([]);
+  const [libraries, setLibraries] = useState<Library[]>([]);
+  const libraryScrollRef = useRef<HTMLDivElement>(null);
   const moviesScrollRef = useRef<HTMLDivElement>(null);
   const showsScrollRef = useRef<HTMLDivElement>(null);
   const musicScrollRef = useRef<HTMLDivElement>(null);
@@ -93,16 +96,17 @@ export default function Home() {
       // Fetch user libraries
       const viewsResult = await getUserViews(serverUrl, userId, accessToken);
       if (viewsResult.success) {
-        const libraries = viewsResult.data as Library[];
+        const libs = viewsResult.data as Library[];
+        setLibraries(libs);
 
         // Find library IDs for each type
-        const moviesLibrary = libraries.find(
+        const moviesLibrary = libs.find(
           (lib) => lib.CollectionType === "movies"
         );
-        const showsLibrary = libraries.find(
+        const showsLibrary = libs.find(
           (lib) => lib.CollectionType === "tvshows"
         );
-        const musicLibrary = libraries.find(
+        const musicLibrary = libs.find(
           (lib) => lib.CollectionType === "music"
         );
 
@@ -156,6 +160,50 @@ export default function Home() {
   return (
     <Layout>
       <div className="flex flex-col gap-10 mt-10 mb-30">
+        {/* My Library Section */}
+        {!loading && libraries.length > 0 && (
+          <section className="mr-10">
+            <div className="flex items-center justify-between ml-16">
+              <h2 className="text-3xl font-light flex items-center gap-3">
+                <ChevronRight className="size-5 inline-block mr-2" /> My Library
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => scroll(libraryScrollRef, "left")}
+                  className="size-8 hover:bg-primary/20"
+                >
+                  <ChevronLeft className="size-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => scroll(libraryScrollRef, "right")}
+                  className="size-8 hover:bg-primary/20"
+                >
+                  <ChevronRight className="size-5" />
+                </Button>
+              </div>
+            </div>
+            <div
+              ref={libraryScrollRef}
+              className="flex ml-16 gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 mt-6"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {libraries.map((lib) => (
+                <div key={lib.Id} className="flex-none w-48">
+                  <div className="card bg-base-200 shadow-md cursor-pointer h-full flex flex-col items-center justify-center p-6 hover:bg-primary/10 transition"
+                    onClick={() => lib.Id && navigate(`/library/${lib.Id}`)}
+                  >
+                    <div className="text-xl font-semibold text-center mb-2">{lib.Name}</div>
+                    <div className="text-sm text-base-content/70 text-center capitalize">{lib.CollectionType}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
         {/* Continue Watching Section */}
         {!loading && resumeItems.length > 0 && (
           <section className="mr-10">
@@ -206,7 +254,7 @@ export default function Home() {
           <section className="mr-10">
             <div className="flex items-center justify-between ml-16">
               <h2 className="text-3xl font-light flex items-center gap-3">
-                <ChevronRight className="size-5 inline-block mr-2" /> Next Up
+                <Calendar className="size-5 inline-block mr-2" /> Next Up
                 <ChevronRight className="size-6 mt-1 inline-block" />
               </h2>
               <div className="flex gap-2">
