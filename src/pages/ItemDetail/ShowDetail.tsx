@@ -93,8 +93,8 @@ export default function ShowDetail() {
       let seriesIdToUse = itemId;
       let isSeriesType = item.Type === "Series";
 
-      if (item.Type === "Season" && (item as any).SeriesId) {
-        seriesIdToUse = (item as any).SeriesId;
+      if (item.Type === "Season" && (item as BaseItemDto).SeriesId) {
+        seriesIdToUse = (item as BaseItemDto).SeriesId ?? "";
         isSeriesType = true;
       }
 
@@ -140,13 +140,11 @@ export default function ShowDetail() {
     };
 
     fetchSeasons();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverUrl, userId, accessToken, itemId, item]);
 
-  useEffect(() => {
-    if (seasons.length > 0 && !selectedSeasonId) {
-      setSelectedSeasonId(seasons[0]?.Id || null);
-    }
-  }, [seasons, selectedSeasonId]);
+  // Removed redundant useEffect that set state synchronously after render.
+  // The initial selectedSeasonId is already set in the fetchSeasons effect after fetching seasons.
 
   if (loading) return <LoadingState />;
   if (!item) return <NotFoundState />;
@@ -158,7 +156,7 @@ export default function ShowDetail() {
       : undefined;
   const isSeries =
     item?.Type === "Series" ||
-    (item?.Type === "Season" && (item as any).SeriesId);
+    (item?.Type === "Season" && (item as BaseItemDto).SeriesId);
 
   const nextUpSeasonId =
     selectedSeasonId || (seasons.length > 0 ? seasons[0]?.Id || null : null);

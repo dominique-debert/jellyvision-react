@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
 import { ItemCard } from "@/components/ItemCard";
@@ -10,7 +10,6 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { serverUrl, userId, accessToken } = useAuthStore();
   const searchTerm = searchParams.get("q") || "";
 

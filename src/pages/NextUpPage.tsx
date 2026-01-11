@@ -19,15 +19,15 @@ export default function NextUpPage() {
 
   useEffect(() => {
     if (!serverUrl || !userId || !accessToken) {
-      setItems([]);
-      setLoading(false);
+      // Do not call setState synchronously here; let the initial state handle empty values.
       return;
     }
-    setLoading(true);
-    fetchNextUp(serverUrl, userId, accessToken).then((result) => {
+    (async () => {
+      setLoading(true);
+      const result = await fetchNextUp(serverUrl, userId, accessToken);
       setItems(result && result.success ? result.data : []);
       setLoading(false);
-    });
+    })();
   }, [serverUrl, userId, accessToken]);
 
   const sortedItems = useMemo(() => {

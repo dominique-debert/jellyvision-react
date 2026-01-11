@@ -170,15 +170,7 @@ export default function MusicDetail() {
     };
   }, [serverUrl, userId, accessToken, itemId, item]);
 
-  // Handle autoplay from URL parameter
-  useEffect(() => {
-    const autoplay = searchParams.get("autoplay");
-    if (autoplay === "true" && albumTracks.length > 0 && !currentTrackId) {
-      // Play the first track
-      handlePlayTrack(albumTracks[0].Id!);
-    }
-  }, [albumTracks, searchParams, currentTrackId]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handlePlayTrack = (trackId: string) => {
     setCurrentTrackId(trackId);
     const trackIndex = albumTracks.findIndex((t) => t.Id === trackId);
@@ -186,6 +178,17 @@ export default function MusicDetail() {
       setCurrentTrackIndex(trackIndex);
     }
   };
+
+  // Handle autoplay from URL parameter
+  useEffect(() => {
+    const autoplay = searchParams.get("autoplay");
+    if (autoplay === "true" && albumTracks.length > 0 && !currentTrackId) {
+      // Play the first track (defer setState to avoid cascading renders)
+      setTimeout(() => {
+        handlePlayTrack(albumTracks[0].Id!);
+      }, 0);
+    }
+  }, [albumTracks, searchParams, currentTrackId, handlePlayTrack]);
 
   const getStreamUrl = useCallback(() => {
     if (!accessToken || !currentTrackId) return "";

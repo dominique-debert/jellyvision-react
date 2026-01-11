@@ -318,6 +318,7 @@ export default function Player() {
     };
 
     loadSubtitles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.Id, subtitleOptions, serverUrl, itemId, accessToken]);
 
   const formatTime = (seconds: number) => {
