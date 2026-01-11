@@ -81,12 +81,6 @@ export function MediaGrid({ items, loading, libraryType }: MediaGridProps) {
                   <h3 className="font-semibold text-lg text-white text-center line-clamp-2">
                     {item.Name}
                   </h3>
-                  {item.Type === "Series" && item.ChildCount && (
-                    <p className="text-xs text-white/90 font-medium mt-1 text-center">
-                      {item.ChildCount}{" "}
-                      {item.ChildCount === 1 ? "Season" : "Seasons"}
-                    </p>
-                  )}
                   {item.ProductionYear && (
                     <p className="text-lg text-white/80 mt-1 text-center">
                       {item.ProductionYear}
