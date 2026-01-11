@@ -1,4 +1,5 @@
-import { Library } from "lucide-react";
+import { Library, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { getImageUrl } from "@/lib/jellyfin/client";
 import { useNavigate } from "react-router-dom";
 
@@ -30,7 +31,7 @@ export function MyLibrarySection({
   if (loading || libraries.length === 0) return null;
   return (
     <section className="mr-10">
-      <div className="flex items-center justify-between ml-16">
+      <div className="flex items-center ml-16">
         <h2 className="text-3xl font-light flex items-center gap-3">
           <Library className="size-5 inline-block mr-2" /> My Library
         </h2>
