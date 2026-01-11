@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
-import { ItemCard } from "@components/ItemCard";
+import { ItemCard } from "@/components/ItemCard";
 import {
   getResumeItems,
   getLatestMedia,
