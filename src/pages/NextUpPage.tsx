@@ -67,7 +67,7 @@ export default function NextUpPage() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <h1 className="text-4xl font-light w-full text-left mb-6 mt-6 ml-8">
+          <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-8">
             Next Up
           </h1>
           <div className="mx-auto pl-8 mb-4 pr-4 flex items-center justify-start">
