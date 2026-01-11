@@ -2,21 +2,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Play, CircleCheck } from "lucide-react";
 import { getImageUrl } from "@/lib/jellyfin/client";
-
-interface MediaItem {
-  Id?: string;
-  Name?: string | null;
-  Type?: string;
-  ImageTags?: { [key: string]: string } | null;
-  ProductionYear?: number | null;
-  ChildCount?: number;
-  UserData?: {
-    Played?: boolean;
-  };
-}
+import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 interface MediaGridProps {
-  items: MediaItem[];
+  items: BaseItemDto[];
   loading?: boolean;
   libraryType?: string | null;
 }

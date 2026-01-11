@@ -6,10 +6,11 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { fetchNextUp } from "@/lib/jellyfin/extraMediaFetchers";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function NextUpPage() {
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<BaseItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
   const [sortBy, setSortBy] = useState("Name");
@@ -32,7 +33,7 @@ export default function NextUpPage() {
   const sortedItems = useMemo(() => {
     if (!items || items.length === 0) return [];
     const copy = [...items];
-    const getVal = (it: any) => {
+    const getVal = (it: BaseItemDto) => {
       switch (sortBy) {
         case "CommunityRating":
           return it.CommunityRating ?? 0;
@@ -47,7 +48,7 @@ export default function NextUpPage() {
           return it.Name ?? "";
       }
     };
-    copy.sort((a: any, b: any) => {
+    copy.sort((a: BaseItemDto, b: BaseItemDto) => {
       const va = getVal(a);
       const vb = getVal(b);
       if (typeof va === "string" && typeof vb === "string") {

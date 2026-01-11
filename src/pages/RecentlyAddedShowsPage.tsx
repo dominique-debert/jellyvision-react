@@ -4,23 +4,23 @@ import { MediaSortDropdown } from "@/components/MediaSortDropdown";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { fetchRecentlyAddedShows } from "@/lib/jellyfin/extraMediaFetchers";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function RecentlyAddedShowsPage() {
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<BaseItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [sortBy, setSortBy] = useState("Name");
+  const [sortBy, setSortBy] = useState("DateAdded");
   const [sortOrder, setSortOrder] = useState("Ascending");
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!serverUrl || !userId || !accessToken) return;
-    setLoading(true);
     fetchRecentlyAddedShows(serverUrl, userId, accessToken).then((result) => {
+      setLoading(true);
       setItems(result.success ? result.data : []);
       setLoading(false);
     });
@@ -29,7 +29,7 @@ export default function RecentlyAddedShowsPage() {
   const sortedItems = useMemo(() => {
     if (!items) return [];
     const copy = [...items];
-    const getVal = (it: any) => {
+    const getVal = (it: BaseItemDto) => {
       switch (sortBy) {
         case "CommunityRating":
           return it.CommunityRating ?? 0;
@@ -44,7 +44,7 @@ export default function RecentlyAddedShowsPage() {
           return it.Name ?? "";
       }
     };
-    copy.sort((a: any, b: any) => {
+    copy.sort((a: BaseItemDto, b: BaseItemDto) => {
       const va = getVal(a);
       const vb = getVal(b);
       if (typeof va === "string" && typeof vb === "string") {
