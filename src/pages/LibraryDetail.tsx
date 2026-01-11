@@ -10,7 +10,13 @@ import {
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, CircleCheck, ChevronDown } from "lucide-react";
+import {
+  ArrowLeft,
+  Play,
+  CircleCheck,
+  ChevronDown,
+  ArrowDownUp,
+} from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 
 interface MediaItem {
@@ -49,37 +55,32 @@ export default function LibraryDetail() {
     localStorage.setItem("librarySortOrder", sortOrder);
   }, [sortBy, sortOrder]);
 
-  // Fetch library info to determine type
+  // Combined effect: fetch library type and items in sequence to avoid double-fetch
   useEffect(() => {
-    const fetchLibraryInfo = async () => {
-      if (!serverUrl || !userId || !accessToken || !libraryId) return;
-      const result = await getItem(serverUrl, userId, libraryId, accessToken);
-      if (result.success && result.data) {
-        setLibraryType(result.data.CollectionType || null);
-      }
-    };
-    fetchLibraryInfo();
-  }, [serverUrl, userId, accessToken, libraryId]);
-
-  useEffect(() => {
-    const fetchItems = async () => {
+    let isMounted = true;
+    const fetchAll = async () => {
       if (!serverUrl || !userId || !accessToken || !libraryId) {
-        setLoading(false);
+        if (isMounted) setLoading(false);
         return;
       }
 
       setLoading(true);
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
-      // Map sortBy to Jellyfin API sortBy fields
-      // Map sortBy to Jellyfin API sortBy fields
+      // Fetch library info to determine type
+      const result = await getItem(serverUrl, userId, libraryId, accessToken);
+      let type: string | null = null;
+      if (result.success && result.data) {
+        type = result.data.CollectionType || null;
+      }
+      if (isMounted) setLibraryType(type);
 
       // Map sortBy to Jellyfin API fields
       let apiSortBy = sortBy;
       if (sortBy === "DateAdded") apiSortBy = "DateCreated";
 
-      // Use different fetch strategy based on library type
-      if (libraryType === "music") {
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+
+      if (type === "music") {
         // For music libraries, fetch albums recursively
         const albumsResult = await getAllAlbumsInLibrary(
           serverUrl,
@@ -91,13 +92,18 @@ export default function LibraryDetail() {
           apiSortBy,
           sortOrder
         );
-        if (albumsResult.success) {
-          setItems(albumsResult.data as MediaItem[]);
-          setTotalCount(albumsResult.totalCount);
+        if (isMounted) {
+          if (albumsResult.success) {
+            setItems(albumsResult.data as MediaItem[]);
+            setTotalCount(albumsResult.totalCount);
+          } else {
+            setItems([]);
+            setTotalCount(0);
+          }
         }
       } else {
         // For TV libraries, fetch only Series items (avoid Season items)
-        const includeTypes = libraryType === "tvshows" ? ["Series"] : undefined;
+        const includeTypes = type === "tvshows" ? ["Series"] : undefined;
         const itemsResult = await getLibraryItems(
           serverUrl,
           userId,
@@ -109,28 +115,24 @@ export default function LibraryDetail() {
           apiSortBy,
           sortOrder
         );
-        if (itemsResult.success) {
-          setItems(itemsResult.data as MediaItem[]);
-          setTotalCount(itemsResult.totalCount);
+        if (isMounted) {
+          if (itemsResult.success) {
+            setItems(itemsResult.data as MediaItem[]);
+            setTotalCount(itemsResult.totalCount);
+          } else {
+            setItems([]);
+            setTotalCount(0);
+          }
         }
       }
-
-      setLoading(false);
+      if (isMounted) setLoading(false);
     };
+    fetchAll();
+    return () => {
+      isMounted = false;
+    };
+  }, [serverUrl, userId, accessToken, libraryId, currentPage, sortBy, sortOrder]);
 
-    if (libraryType !== null) {
-      fetchItems();
-    }
-  }, [
-    serverUrl,
-    userId,
-    accessToken,
-    libraryId,
-    currentPage,
-    libraryType,
-    sortBy,
-    sortOrder,
-  ]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -145,20 +147,21 @@ export default function LibraryDetail() {
           <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
-                variant="ghost"
+                className="btn btn-md btn-ghost gap-2"
                 onClick={() => navigate("/")}
-                className="gap-2"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="size-6" />
                 Back
               </Button>
               <div className="relative">
                 <button
-                  className="btn btn-ghost flex items-center gap-2"
+                  className="btn btn-md btn-ghost gap-2"
                   onClick={() => setShowDropdown((v) => !v)}
                 >
-                  <span>Sort</span>
-                  <ChevronDown className="size-4" />
+                  <span>
+                    <ArrowDownUp className="size-5" />
+                  </span>
+                  <ChevronDown className="size-5" />
                 </button>
                 {showDropdown && (
                   <div className="absolute left-0 mt-2 w-64 bg-base-200 rounded-xl shadow-lg z-50 p-4 flex flex-col gap-4">
