@@ -12,7 +12,6 @@ interface PaginationProps {
   loading: boolean;
   onPageChange: (page: number) => void;
 }
-
 export function Pagination({
   totalPages,
   currentPage,
@@ -52,14 +51,14 @@ export function Pagination({
   }
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2">
+    <div className="mt-8 w-full flex items-center justify-center gap-2 sticky bottom-20 bg-transparent backdrop-blur-sm pt-3 pb-4">
       <Button
         onClick={() => onPageChange(1)}
         disabled={currentPage === 1 || loading}
         variant="outline"
         size="icon"
         title="First page"
-        className="rounded-full cursor-pointer"
+        className="cursor-pointer"
       >
         <ChevronsLeft className="size-4" />
       </Button>
@@ -69,7 +68,7 @@ export function Pagination({
         variant="outline"
         size="icon"
         title="Previous page"
-        className="rounded-full cursor-pointer"
+        className="cursor-pointer"
       >
         <ChevronLeft className="size-4" />
       </Button>
@@ -86,7 +85,7 @@ export function Pagination({
             disabled={loading}
             variant={currentPage === page ? "default" : "outline"}
             size="icon"
-            className="rounded-full cursor-pointer"
+            className="cursor-pointer"
           >
             {page}
           </Button>
@@ -99,7 +98,7 @@ export function Pagination({
         variant="outline"
         size="icon"
         title="Next page"
-        className="rounded-full cursor-pointer"
+        className="cursor-pointer"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
@@ -109,7 +108,7 @@ export function Pagination({
         variant="outline"
         size="icon"
         title="Last page"
-        className="rounded-full cursor-pointer"
+        className="cursor-pointer"
       >
         <ChevronsRight className="h-4 w-4" />
       </Button>

@@ -171,7 +171,7 @@ export default function LibraryDetail() {
               ) : libraryType === "tvshows" ? (
                 <Drama className="size-6 pt-1" />
               ) : (
-                <Clapperboard className="size-6 pt-1" />
+                <Clapperboard />
               )}
               {libraryType === "music"
                 ? "Music"
@@ -262,7 +262,7 @@ export default function LibraryDetail() {
           </div>
         </header>
 
-        <main className="ml-10 mr-10 px-4 py-8 pt-4">
+        <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-15">
           {items.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center text-muted-foreground">
@@ -270,7 +270,7 @@ export default function LibraryDetail() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10 pb-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10">
               {items.map((item) => (
                 <div
                   key={item.Id}
@@ -356,14 +356,13 @@ export default function LibraryDetail() {
               ))}
             </div>
           )}
-
-          <Pagination
-            totalPages={totalPages}
-            currentPage={currentPage}
-            loading={loading}
-            onPageChange={setCurrentPage}
-          />
         </main>
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          loading={loading}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </Layout>
   );
