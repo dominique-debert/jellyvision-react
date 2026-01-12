@@ -392,14 +392,8 @@ export default function MusicDetail() {
 
             {/* Right Column - Details */}
             <div className="flex-1 min-w-0 space-y-6">
-              <QualityBadges item={item} />
-
-              {/* <MetadataTable item={item} /> */}
-
-              <SynopsisSection item={item} />
-
               {/* Tracks */}
-              <div className="mt-6">
+              <div className="mt-0">
                 {loadingTracks ? (
                   <div className="animate-pulse space-y-4">
                     <div className="h-10 w-full bg-base-300 rounded" />
@@ -422,11 +416,11 @@ export default function MusicDetail() {
                         <table className="min-w-full text-sm border-separate border-spacing-y-1">
                           <thead>
                             <tr className="text-zinc-400">
-                              <th className="w-12 text-center">#</th>
+                              <th className="w-12 text-center"></th>
                               <th className="w-10"></th>
-                              <th className="text-left">Title</th>
+                              <th className="text-left"></th>
                               <th className="w-16 text-center"></th>
-                              <th className="w-24 text-center">Duration</th>
+                              <th className="w-24 text-center"></th>
                             </tr>
                           </thead>
                           <tbody>

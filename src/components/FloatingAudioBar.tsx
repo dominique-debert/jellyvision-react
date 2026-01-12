@@ -49,7 +49,7 @@ export function FloatingAudioBar({
   };
 
   return (
-    <div className="sticky bottom-20 backdrop-blur-lg py-4 pl-92 pr-7 z-50">
+    <div className="sticky -ml-13 bottom-20 backdrop-blur-lg py-2 pl-91 pr-7 z-50">
       <div className="flex items-center gap-6">
         {/* Track Info (far left) */}
         <div className="w-64 shrink-0">
