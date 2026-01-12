@@ -92,9 +92,9 @@ export default function SearchResults() {
 
   return (
     <Layout>
-      <div className="flex flex-col gap-8 mt-10">
-        <div className="ml-10 mr-10">
-          <h1 className="text-4xl font-bold mb-2">Search Results</h1>
+      <div className="flex flex-col gap-8 ml-5 mt-10 pb-30">
+        <div className="mr-20 text-left ml-10">
+          <h1 className="text-3xl font-light mb-2">Search Results</h1>
           <p className="text-lg text-base-content/60">
             Results for "<span className="font-semibold">{searchTerm}</span>"
           </p>

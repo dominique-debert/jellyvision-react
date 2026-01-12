@@ -324,7 +324,7 @@ export default function MusicDetail() {
           <div className="flex">
             <button
               onClick={() => navigate(-1)}
-              className="btn btn-primary mb-6"
+              className="btn btn-primary mb-6 sticky"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
@@ -334,7 +334,7 @@ export default function MusicDetail() {
           <div className="flex gap-8">
             {/* Left Column - Album Art */}
             <div className="w-80 shrink-0">
-              <div className="relative group">
+              <div className="group sticky">
                 {primaryImageUrl ? (
                   <img
                     src={primaryImageUrl}
@@ -364,24 +364,36 @@ export default function MusicDetail() {
               </div>
 
               {/* Album Info */}
-              {item.AlbumArtist && (
-                <div className="flex space-x-4 text-lg mb-0 mt-4">
-                  <span className="text-zinc-400">Artist: </span>
-                  <span>{item.AlbumArtist}</span>
-                </div>
-              )}
-              {item.Name && (
-                <div className="flex space-x-4 text-lg mb-0">
-                  <span className="text-zinc-400">Album: </span>
-                  <span>{item.Name}</span>
-                </div>
-              )}
-              {item.ProductionYear && (
-                <div className="flex space-x-4 text-lg">
-                  <span className="text-zinc-400">Released: </span>
-                  <span>{item.ProductionYear}</span>
-                </div>
-              )}
+              <table className="w-full text-lg mt-4 mb-0">
+                <tbody>
+                  {item.AlbumArtist && (
+                    <tr>
+                      <td className="text-left text-sm text-zinc-400 w-25">
+                        Artist:
+                      </td>
+                      <td className="text-left text-md">{item.AlbumArtist}</td>
+                    </tr>
+                  )}
+                  {item.Name && (
+                    <tr>
+                      <td className="text-left text-sm text-zinc-400 w-25">
+                        Album:
+                      </td>
+                      <td className="text-left text-md">{item.Name}</td>
+                    </tr>
+                  )}
+                  {item.ProductionYear && (
+                    <tr>
+                      <td className="text-left text-sm text-zinc-400 w-25">
+                        Released:
+                      </td>
+                      <td className="text-left text-md">
+                        {item.ProductionYear}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
 
             {/* Right Column - Details */}

@@ -9,7 +9,6 @@ import {
   getItem,
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
 
 import {
   ArrowLeft,
@@ -17,6 +16,9 @@ import {
   CircleCheck,
   ChevronDown,
   ArrowDownUp,
+  Clapperboard,
+  Drama,
+  Music,
 } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 
@@ -162,6 +164,25 @@ export default function LibraryDetail() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
+          <div className="flex w-full justify-between items-center mb-4">
+            <h1 className="inline-flex items-center gap-4 text-3xl m-0 p-0 font-light w-full text-left mb-4 mt-6 ml-15">
+              {libraryType === "music" ? (
+                <Music className="size-6 pt-1" />
+              ) : libraryType === "tvshows" ? (
+                <Drama className="size-6 pt-1" />
+              ) : (
+                <Clapperboard className="size-6 pt-1" />
+              )}
+              {libraryType === "music"
+                ? "Music"
+                : libraryType === "tvshows"
+                ? "TV Shows"
+                : "Movies"}
+            </h1>
+            <p className="text-sm text-right mr-17 text-muted-foreground w-full">
+              {totalCount} {totalCount === 1 ? "item" : "items"}
+            </p>
+          </div>
           <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
             <div className="flex items-center gap-4 mb-6">
               <button
@@ -238,9 +259,6 @@ export default function LibraryDetail() {
                 )}
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {totalCount} {totalCount === 1 ? "item" : "items"}
-            </p>
           </div>
         </header>
 

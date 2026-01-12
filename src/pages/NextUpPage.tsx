@@ -1,12 +1,12 @@
 import { Layout } from "@/components/Layout";
-import { MediaGrid } from "@/components/MediaGrid";
-import { MediaSortDropdown } from "@/components/MediaSortDropdown";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { fetchNextUp } from "@/lib/jellyfin/extraMediaFetchers";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { ItemCard } from "@/components/ItemCard";
+import { MediaSortDropdown } from "@/components/MediaSortDropdown";
 
 export default function NextUpPage() {
   const { serverUrl, accessToken, userId } = useAuthStore();
@@ -18,10 +18,7 @@ export default function NextUpPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!serverUrl || !userId || !accessToken) {
-      // Do not call setState synchronously here; let the initial state handle empty values.
-      return;
-    }
+    if (!serverUrl || !userId || !accessToken) return;
     (async () => {
       setLoading(true);
       const result = await fetchNextUp(serverUrl, userId, accessToken);
@@ -67,10 +64,10 @@ export default function NextUpPage() {
     <Layout>
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
-          <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-8">
+          <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-15">
             Next Up
           </h1>
-          <div className="mx-auto pl-8 mb-4 pr-4 flex items-center justify-start">
+          <div className="mx-auto pl-15 pr-20 flex items-center justify-start">
             <div className="flex items-center gap-4">
               <button
                 className="btn btn-md btn-primary gap-2"
@@ -96,14 +93,31 @@ export default function NextUpPage() {
           </div>
         </header>
 
-        <main className="px-8 py-8 pt-4">
-          {MediaGrid ? (
-            <MediaGrid items={sortedItems} loading={loading} />
-          ) : (
-            <div className="alert alert-error mt-4">
-              MediaGrid component missing
+        <main className="px-15 py-8 pt-4">
+          {/* NextUpSection-like layout */}
+          <section>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8 mt-6 pb-30">
+              {loading ? (
+                <div className="loading loading-bars loading-lg mx-auto my-10 col-span-full" />
+              ) : sortedItems.length === 0 ? (
+                <div className="text-zinc-400 text-lg mx-auto my-10 col-span-full">
+                  No items found.
+                </div>
+              ) : (
+                sortedItems.map((item) => (
+                  <div key={item.Id} className="w-full">
+                    <ItemCard
+                      item={item}
+                      serverUrl={serverUrl ?? ""}
+                      onPlayClick={() =>
+                        navigate(`/play/${item.Id}?from=nextup`)
+                      }
+                    />
+                  </div>
+                ))
+              )}
             </div>
-          )}
+          </section>
         </main>
       </div>
     </Layout>

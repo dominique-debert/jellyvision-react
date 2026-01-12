@@ -1,5 +1,6 @@
 import { Music, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { ItemCard } from "@/components/ItemCard";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
@@ -34,18 +35,22 @@ export function RecentlyAddedMusicSection({
           <ChevronRight className="size-6 mt-1 inline-block" />
         </button>
         <div className="flex gap-2">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onScroll(scrollRef, "left")}
             className="size-8 hover:bg-primary/20"
           >
             <ChevronLeft className="size-5" />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onScroll(scrollRef, "right")}
             className="size-8 hover:bg-primary/20"
           >
             <ChevronRight className="size-5" />
-          </button>
+          </Button>
         </div>
       </div>
       <div
