@@ -174,7 +174,7 @@ export default function ShowDetail() {
 
   return (
     <Layout backdropUrl={backdropUrl}>
-      <div className="min-h-screen pb-40">
+      <div className="min-h-screen pb-30">
         <div className="mx-auto pr-10 pl-15 py-2">
           <div className="flex sticky top-2 left-2">
             <button
@@ -278,21 +278,21 @@ export default function ShowDetail() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <div className="flex items-center justify-between w-full mb-2">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => scrollSeasons(-1)}
-                            className="btn btn-ghost size-8"
-                          >
-                            <ChevronLeft className="size-5" />
-                          </button>
-                          <button
-                            onClick={() => scrollSeasons(1)}
-                            className="btn btn-ghost size-8"
-                          >
-                            <ChevronRight className="size-5" />
-                          </button>
-                        </div>
+                      <div className="flex items-start gap-2 justify-start w-full mb-2">
+                        <button
+                          onClick={() => scrollSeasons(-1)}
+                          className="btn btn-ghost btn-square btn-sm"
+                          type="button"
+                        >
+                          <ChevronLeft className="size-5 text-primary-content" />
+                        </button>
+                        <button
+                          onClick={() => scrollSeasons(1)}
+                          className="btn btn-ghost btn-square btn-sm"
+                          type="button"
+                        >
+                          <ChevronRight className="size-5 text-primary-content" />
+                        </button>
                       </div>
                       <div
                         className="flex gap-3 overflow-x-auto scroll-smooth pb-2 w-full"
