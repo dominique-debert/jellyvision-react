@@ -163,7 +163,7 @@ export default function LibraryDetail() {
       <div>
         <header className="border-b border-base-300 pb-0 pt-4">
           <div className="mx-auto pl-15 pr-20 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-6">
               <button
                 className="btn btn-md btn-primary gap-2"
                 onClick={() => navigate("/")}
@@ -244,7 +244,7 @@ export default function LibraryDetail() {
           </div>
         </header>
 
-        <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-30">
+        <main className="ml-10 mr-10 px-4 py-8 pt-4">
           {items.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center text-muted-foreground">
@@ -252,7 +252,7 @@ export default function LibraryDetail() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10 pb-10">
               {items.map((item) => (
                 <div
                   key={item.Id}

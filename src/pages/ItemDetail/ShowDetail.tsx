@@ -28,15 +28,15 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
   LoadingState,
   NotFoundState,
-  getPrimaryImageUrl,
   ItemHeader,
   MetadataTable,
   QualityBadges,
   SynopsisSection,
   CastAndCrewSection,
   SubtitleSelector,
-  formatRuntime,
-} from "./shared";
+} from "@/pages/ItemDetail/shared";
+
+import { formatRuntime, getPrimaryImageUrl } from "@/lib/utils";
 
 export default function ShowDetail() {
   const { itemId } = useParams<{ itemId: string }>();
@@ -345,7 +345,7 @@ export default function ShowDetail() {
                               </div>
                             </div>
                             <div className="w-full p-3 text-left">
-                              <div className="text-white font-semibold line-clamp-1">
+                              <div className="text-white text-center font-semibold line-clamp-1">
                                 {season.Name}
                               </div>
                             </div>

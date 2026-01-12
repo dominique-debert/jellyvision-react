@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Play, CircleCheck } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-import { getPrimaryImageUrl } from "@/pages/ItemDetail/utils";
+import { getPrimaryImageUrl } from "@/lib/utils";
 
 interface ItemCardProps {
   item: BaseItemDto;

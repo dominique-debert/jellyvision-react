@@ -4,7 +4,7 @@ import { Bookmark, Check, MoreHorizontal } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { markAsPlayed, markAsUnplayed } from "@/lib/jellyfin/client";
 import { useAuthStore } from "@/store/useAuthStore";
-import { getLogoUrl } from "./utils";
+import { getLogoUrl } from "@/lib/utils";
 
 export const ItemHeader = ({
   item,

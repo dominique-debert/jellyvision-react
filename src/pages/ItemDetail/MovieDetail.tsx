@@ -9,7 +9,6 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
   LoadingState,
   NotFoundState,
-  getPrimaryImageUrl,
   ItemHeader,
   MetadataTable,
   QualityBadges,
@@ -17,6 +16,8 @@ import {
   CastAndCrewSection,
   SubtitleSelector,
 } from "./shared";
+
+import { getPrimaryImageUrl } from "@/lib/utils";
 
 export default function MovieDetail() {
   const { itemId } = useParams<{ itemId: string }>();

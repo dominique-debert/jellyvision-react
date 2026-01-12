@@ -1,6 +1,6 @@
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { BaseItemKind } from "@jellyfin/sdk/lib/generated-client/models";
-import { formatRuntime } from "./utils";
+import { formatRuntime } from "@/lib/utils";
 
 export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
   <div className="grid grid-cols-4 gap-6 text-sm">
