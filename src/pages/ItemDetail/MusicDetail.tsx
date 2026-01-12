@@ -368,37 +368,38 @@ export default function MusicDetail() {
                   </button>
                 )}
               </div>
+
+              {/* Album Info */}
+              {item.AlbumArtist && (
+                <div className="flex space-x-4 text-lg mb-0 mt-4">
+                  <span className="text-zinc-400">Artist: </span>
+                  <span>{item.AlbumArtist}</span>
+                </div>
+              )}
+              {item.Name && (
+                <div className="flex space-x-4 text-lg mb-0">
+                  <span className="text-zinc-400">Album: </span>
+                  <span>{item.Name}</span>
+                </div>
+              )}
+              {item.ProductionYear && (
+                <div className="flex space-x-4 text-lg">
+                  <span className="text-zinc-400">Released: </span>
+                  <span>{item.ProductionYear}</span>
+                </div>
+              )}
             </div>
 
             {/* Right Column - Details */}
             <div className="flex-1 min-w-0 space-y-6">
-              {/* <ItemHeader item={item} itemId={itemId!} /> */}
-
               <QualityBadges item={item} />
 
-              <MetadataTable item={item} />
+              {/* <MetadataTable item={item} /> */}
 
               <SynopsisSection item={item} />
 
-              {/* Album Info */}
-              <div className="space-y-2">
-                {item.AlbumArtist && (
-                  <div>
-                    <span className="text-zinc-400">Artist: </span>
-                    <span>{item.AlbumArtist}</span>
-                  </div>
-                )}
-                {item.ProductionYear && (
-                  <div>
-                    <span className="text-zinc-400">Released: </span>
-                    <span>{item.ProductionYear}</span>
-                  </div>
-                )}
-              </div>
-
               {/* Tracks */}
               <div className="mt-6">
-                <h3 className="text-2xl font-semibold mb-4">Tracks</h3>
                 {loadingTracks ? (
                   <div className="animate-pulse space-y-4">
                     <div className="h-10 w-full bg-base-300 rounded" />

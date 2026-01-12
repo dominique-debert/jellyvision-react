@@ -1,4 +1,5 @@
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { BaseItemKind } from "@jellyfin/sdk/lib/generated-client/models";
 import { formatRuntime } from "./utils";
 
 export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
@@ -19,13 +20,18 @@ export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
         {item.RunTimeTicks ? formatRuntime(item.RunTimeTicks) : "-"}
       </div>
     </div>
-    <div className="flex flex-col items-start">
-      <div className="text-white/70 font-medium mb-1">Certification</div>
-      <div className="text-white">{item.OfficialRating || "-"}</div>
-    </div>
-    <div className="flex flex-col items-start">
-      <div className="text-white/70 font-medium mb-1">Genre</div>
-      <div className="text-white">{item.Genres?.join(", ") || "-"}</div>
-    </div>
+
+    {item.Type === BaseItemKind.Audio ? (
+      <>
+        <div className="flex flex-col items-start">
+          <div className="text-white/70 font-medium mb-1">Certification</div>
+          <div className="text-white">{item.OfficialRating || "-"}</div>
+        </div>
+        <div className="flex flex-col items-start">
+          <div className="text-white/70 font-medium mb-1">Genre</div>
+          <div className="text-white">{item.Genres?.join(", ") || "-"}</div>
+        </div>
+      </>
+    ) : null}
   </div>
 );
