@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
 import { getItem, getImageUrl } from "@/lib/jellyfin/client";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { ArrowLeft, Play } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
@@ -65,7 +65,7 @@ export default function MovieDetail() {
   if (loading) return <LoadingState />;
   if (!item) return <NotFoundState />;
 
-  const primaryImageUrl = getPrimaryImageUrl(serverUrl, item);
+  const primaryImageUrl = getPrimaryImageUrl(serverUrl, item, "3/2");
   const backdropUrl =
     item.Id && serverUrl
       ? getImageUrl(serverUrl, item.Id, "Backdrop", 1280, 720, 90)
@@ -76,14 +76,13 @@ export default function MovieDetail() {
       <div className="min-h-screen w-full">
         <div className="mx-auto pr-10 pl-15 py-2">
           <div className="flex">
-            <Button
-              variant="ghost"
+            <button
               onClick={() => navigate(-1)}
-              className="mb-6"
+              className="btn btn-primary mb-6"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
-            </Button>
+            </button>
           </div>
 
           <div className="flex gap-8">

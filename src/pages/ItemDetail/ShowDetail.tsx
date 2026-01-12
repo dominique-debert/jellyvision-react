@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
+
 import {
   getItem,
   getSeasons,
   getEpisodes,
   getImageUrl,
 } from "@/lib/jellyfin/client";
+
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import {
   Play,
   Clock,
@@ -20,7 +22,9 @@ import {
   ChevronRight,
   CircleCheck,
 } from "lucide-react";
+
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+
 import {
   LoadingState,
   NotFoundState,
@@ -143,13 +147,10 @@ export default function ShowDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverUrl, userId, accessToken, itemId, item]);
 
-  // Removed redundant useEffect that set state synchronously after render.
-  // The initial selectedSeasonId is already set in the fetchSeasons effect after fetching seasons.
-
   if (loading) return <LoadingState />;
   if (!item) return <NotFoundState />;
 
-  const primaryImageUrl = getPrimaryImageUrl(serverUrl, item);
+  const primaryImageUrl = getPrimaryImageUrl(serverUrl, item, "3/2");
   const backdropUrl =
     item.Id && serverUrl
       ? getImageUrl(serverUrl, item.Id, "Backdrop", 1280, 720, 90)
@@ -175,24 +176,22 @@ export default function ShowDetail() {
     <Layout backdropUrl={backdropUrl}>
       <div className="min-h-screen pb-40">
         <div className="mx-auto pr-10 pl-15 py-2">
-          <div className="flex">
-            <Button
-              variant="ghost"
+          <div className="flex sticky top-2 left-2">
+            <button
               onClick={() => navigate(-1)}
-              className="mb-6"
+              className="btn btn-primary mb-6"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
-            </Button>
+            </button>
           </div>
           <div className="flex gap-8">
-            {/* Left Column - Poster */}
             <div className="w-80 shrink-0">
               {primaryImageUrl ? (
                 <img
                   src={primaryImageUrl}
                   alt={item.Name || "Show"}
-                  className="w-full rounded-lg shadow-lg"
+                  className="w-full rounded-lg shadow-lg sticky top-2 left-2"
                 />
               ) : (
                 <div className="w-full aspect-2/3 shadow-lg rounded-lg flex items-center justify-center">
@@ -200,6 +199,7 @@ export default function ShowDetail() {
                 </div>
               )}
             </div>
+            {/* Left Column - Poster */}
 
             {/* Right Column - Details */}
             <div className="flex-1 min-w-0 space-y-6">
@@ -280,22 +280,18 @@ export default function ShowDetail() {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between w-full mb-2">
                         <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
+                          <button
                             onClick={() => scrollSeasons(-1)}
-                            className="size-8"
+                            className="btn btn-ghost size-8"
                           >
                             <ChevronLeft className="size-5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
+                          </button>
+                          <button
                             onClick={() => scrollSeasons(1)}
-                            className="size-8"
+                            className="btn btn-ghost size-8"
                           >
                             <ChevronRight className="size-5" />
-                          </Button>
+                          </button>
                         </div>
                       </div>
                       <div
@@ -307,9 +303,8 @@ export default function ShowDetail() {
                         }}
                       >
                         {seasons.map((season) => (
-                          <Button
+                          <button
                             key={season.Id}
-                            variant="ghost"
                             className={`relative flex h-auto min-h-0 flex-col items-start p-0 text-left rounded-lg overflow-hidden border shrink-0 ${
                               selectedSeasonId === season.Id
                                 ? "border-primary/40"
@@ -354,7 +349,7 @@ export default function ShowDetail() {
                                 {season.Name}
                               </div>
                             </div>
-                          </Button>
+                          </button>
                         ))}
                       </div>
 
@@ -446,7 +441,7 @@ export default function ShowDetail() {
                                       </div>
                                     </div>
                                     {episode.Overview && (
-                                      <p className="text-sm text-zinc-400 text-left line-clamp-2 mt-2">
+                                      <p className="text-zinc-400 text-justify line-clamp-2 mt-2 mr-4">
                                         {episode.Overview}
                                       </p>
                                     )}

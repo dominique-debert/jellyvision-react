@@ -7,14 +7,7 @@ import { FloatingAudioBar } from "@/components/FloatingAudioBar";
 import EqualizerBars from "@/components/EqualizerBars";
 import { Disc, Play, ArrowLeft } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-import {
-  LoadingState,
-  NotFoundState,
-  getPrimaryImageUrl,
-  MetadataTable,
-  QualityBadges,
-  SynopsisSection,
-} from "./shared";
+import { LoadingState, NotFoundState, getPrimaryImageUrl } from "./shared";
 
 function formatTrackTime(ticks?: number | null) {
   if (!ticks) return "";
