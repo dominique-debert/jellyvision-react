@@ -36,7 +36,7 @@ export const formatRuntime = (ticks?: number) => {
 export const getPrimaryImageUrl = (
   serverUrl: string | null,
   item: BaseItemDto | null,
-  aspectRatio: "square" | "2/3" | "3/2"
+  aspectRatio: "square" | "2/3" | "3/2",
 ) => {
   if (!serverUrl || !item?.Id) return undefined;
 
@@ -74,7 +74,7 @@ export const getLogoUrl = (
   serverUrl: string | null,
   item: BaseItemDto | null,
   maxWidth?: number,
-  maxHeight?: number
+  maxHeight?: number,
 ) => {
   if (!serverUrl || !item?.Id) return undefined;
   if (item.ImageTags?.Logo) {

@@ -2,28 +2,30 @@ import { ChevronLeft, ChevronRight, CirclePause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItemCard } from "@/components/ItemCard";
 import { useNavigate } from "react-router-dom";
-import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useResumeItemsQuery } from "@/lib/jellyfin/client";
 
 interface ContinueWatchingSectionProps {
-  items: BaseItemDto[];
-  serverUrl: string;
-  loading: boolean;
   scrollRef: React.RefObject<HTMLDivElement>;
   onScroll: (
     ref: React.RefObject<HTMLDivElement | null>,
-    direction: "left" | "right"
+    direction: "left" | "right",
   ) => void;
 }
 
 export function ContinueWatchingSection({
-  items,
-  serverUrl,
-  loading,
   scrollRef,
   onScroll,
 }: ContinueWatchingSectionProps) {
   const navigate = useNavigate();
-  if (loading || items.length === 0) return null;
+  const { serverUrl, userId, accessToken } = useAuthStore();
+  const { data: items = [], isLoading } = useResumeItemsQuery(
+    serverUrl!,
+    userId!,
+    accessToken!,
+  );
+
+  if (isLoading || items.length === 0) return null;
   return (
     <section className="mr-10">
       <div className="flex items-center justify-between ml-16">
@@ -59,7 +61,7 @@ export function ContinueWatchingSection({
           <div key={item.Id} className="flex-none w-48">
             <ItemCard
               item={item}
-              serverUrl={serverUrl}
+              serverUrl={serverUrl!}
               onPlayClick={() => navigate(`/play/${item.Id}?from=home`)}
             />
           </div>

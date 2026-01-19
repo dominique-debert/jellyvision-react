@@ -3,10 +3,10 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export const QualityBadges = ({ item }: { item: BaseItemDto }) => {
   const has4K = item.MediaStreams?.some(
-    (s) => s.Type === "Video" && s.Width && s.Width >= 3800
+    (s) => s.Type === "Video" && s.Width && s.Width >= 3800,
   );
   const hasHDR = item.MediaStreams?.some(
-    (s) => s.Type === "Video" && s.VideoRangeType && s.VideoRangeType !== "SDR"
+    (s) => s.Type === "Video" && s.VideoRangeType && s.VideoRangeType !== "SDR",
   );
 
   return (

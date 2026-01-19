@@ -2,28 +2,30 @@ import { Clapperboard, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ItemCard } from "@/components/ItemCard";
-import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRecentlyAddedMoviesQuery } from "@/lib/jellyfin/extraMediaFetchers";
 
 interface RecentlyAddedMoviesSectionProps {
-  items: BaseItemDto[];
-  serverUrl: string;
-  loading: boolean;
   scrollRef: React.RefObject<HTMLDivElement>;
   onScroll: (
     ref: React.RefObject<HTMLDivElement | null>,
-    direction: "left" | "right"
+    direction: "left" | "right",
   ) => void;
 }
 
 export function RecentlyAddedMoviesSection({
-  items,
-  serverUrl,
-  loading,
   scrollRef,
   onScroll,
 }: RecentlyAddedMoviesSectionProps) {
   const navigate = useNavigate();
-  if (loading || items.length === 0) return null;
+  const { serverUrl, userId, accessToken } = useAuthStore();
+  const { data: items = [], isLoading } = useRecentlyAddedMoviesQuery(
+    serverUrl!,
+    userId!,
+    accessToken!,
+  );
+
+  if (isLoading || items.length === 0) return null;
   return (
     <section className="mr-10">
       <div className="flex items-center justify-between ml-16">
@@ -61,7 +63,7 @@ export function RecentlyAddedMoviesSection({
       >
         {items.map((item) => (
           <div key={item.Id} className="flex-none w-48">
-            <ItemCard item={item} serverUrl={serverUrl} />
+            <ItemCard item={item} serverUrl={serverUrl!} />
           </div>
         ))}
       </div>

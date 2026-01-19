@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQuery } from "@tanstack/react-query";
 import {
-  getUserViews,
-  getResumeItems,
-  getNextUpItems,
-  getLatestMedia,
-} from "@/lib/jellyfin/client";
+  fetchNextUp,
+  fetchRecentlyAddedMovies,
+  fetchRecentlyAddedShows,
+  fetchRecentlyAddedMusic,
+} from "@/lib/jellyfin/extraMediaFetchers";
+import { getUserViews, getResumeItems } from "@/lib/jellyfin/client";
 import { MyLibrarySection } from "@/components/MyLibrarySection";
 import { ContinueWatchingSection } from "@/components/ContinueWatchingSection";
 import { NextUpSection } from "@/components/NextUpSection";
@@ -14,84 +16,63 @@ import { RecentlyAddedShowsSection } from "@/components/RecentlyAddedShowsSectio
 import { RecentlyAddedMusicSection } from "@/components/RecentlyAddedMusicSection";
 
 export default function Home() {
-  type Library = {
-    Id?: string;
-    Name?: string | null;
-    CollectionType?: string | null;
-    ImageTags?: { [key: string]: string } | null;
-  };
-  type BaseItemDto = { Id?: string };
   const { serverUrl, userId, accessToken } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [libraries, setLibraries] = useState<Library[]>([]);
-  const [resumeItems, setResumeItems] = useState<BaseItemDto[]>([]);
-  const [nextUpItems, setNextUpItems] = useState<BaseItemDto[]>([]);
-  const [recentMovies, setRecentMovies] = useState<BaseItemDto[]>([]);
-  const [recentShows, setRecentShows] = useState<BaseItemDto[]>([]);
-  const [recentMusic, setRecentMusic] = useState<BaseItemDto[]>([]);
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!serverUrl || !userId || !accessToken) return;
-      setLoading(true);
-      // Fetch libraries
-      const libs = await getUserViews(serverUrl, userId, accessToken);
-      if (libs.success) setLibraries(libs.data);
+  // Libraries
+  const { data: libraries = [], isLoading: librariesLoading } = useQuery({
+    queryKey: ["libraries", serverUrl, userId, accessToken],
+    queryFn: () =>
+      getUserViews(serverUrl!, userId!, accessToken!).then((res) =>
+        res.success ? res.data : [],
+      ),
+    enabled: !!serverUrl && !!userId && !!accessToken,
+  });
 
-      // Fetch resume/continue watching
-      const resume = await getResumeItems(serverUrl, userId, accessToken, 12);
-      if (resume.success) setResumeItems(resume.data);
+  // Resume/Continue Watching
+  const { data: resumeItems = [], isLoading: resumeLoading } = useQuery({
+    queryKey: ["resume", serverUrl, userId, accessToken],
+    queryFn: () =>
+      getResumeItems(serverUrl!, userId!, accessToken!, 12).then((res) =>
+        res.success ? res.data : [],
+      ),
+    enabled: !!serverUrl && !!userId && !!accessToken,
+  });
 
-      // Fetch next up
-      const nextUp = await getNextUpItems(serverUrl, userId, accessToken, 12);
-      if (nextUp.success) setNextUpItems(nextUp.data);
+  // Next Up
+  const { data: nextUpItems = [], isLoading: nextUpLoading } = useQuery({
+    queryKey: ["nextUp", serverUrl, userId, accessToken],
+    queryFn: () => fetchNextUp(serverUrl!, userId!, accessToken!),
+    enabled: !!serverUrl && !!userId && !!accessToken,
+  });
 
-      // Find library IDs for movies, shows, music
-      const movieLib = libs.success
-        ? libs.data.find((l: Library) => l.CollectionType === "movies")
-        : null;
-      const showLib = libs.success
-        ? libs.data.find((l: Library) => l.CollectionType === "tvshows")
-        : null;
-      const musicLib = libs.success
-        ? libs.data.find((l: Library) => l.CollectionType === "music")
-        : null;
+  // Recently Added Movies
+  const { data: recentMovies = [], isLoading: moviesLoading } = useQuery({
+    queryKey: ["recentMovies", serverUrl, userId, accessToken],
+    queryFn: () => fetchRecentlyAddedMovies(serverUrl!, userId!, accessToken!),
+    enabled: !!serverUrl && !!userId && !!accessToken,
+  });
 
-      // Fetch recently added for each
-      if (movieLib?.Id) {
-        const movies = await getLatestMedia(
-          serverUrl,
-          userId,
-          accessToken,
-          movieLib.Id,
-          12,
-        );
-        if (movies.success) setRecentMovies(movies.data);
-      }
-      if (showLib?.Id) {
-        const shows = await getLatestMedia(
-          serverUrl,
-          userId,
-          accessToken,
-          showLib.Id,
-          12,
-        );
-        if (shows.success) setRecentShows(shows.data);
-      }
-      if (musicLib?.Id) {
-        const music = await getLatestMedia(
-          serverUrl,
-          userId,
-          accessToken,
-          musicLib.Id,
-          12,
-        );
-        if (music.success) setRecentMusic(music.data);
-      }
-      setLoading(false);
-    }
-    fetchData();
-  }, [serverUrl, userId, accessToken]);
+  // Recently Added Shows
+  const { data: recentShows = [], isLoading: showsLoading } = useQuery({
+    queryKey: ["recentShows", serverUrl, userId, accessToken],
+    queryFn: () => fetchRecentlyAddedShows(serverUrl!, userId!, accessToken!),
+    enabled: !!serverUrl && !!userId && !!accessToken,
+  });
+
+  // Recently Added Music
+  const { data: recentMusic = [], isLoading: musicLoading } = useQuery({
+    queryKey: ["recentMusic", serverUrl, userId, accessToken],
+    queryFn: () => fetchRecentlyAddedMusic(serverUrl!, userId!, accessToken!),
+    enabled: !!serverUrl && !!userId && !!accessToken,
+  });
+
+  const loading =
+    librariesLoading ||
+    resumeLoading ||
+    nextUpLoading ||
+    moviesLoading ||
+    showsLoading ||
+    musicLoading;
 
   const libraryScrollRef = useRef<HTMLDivElement | null>(null);
   const resumeScrollRef = useRef<HTMLDivElement | null>(null);

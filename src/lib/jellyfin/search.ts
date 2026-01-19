@@ -1,11 +1,12 @@
-import { createJellyfinClient, getProxiedURL } from "./client";
+import { createJellyfinClient, getProxiedURL } from "@/lib/jellyfin/client";
+import { useQuery } from "@tanstack/react-query";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export const searchItems = async (
   baseURL: string,
   userId: string,
   accessToken: string,
-  searchTerm: string
+  searchTerm: string,
 ): Promise<{
   success: boolean;
   data: {
@@ -25,12 +26,7 @@ export const searchItems = async (
       searchTerm,
       recursive: true,
       includeItemTypes: ["Movie", "Series", "Audio", "MusicAlbum"],
-      fields: [
-        "PrimaryImageAspectRatio",
-        "ProductionYear",
-        "ParentId",
-        "UserData",
-      ],
+      fields: ["PrimaryImageAspectRatio", "ParentId"],
       sortBy: ["SortName"],
       sortOrder: ["Ascending"],
       limit: 100,
@@ -42,7 +38,7 @@ export const searchItems = async (
     const movies = allItems.filter((item) => item.Type === "Movie");
     const shows = allItems.filter((item) => item.Type === "Series");
     const music = allItems.filter(
-      (item) => item.Type === "Audio" || item.Type === "MusicAlbum"
+      (item) => item.Type === "Audio" || item.Type === "MusicAlbum",
     );
 
     console.log("Search results:", {
@@ -74,3 +70,23 @@ export const searchItems = async (
     };
   }
 };
+
+// TanStack Query hook for searching items
+export function useSearchItemsQuery(
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+  searchTerm: string,
+) {
+  return useQuery({
+    queryKey: ["searchItems", baseURL, userId, accessToken, searchTerm],
+    queryFn: () =>
+      searchItems(baseURL, userId, accessToken, searchTerm).then((res) => {
+        if (!res.success)
+          throw new Error(res.error || "Failed to search items");
+        return res.data;
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken && !!searchTerm,
+    staleTime: 1000 * 60 * 5, // cache for 5 minutes
+  });
+}

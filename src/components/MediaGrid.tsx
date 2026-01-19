@@ -51,10 +51,10 @@ export function MediaGrid({ items, loading, libraryType }: MediaGridProps) {
                   {item.Type === "Movie"
                     ? "🎬"
                     : item.Type === "Series"
-                    ? "📺"
-                    : item.Type === "Audio"
-                    ? "🎵"
-                    : "📁"}
+                      ? "📺"
+                      : item.Type === "Audio"
+                        ? "🎵"
+                        : "📁"}
                 </div>
               )}
               {item.UserData?.Played && libraryType !== "music" && (

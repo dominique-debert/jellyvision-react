@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQuery } from "@tanstack/react-query";
 import { getItem } from "@/lib/jellyfin/client";
 import { LoadingState, NotFoundState } from "@/pages/ItemDetail/shared";
 import MovieDetail from "@/pages/ItemDetail/MovieDetail";
@@ -11,35 +11,26 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 export default function ItemDetail() {
   const { itemId } = useParams<{ itemId: string }>();
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [item, setItem] = useState<BaseItemDto | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    const fetchItem = async () => {
+  const {
+    data: item,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["itemDetail", serverUrl, userId, accessToken, itemId],
+    queryFn: async () => {
       if (!serverUrl || !userId || !accessToken || !itemId) {
-        setLoading(false);
-        setError(true);
-        return;
+        throw new Error("Missing credentials or itemId");
       }
-
-      setLoading(true);
       const result = await getItem(serverUrl, userId, itemId, accessToken);
+      if (result.success && result.data) return result.data;
+      throw new Error("Not found");
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken && !!itemId,
+  });
 
-      if (result.success && result.data) {
-        setItem(result.data);
-      } else {
-        setError(true);
-      }
-
-      setLoading(false);
-    };
-
-    fetchItem();
-  }, [serverUrl, userId, accessToken, itemId]);
-
-  if (loading) return <LoadingState />;
-  if (error || !item) return <NotFoundState />;
+  if (isLoading) return <LoadingState />;
+  if (isError || !item) return <NotFoundState />;
 
   // Route to appropriate detail component based on item type
   if (item.Type === "MusicAlbum") {

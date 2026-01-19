@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
-import { getUserViews } from "@/lib/jellyfin/client";
+import { useUserViewsQuery } from "@/lib/jellyfin/client";
 import { Home, Film, Tv, Music } from "lucide-react";
 import visionLogo from "@/assets/vision.png";
 import visionIcon from "@/assets/vision-icon.png";
 
-interface Library {
-  Id?: string;
-  Name?: string | null;
-  CollectionType?: string | null;
-}
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -21,20 +15,13 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [libraries, setLibraries] = useState<Library[]>([]);
 
-  useEffect(() => {
-    const fetchLibraries = async () => {
-      if (!serverUrl || !userId || !accessToken) return;
-
-      const result = await getUserViews(serverUrl, userId, accessToken);
-      if (result.success) {
-        setLibraries(result.data as Library[]);
-      }
-    };
-
-    fetchLibraries();
-  }, [serverUrl, userId, accessToken]);
+  // Use TanStack Query for libraries
+  const { data: libraries = [] } = useUserViewsQuery(
+    serverUrl!,
+    userId!,
+    accessToken!,
+  );
 
   const getLibraryByType = (type: string) => {
     return libraries.find((lib) => lib.CollectionType === type);
@@ -52,7 +39,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       icon: Film,
       path: `/library/${getLibraryByType("movies")?.Id}`,
       isActive: location.pathname.includes(
-        `/library/${getLibraryByType("movies")?.Id}`
+        `/library/${getLibraryByType("movies")?.Id}`,
       ),
       disabled: !getLibraryByType("movies"),
     },
@@ -61,7 +48,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       icon: Tv,
       path: `/library/${getLibraryByType("tvshows")?.Id}`,
       isActive: location.pathname.includes(
-        `/library/${getLibraryByType("tvshows")?.Id}`
+        `/library/${getLibraryByType("tvshows")?.Id}`,
       ),
       disabled: !getLibraryByType("tvshows"),
     },
@@ -70,7 +57,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       icon: Music,
       path: `/library/${getLibraryByType("music")?.Id}`,
       isActive: location.pathname.includes(
-        `/library/${getLibraryByType("music")?.Id}`
+        `/library/${getLibraryByType("music")?.Id}`,
       ),
       disabled: !getLibraryByType("music"),
     },
@@ -132,8 +119,8 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                 item.isActive
                   ? "bg-primary/2 backdrop-blur-md border border-primary/10 text-primary font-medium"
                   : item.disabled
-                  ? "text-base-content/40 cursor-not-allowed"
-                  : "text-base-content hover:backdrop-blur-md hover:bg-primary/2 hover:text-primary"
+                    ? "text-base-content/40 cursor-not-allowed"
+                    : "text-base-content hover:backdrop-blur-md hover:bg-primary/2 hover:text-primary"
               } ${isCollapsed ? "justify-center" : ""}`}
               title={isCollapsed ? item.label : undefined}
             >

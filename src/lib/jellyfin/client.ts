@@ -12,6 +12,7 @@ import {
   ItemSortBy,
   SortOrder,
 } from "@jellyfin/sdk/lib/generated-client/models";
+import { useQuery } from "@tanstack/react-query";
 
 // Generate a simple UUID v4
 const generateUUID = () => {
@@ -39,7 +40,7 @@ export const getAllAlbumsInLibrary = async (
   startIndex: number = 0,
   limit: number = 60,
   sortBy: string = "SortName",
-  sortOrder: string = "Ascending"
+  sortOrder: string = "Ascending",
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -85,7 +86,7 @@ export const getAlbumTracks = async (
   baseURL: string,
   userId: string,
   albumId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -128,7 +129,7 @@ export const getResumeItems = async (
   baseURL: string,
   userId: string,
   accessToken: string,
-  limit: number = 12
+  limit: number = 12,
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -170,7 +171,7 @@ export const getLatestMedia = async (
   userId: string,
   accessToken: string,
   parentId?: string,
-  limit: number = 16
+  limit: number = 16,
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -211,7 +212,7 @@ export const getNextUpItems = async (
   baseURL: string,
   userId: string,
   accessToken: string,
-  limit: number = 12
+  limit: number = 12,
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -301,7 +302,7 @@ export const createJellyfinClient = ({
 export const authenticateByName = async (
   baseURL: string,
   username: string,
-  password: string
+  password: string,
 ) => {
   const proxiedURL = getProxiedURL(baseURL);
   const client = createJellyfinClient({ baseURL: proxiedURL });
@@ -336,7 +337,7 @@ export const authenticateByName = async (
 export const getUserById = async (
   baseURL: string,
   userId: string,
-  accessToken: string
+  accessToken: string,
 ) => {
   const proxiedURL = getProxiedURL(baseURL);
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
@@ -365,7 +366,7 @@ export const getUserById = async (
 export const getUserImageUrl = (
   baseURL: string,
   user: { Id?: string; PrimaryImageTag?: string | null },
-  accessToken?: string
+  accessToken?: string,
 ) => {
   const proxiedURL = getProxiedURL(baseURL);
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
@@ -380,7 +381,7 @@ export const getImageUrl = (
   imageType: string = "Primary",
   maxWidth?: number,
   maxHeight?: number,
-  quality: number = 90
+  quality: number = 90,
 ) => {
   const proxiedURL = getProxiedURL(baseURL);
   const params = new URLSearchParams();
@@ -396,7 +397,7 @@ export const getImageUrl = (
 export const getUserViews = async (
   baseURL: string,
   userId: string,
-  accessToken: string
+  accessToken: string,
 ) => {
   const proxiedURL = getProxiedURL(baseURL);
   const client = createJellyfinClient({ baseURL: proxiedURL, accessToken });
@@ -432,7 +433,7 @@ export const getLibraryItems = async (
   limit: number = 50,
   includeItemTypes?: string[],
   sortBy: string = "SortName",
-  sortOrder: string = "Ascending"
+  sortOrder: string = "Ascending",
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -483,7 +484,7 @@ export const getItem = async (
   baseURL: string,
   userId: string,
   itemId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<{
   success: boolean;
   data: BaseItemDto | null;
@@ -522,7 +523,7 @@ export const getSeasons = async (
   baseURL: string,
   userId: string,
   seriesId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -560,7 +561,7 @@ export const getEpisodes = async (
   baseURL: string,
   userId: string,
   seasonId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<{
   success: boolean;
   data: BaseItemDto[];
@@ -602,7 +603,7 @@ export const reportPlaybackProgress = async (
   accessToken: string,
   positionTicks: number,
   isPaused: boolean = false,
-  playSessionId?: string
+  playSessionId?: string,
 ): Promise<{
   success: boolean;
   error?: string;
@@ -625,7 +626,7 @@ export const reportPlaybackProgress = async (
           IsPaused: isPaused,
           PlaySessionId: playSessionId,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -650,7 +651,7 @@ export const markAsPlayed = async (
   baseURL: string,
   userId: string,
   itemId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<{
   success: boolean;
   error?: string;
@@ -684,7 +685,7 @@ export const markAsUnplayed = async (
   baseURL: string,
   userId: string,
   itemId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<{
   success: boolean;
   error?: string;
@@ -712,3 +713,176 @@ export const markAsUnplayed = async (
     };
   }
 };
+
+// --- TanStack Query hooks for common fetchers ---
+
+export function useResumeItemsQuery(
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+  limit: number = 12,
+) {
+  return useQuery({
+    queryKey: ["resumeItems", baseURL, userId, accessToken, limit],
+    queryFn: () =>
+      getResumeItems(baseURL, userId, accessToken, limit).then((res) => {
+        if (!res.success)
+          throw new Error(res.error || "Failed to fetch resume items");
+        return res.data;
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken,
+  });
+}
+
+export function useLatestMediaQuery(
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+  parentId?: string,
+  limit: number = 16,
+) {
+  return useQuery({
+    queryKey: ["latestMedia", baseURL, userId, accessToken, parentId, limit],
+    queryFn: () =>
+      getLatestMedia(baseURL, userId, accessToken, parentId, limit).then(
+        (res) => {
+          if (!res.success)
+            throw new Error(res.error || "Failed to fetch latest media");
+          return res.data;
+        },
+      ),
+    enabled: !!baseURL && !!userId && !!accessToken,
+  });
+}
+
+export function useNextUpItemsQuery(
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+  limit: number = 12,
+) {
+  return useQuery({
+    queryKey: ["nextUpItems", baseURL, userId, accessToken, limit],
+    queryFn: () =>
+      getNextUpItems(baseURL, userId, accessToken, limit).then((res) => {
+        if (!res.success)
+          throw new Error(res.error || "Failed to fetch next up items");
+        return res.data;
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken,
+  });
+}
+
+export function useUserViewsQuery(
+  baseURL: string,
+  userId: string,
+  accessToken: string,
+) {
+  return useQuery({
+    queryKey: ["userViews", baseURL, userId, accessToken],
+    queryFn: () =>
+      getUserViews(baseURL, userId, accessToken).then((res) => {
+        if (!res.success)
+          throw new Error(res.error || "Failed to fetch user views");
+        return res.data;
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken,
+  });
+}
+
+export function useLibraryItemsQuery(
+  baseURL: string,
+  userId: string,
+  parentId: string,
+  accessToken: string,
+  startIndex: number = 0,
+  limit: number = 50,
+  includeItemTypes?: string[],
+  sortBy: string = "SortName",
+  sortOrder: string = "Ascending",
+) {
+  return useQuery({
+    queryKey: [
+      "libraryItems",
+      baseURL,
+      userId,
+      parentId,
+      accessToken,
+      startIndex,
+      limit,
+      includeItemTypes,
+      sortBy,
+      sortOrder,
+    ],
+    queryFn: () =>
+      getLibraryItems(
+        baseURL,
+        userId,
+        parentId,
+        accessToken,
+        startIndex,
+        limit,
+        includeItemTypes,
+        sortBy,
+        sortOrder,
+      ).then((res) => {
+        if (!res.success)
+          throw new Error(res.error || "Failed to fetch library items");
+        return { items: res.data, totalCount: res.totalCount };
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken && !!parentId,
+  });
+}
+
+export function useItemQuery(
+  baseURL: string,
+  userId: string,
+  itemId: string,
+  accessToken: string,
+) {
+  return useQuery({
+    queryKey: ["item", baseURL, userId, itemId, accessToken],
+    queryFn: () =>
+      getItem(baseURL, userId, itemId, accessToken).then((res) => {
+        if (!res.success) throw new Error(res.error || "Failed to fetch item");
+        return res.data;
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken && !!itemId,
+  });
+}
+
+export function useSeasonsQuery(
+  baseURL: string,
+  userId: string,
+  seriesId: string,
+  accessToken: string,
+) {
+  return useQuery({
+    queryKey: ["seasons", baseURL, userId, seriesId, accessToken],
+    queryFn: () =>
+      getSeasons(baseURL, userId, seriesId, accessToken).then((res) => {
+        if (!res.success)
+          throw new Error(res.error || "Failed to fetch seasons");
+        return res.data;
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken && !!seriesId,
+  });
+}
+
+export function useEpisodesQuery(
+  baseURL: string,
+  userId: string,
+  seasonId: string,
+  accessToken: string,
+) {
+  return useQuery({
+    queryKey: ["episodes", baseURL, userId, seasonId, accessToken],
+    queryFn: () =>
+      getEpisodes(baseURL, userId, seasonId, accessToken).then((res) => {
+        if (!res.success)
+          throw new Error(res.error || "Failed to fetch episodes");
+        return res.data;
+      }),
+    enabled: !!baseURL && !!userId && !!accessToken && !!seasonId,
+  });
+}

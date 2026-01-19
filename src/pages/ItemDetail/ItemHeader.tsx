@@ -5,6 +5,7 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { markAsPlayed, markAsUnplayed } from "@/lib/jellyfin/client";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getLogoUrl } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
 
 export const ItemHeader = ({
   item,
@@ -17,41 +18,40 @@ export const ItemHeader = ({
 }) => {
   const { serverUrl, userId, accessToken } = useAuthStore();
   const [isWatched, setIsWatched] = useState(item.UserData?.Played || false);
-  const [isTogglingWatched, setIsTogglingWatched] = useState(false);
 
-  const handleWatchedToggle = async () => {
-    if (!serverUrl || !userId || !accessToken || isTogglingWatched) return;
-
-    setIsTogglingWatched(true);
-    try {
+  const { mutate: toggleWatched, isPending: isTogglingWatched } = useMutation({
+    mutationFn: async () => {
+      if (!serverUrl || !userId || !accessToken) return;
       if (isWatched) {
         const result = await markAsUnplayed(
           serverUrl,
           userId,
           itemId,
-          accessToken
+          accessToken,
         );
-        if (result.success) {
-          setIsWatched(false);
-          if (onWatchedToggle) onWatchedToggle();
-        }
+        if (result.success) setIsWatched(false);
+        return result;
       } else {
         const result = await markAsPlayed(
           serverUrl,
           userId,
           itemId,
-          accessToken
+          accessToken,
         );
-        if (result.success) {
-          setIsWatched(true);
-          if (onWatchedToggle) onWatchedToggle();
-        }
+        if (result.success) setIsWatched(true);
+        return result;
       }
-    } catch (error) {
+    },
+    onSuccess: () => {
+      if (onWatchedToggle) onWatchedToggle();
+    },
+    onError: (error) => {
       console.error("Failed to toggle watched status:", error);
-    } finally {
-      setIsTogglingWatched(false);
-    }
+    },
+  });
+
+  const handleWatchedToggle = () => {
+    toggleWatched();
   };
 
   const logoUrl = getLogoUrl(serverUrl, item, 400);

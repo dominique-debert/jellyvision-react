@@ -1,29 +1,25 @@
 import { MediaGrid } from "@/components/MediaGrid";
 import { MediaSortDropdown } from "@/components/MediaSortDropdown";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { fetchRecentlyAddedMovies } from "@/lib/jellyfin/extraMediaFetchers";
+import { useRecentlyAddedMoviesQuery } from "@/lib/jellyfin/extraMediaFetchers";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function RecentlyAddedMoviesPage() {
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [items, setItems] = useState<BaseItemDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
   const [sortBy, setSortBy] = useState("DateAdded");
   const [sortOrder, setSortOrder] = useState("Ascending");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!serverUrl || !userId || !accessToken) return;
-    fetchRecentlyAddedMovies(serverUrl, userId, accessToken).then((result) => {
-      setLoading(true);
-      setItems(result.success ? result.data : []);
-      setLoading(false);
-    });
-  }, [serverUrl, userId, accessToken]);
+  // Use TanStack Query to fetch recently added movies
+  const { data: items = [], isLoading: loading } = useRecentlyAddedMoviesQuery(
+    serverUrl!,
+    userId!,
+    accessToken!,
+  );
 
   const sortedItems = useMemo(() => {
     if (!items) return [];

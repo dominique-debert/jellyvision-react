@@ -2,6 +2,7 @@ import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authenticateByName } from "@/lib/jellyfin/client";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,17 +20,12 @@ export function LoginForm() {
   const [serverUrl, setServerUrl] = useState("http://192.168.1.100:8096");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-
-    try {
+  const { mutate: login, isPending: isLoading } = useMutation({
+    mutationFn: async () => {
+      setError(null);
       const result = await authenticateByName(serverUrl, username, password);
-
       if (result.success && result.data) {
         const { AccessToken, User } = result.data;
         if (AccessToken && User?.Id && User?.Name) {
@@ -37,17 +33,20 @@ export function LoginForm() {
           setAuth(actualServerUrl, AccessToken, User.Id, User.Name);
           navigate("/");
         } else {
-          setError("Invalid server response");
+          throw new Error("Invalid server response");
         }
       } else {
-        setError(result.error || "Login failed");
+        throw new Error(result.error || "Login failed");
       }
-    } catch (err) {
-      console.error("Login error:", err);
+    },
+    onError: (err: unknown) => {
       setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    login();
   };
 
   return (

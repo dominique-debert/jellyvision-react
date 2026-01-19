@@ -12,6 +12,7 @@ interface PaginationProps {
   loading: boolean;
   onPageChange: (page: number) => void;
 }
+
 export function Pagination({
   totalPages,
   currentPage,
@@ -89,7 +90,7 @@ export function Pagination({
           >
             {page}
           </Button>
-        )
+        ),
       )}
 
       <Button

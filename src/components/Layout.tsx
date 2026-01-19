@@ -3,6 +3,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Search, User, LogOut, Settings } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQuery } from "@tanstack/react-query";
 import { getUserById, getUserImageUrl } from "@/lib/jellyfin/client";
 
 interface LayoutProps {
@@ -15,31 +16,33 @@ export function Layout({ backdropUrl }: LayoutProps) {
     return saved ? JSON.parse(saved) : false;
   });
   const [searchInput, setSearchInput] = useState("");
-  const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { username, logout, serverUrl, userId, accessToken } = useAuthStore();
+
+  // Fetch user image using TanStack Query
+  const { data: userImageUrl } = useQuery({
+    queryKey: ["userImageUrl", serverUrl, userId, accessToken],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken) return null;
+      const result = await getUserById(serverUrl, userId, accessToken);
+      if (result.success && result.data) {
+        return (
+          getUserImageUrl(
+            serverUrl,
+            { Id: userId, PrimaryImageTag: result.data.PrimaryImageTag },
+            accessToken,
+          ) ?? null
+        );
+      }
+      return null;
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken,
+    staleTime: 1000 * 60 * 10, // cache for 10 minutes
+  });
 
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", JSON.stringify(isCollapsed));
   }, [isCollapsed]);
-
-  useEffect(() => {
-    const fetchUserImage = async () => {
-      if (!serverUrl || !userId || !accessToken) return;
-
-      const result = await getUserById(serverUrl, userId, accessToken);
-      if (result.success && result.data) {
-        const imageUrl = getUserImageUrl(
-          serverUrl,
-          { Id: userId, PrimaryImageTag: result.data.PrimaryImageTag },
-          accessToken,
-        );
-        setUserImageUrl(imageUrl ?? null);
-      }
-    };
-
-    fetchUserImage();
-  }, [serverUrl, userId, accessToken]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

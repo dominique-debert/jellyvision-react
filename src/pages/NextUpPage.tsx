@@ -1,7 +1,6 @@
-import { Layout } from "@/components/Layout";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { fetchNextUp } from "@/lib/jellyfin/extraMediaFetchers";
+import { useNextUpQuery } from "@/lib/jellyfin/extraMediaFetchers";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
@@ -10,22 +9,17 @@ import { MediaSortDropdown } from "@/components/MediaSortDropdown";
 
 export default function NextUpPage() {
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [items, setItems] = useState<BaseItemDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
   const [sortBy, setSortBy] = useState("Name");
   const [sortOrder, setSortOrder] = useState("Ascending");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!serverUrl || !userId || !accessToken) return;
-    (async () => {
-      setLoading(true);
-      const result = await fetchNextUp(serverUrl, userId, accessToken);
-      setItems(result && result.success ? result.data : []);
-      setLoading(false);
-    })();
-  }, [serverUrl, userId, accessToken]);
+  // Use TanStack Query to fetch Next Up items
+  const { data: items = [], isLoading: loading } = useNextUpQuery(
+    serverUrl!,
+    userId!,
+    accessToken!,
+  );
 
   const sortedItems = useMemo(() => {
     if (!items || items.length === 0) return [];

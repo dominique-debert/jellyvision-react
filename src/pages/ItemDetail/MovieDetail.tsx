@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQuery } from "@tanstack/react-query";
 import { getItem } from "@/lib/jellyfin/client";
 import { ArrowLeft, Play } from "lucide-react";
-import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
   LoadingState,
   NotFoundState,
@@ -14,61 +14,59 @@ import {
   CastAndCrewSection,
   SubtitleSelector,
 } from "@/pages/ItemDetail/shared";
-
 import { getPrimaryImageUrl } from "@/lib/utils";
+import { useEffect } from "react";
 
 export default function MovieDetail() {
   const { itemId } = useParams<{ itemId: string }>();
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [item, setItem] = useState<BaseItemDto | null>(null);
-  const [loading, setLoading] = useState(true);
   const [selectedSubtitle, setSelectedSubtitle] = useState<
     number | undefined
   >();
 
-  useEffect(() => {
-    const fetchItem = async () => {
-      if (!serverUrl || !userId || !accessToken || !itemId) {
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
+  const {
+    data: item,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["movieDetail", serverUrl, userId, accessToken, itemId],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken || !itemId) return null;
       const result = await getItem(serverUrl, userId, itemId, accessToken);
+      if (result.success && result.data) return result.data;
+      throw new Error("Not found");
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken && !!itemId,
+  });
 
-      if (result.success && result.data) {
-        setItem(result.data);
-        const subtitleStreams =
-          result.data.MediaStreams?.filter(
-            (s) => s.Type === "Subtitle" && s.Index !== undefined,
-          ) || [];
-        setSelectedSubtitle(subtitleStreams[0]?.Index);
+  // Set selected subtitle when item is loaded
+  useEffect(() => {
+    if (item?.MediaStreams) {
+      const subtitleStreams =
+        item.MediaStreams.filter(
+          (s) => s.Type === "Subtitle" && s.Index !== undefined,
+        ) || [];
+      const firstSubtitleIndex = subtitleStreams[0]?.Index;
+      if (
+        firstSubtitleIndex !== undefined &&
+        selectedSubtitle !== firstSubtitleIndex
+      ) {
+        setSelectedSubtitle(firstSubtitleIndex);
       }
-
-      setLoading(false);
-    };
-
-    fetchItem();
-  }, [serverUrl, userId, accessToken, itemId]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item]);
 
   const refetchItem = async () => {
-    if (!serverUrl || !userId || !accessToken || !itemId) return;
-
-    const result = await getItem(serverUrl, userId, itemId, accessToken);
-    if (result.success && result.data) {
-      setItem(result.data);
-    }
+    await refetch();
   };
 
-  if (loading) return <LoadingState />;
-  if (!item) return <NotFoundState />;
+  if (isLoading) return <LoadingState />;
+  if (isError || !item) return <NotFoundState />;
 
   const primaryImageUrl = getPrimaryImageUrl(serverUrl, item, "3/2");
-  // const backdropUrl =
-  //   item.Id && serverUrl
-  //     ? getImageUrl(serverUrl, item.Id, "Backdrop", 1280, 720, 90)
-  //     : undefined;
 
   return (
     <div className="min-h-screen w-full">

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQuery } from "@tanstack/react-query";
 import { getItem, getAlbumTracks } from "@/lib/jellyfin/client";
 import { FloatingAudioBar } from "@/components/FloatingAudioBar";
 import EqualizerBars from "@/components/EqualizerBars";
@@ -28,10 +29,39 @@ export default function MusicDetail() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const analyserInitializedRef = useRef(false);
 
-  const [item, setItem] = useState<BaseItemDto | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [albumTracks, setAlbumTracks] = useState<BaseItemDto[]>([]);
-  const [loadingTracks, setLoadingTracks] = useState(false);
+  // --- TanStack Query for album item ---
+  const {
+    data: item,
+    isLoading: loading,
+    isError,
+  } = useQuery({
+    queryKey: ["musicDetail", serverUrl, userId, accessToken, itemId],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken || !itemId) return null;
+      const result = await getItem(serverUrl, userId, itemId, accessToken);
+      if (result.success && result.data) return result.data;
+      throw new Error("Not found");
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken && !!itemId,
+  });
+
+  // --- TanStack Query for album tracks ---
+  const { data: albumTracks = [], isLoading: loadingTracks } = useQuery({
+    queryKey: ["albumTracks", serverUrl, userId, accessToken, itemId],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken || !itemId) return [];
+      const result = await getAlbumTracks(
+        serverUrl,
+        userId,
+        itemId,
+        accessToken,
+      );
+      if (result.success && result.data) return result.data;
+      return [];
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken && !!itemId && !!item,
+  });
+
   const [currentTrackId, setCurrentTrackId] = useState<string | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -41,27 +71,7 @@ export default function MusicDetail() {
   const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">("off");
 
   useEffect(() => {
-    const fetchItem = async () => {
-      if (!serverUrl || !userId || !accessToken || !itemId) {
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      const result = await getItem(serverUrl, userId, itemId, accessToken);
-
-      if (result.success && result.data) {
-        setItem(result.data);
-      }
-
-      setLoading(false);
-    };
-
-    fetchItem();
-  }, [serverUrl, userId, accessToken, itemId]);
-
-  // Initialize Web Audio analyser when a track starts playing
-  useEffect(() => {
+    // --- Initialize Web Audio analyser when a track starts playing ---
     if (!currentTrackId || !audioRef.current) {
       return;
     }
@@ -133,34 +143,6 @@ export default function MusicDetail() {
       analyserInitializedRef.current = false;
     };
   }, []);
-
-  // Load album tracks when item is ready
-  useEffect(() => {
-    let cancelled = false;
-    if (!serverUrl || !userId || !accessToken || !itemId || !item) return;
-
-    const loadTracks = async () => {
-      setLoadingTracks(true);
-      const result = await getAlbumTracks(
-        serverUrl,
-        userId,
-        itemId,
-        accessToken,
-      );
-      if (cancelled) return;
-      if (result.success && result.data) {
-        setAlbumTracks(result.data);
-      } else {
-        setAlbumTracks([]);
-      }
-      setLoadingTracks(false);
-    };
-
-    loadTracks();
-    return () => {
-      cancelled = true;
-    };
-  }, [serverUrl, userId, accessToken, itemId, item]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handlePlayTrack = (trackId: string) => {
@@ -302,7 +284,7 @@ export default function MusicDetail() {
   }, [currentTrackId, getStreamUrl]);
 
   if (loading) return <LoadingState />;
-  if (!item) return <NotFoundState />;
+  if (isError || !item) return <NotFoundState />;
 
   // Group tracks by disc number
   const tracksPerDisc: Record<number, BaseItemDto[]> = {};

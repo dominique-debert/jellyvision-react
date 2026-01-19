@@ -1,44 +1,32 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserById, getUserImageUrl } from "@/lib/jellyfin/client";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LogOut, User as UserIcon } from "lucide-react";
 
-interface UserData {
-  Name?: string;
-  Id?: string;
-  LastLoginDate?: string;
-  LastActivityDate?: string;
-}
-
 export function UserProfile() {
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId, username, logout } = useAuthStore();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (!serverUrl || !userId || !accessToken) return;
-
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userProfile", serverUrl, userId, accessToken],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken) return null;
       const result = await getUserById(serverUrl, userId, accessToken);
-      if (result.success && result.data) {
-        setUserData(result.data);
-      }
-      setLoading(false);
-    };
-
-    fetchUser();
-  }, [serverUrl, userId, accessToken]);
+      if (result.success && result.data) return result.data;
+      return null;
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken,
+  });
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="w-full max-w-md">
         <CardContent className="p-6">
@@ -59,7 +47,7 @@ export function UserProfile() {
       ? getUserImageUrl(
           serverUrl,
           { Id: userId, PrimaryImageTag: userData.PrimaryImageTag },
-          accessToken || undefined
+          accessToken || undefined,
         )
       : null;
 

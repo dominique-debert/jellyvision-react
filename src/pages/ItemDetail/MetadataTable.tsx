@@ -9,7 +9,7 @@ export const MetadataTable = ({ item }: { item: BaseItemDto }) => (
       <div className="text-white">
         {item.ProductionYear || item.PremiereDate
           ? new Date(
-              item.PremiereDate || `${item.ProductionYear}-01-01`
+              item.PremiereDate || `${item.ProductionYear}-01-01`,
             ).getFullYear()
           : "-"}
       </div>

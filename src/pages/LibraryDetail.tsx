@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQuery } from "@tanstack/react-query";
 import {
   getLibraryItems,
   getImageUrl,
@@ -8,7 +9,6 @@ import {
   getItem,
 } from "@/lib/jellyfin/client";
 import { Card, CardContent } from "@/components/ui/card";
-
 import {
   ArrowLeft,
   Play,
@@ -36,7 +36,6 @@ interface MediaItem {
 
 export default function LibraryDetail() {
   const [showDropdown, setShowDropdown] = useState(false);
-  // Store sortBy and sortOrder per-library in localStorage
   const { libraryId } = useParams<{ libraryId: string }>();
   const getSortKey = useCallback(
     (key: string) => `librarySort_${libraryId}_${key}`,
@@ -52,13 +51,9 @@ export default function LibraryDetail() {
       localStorage.getItem(`librarySort_${libraryId}_Order`) || "Ascending"
     );
   });
-  const [items, setItems] = useState<MediaItem[]>([]);
   const navigate = useNavigate();
   const { serverUrl, accessToken, userId } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [libraryType, setLibraryType] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 60;
 
   useEffect(() => {
@@ -67,33 +62,46 @@ export default function LibraryDetail() {
     localStorage.setItem(getSortKey("Order"), sortOrder);
   }, [sortBy, sortOrder, libraryId, getSortKey]);
 
-  // Combined effect: fetch library type and items in sequence to avoid double-fetch
-  useEffect(() => {
-    let isMounted = true;
-    const fetchAll = async () => {
-      if (!serverUrl || !userId || !accessToken || !libraryId) {
-        if (isMounted) setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-
-      // Fetch library info to determine type
+  const {
+    data: libraryInfo,
+    isLoading: libraryInfoLoading,
+    isError: libraryInfoError,
+  } = useQuery({
+    queryKey: ["libraryInfo", serverUrl, userId, accessToken, libraryId],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken || !libraryId) return null;
       const result = await getItem(serverUrl, userId, libraryId, accessToken);
-      let type: string | null = null;
-      if (result.success && result.data) {
-        type = result.data.CollectionType || null;
-      }
-      if (isMounted) setLibraryType(type);
+      if (result.success && result.data) return result.data;
+      throw new Error("Failed to fetch library info");
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken && !!libraryId,
+  });
 
-      // Map sortBy to Jellyfin API fields
-      let apiSortBy = sortBy;
-      if (sortBy === "DateAdded") apiSortBy = "DateCreated";
+  const libraryType = libraryInfo?.CollectionType || null;
 
+  const {
+    data: itemsData,
+    isLoading: itemsLoading,
+    isError: itemsError,
+  } = useQuery({
+    queryKey: [
+      "libraryItems",
+      serverUrl,
+      userId,
+      accessToken,
+      libraryId,
+      currentPage,
+      sortBy,
+      sortOrder,
+      libraryType,
+    ],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken || !libraryId)
+        return { items: [], totalCount: 0 };
+      const apiSortBy = sortBy === "DateAdded" ? "DateCreated" : sortBy;
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
-      if (type === "music") {
-        // For music libraries, fetch albums recursively
+      if (libraryType === "music") {
         const albumsResult = await getAllAlbumsInLibrary(
           serverUrl,
           userId,
@@ -104,18 +112,15 @@ export default function LibraryDetail() {
           apiSortBy,
           sortOrder,
         );
-        if (isMounted) {
-          if (albumsResult.success) {
-            setItems(albumsResult.data as MediaItem[]);
-            setTotalCount(albumsResult.totalCount);
-          } else {
-            setItems([]);
-            setTotalCount(0);
-          }
+        if (albumsResult.success) {
+          return {
+            items: albumsResult.data as MediaItem[],
+            totalCount: albumsResult.totalCount,
+          };
         }
+        throw new Error("Failed to fetch albums");
       } else {
-        // For TV libraries, fetch only Series items (avoid Season items)
-        const includeTypes = type === "tvshows" ? ["Series"] : undefined;
+        const includeTypes = libraryType === "tvshows" ? ["Series"] : undefined;
         const itemsResult = await getLibraryItems(
           serverUrl,
           userId,
@@ -127,36 +132,38 @@ export default function LibraryDetail() {
           apiSortBy,
           sortOrder,
         );
-        if (isMounted) {
-          if (itemsResult.success) {
-            setItems(itemsResult.data as MediaItem[]);
-            setTotalCount(itemsResult.totalCount);
-          } else {
-            setItems([]);
-            setTotalCount(0);
-          }
+        if (itemsResult.success) {
+          return {
+            items: itemsResult.data as MediaItem[],
+            totalCount: itemsResult.totalCount,
+          };
         }
+        throw new Error("Failed to fetch items");
       }
-      if (isMounted) setLoading(false);
-    };
-    fetchAll();
-    return () => {
-      isMounted = false;
-    };
-  }, [
-    serverUrl,
-    userId,
-    accessToken,
-    libraryId,
-    currentPage,
-    sortBy,
-    sortOrder,
-  ]);
+    },
+    enabled:
+      !!serverUrl && !!userId && !!accessToken && !!libraryId && !!libraryType,
+  });
 
+  const { items = [], totalCount = 0 } = (itemsData as {
+    items: MediaItem[];
+    totalCount: number;
+  }) ?? { items: [], totalCount: 0 };
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (libraryInfoLoading || itemsLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[40vh]">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+  if (libraryInfoError || itemsError) {
+    return (
+      <div className="alert alert-error mt-8 mx-auto max-w-xl">
+        <span>Failed to load library.</span>
+      </div>
+    );
   }
 
   return (
@@ -309,13 +316,11 @@ export default function LibraryDetail() {
                               : "📁"}
                       </div>
                     )}
-                    {/* Watched indicator - only for non-music items */}
                     {item.UserData?.Played && libraryType !== "music" && (
                       <div className="absolute top-2 right-2 rounded-full p-1 shadow-lg">
                         <CircleCheck className="size-6  text-green-700/90" />
                       </div>
                     )}
-                    {/* Hover overlay with play button centered and title at bottom */}
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between rounded-lg p-4">
                       <div></div>
                       <button
@@ -358,7 +363,7 @@ export default function LibraryDetail() {
       <Pagination
         totalPages={totalPages}
         currentPage={currentPage}
-        loading={loading}
+        loading={itemsLoading}
         onPageChange={setCurrentPage}
       />
     </div>

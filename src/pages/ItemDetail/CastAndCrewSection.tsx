@@ -1,5 +1,6 @@
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-import { getImageUrl } from "@/lib/jellyfin/client";
+import { getImageUrl, getItem } from "@/lib/jellyfin/client";
+import { useQuery } from "@tanstack/react-query";
 
 export const CastAndCrewSection = ({
   item,
@@ -8,9 +9,20 @@ export const CastAndCrewSection = ({
   item: BaseItemDto;
   serverUrl: string | null;
 }) => {
-  const directors = item.People?.filter((p) => p.Type === "Director") || [];
-  const writers = item.People?.filter((p) => p.Type === "Writer") || [];
-  const actors = item.People?.filter((p) => p.Type === "Actor") || [];
+  const { data: freshItem } = useQuery({
+    queryKey: ["item-cast-crew", serverUrl, item.Id],
+    queryFn: async () => {
+      if (!serverUrl || !item.Id) return item;
+      const result = await getItem(serverUrl, "", item.Id, "");
+      return result.success && result.data ? result.data : item;
+    },
+    enabled: !!serverUrl && !!item.Id,
+    initialData: item,
+  });
+  const directors =
+    freshItem?.People?.filter((p) => p.Type === "Director") || [];
+  const writers = freshItem?.People?.filter((p) => p.Type === "Writer") || [];
+  const actors = freshItem?.People?.filter((p) => p.Type === "Actor") || [];
 
   return (
     <div className="flex items-start gap-8">
@@ -70,7 +82,7 @@ export const CastAndCrewSection = ({
                         "Primary",
                         200,
                         300,
-                        85
+                        85,
                       )}
                       alt={actor.Name || "Actor"}
                       className="w-full max-w-30 aspect-2/3 object-cover rounded-lg mb-2 mx-auto"

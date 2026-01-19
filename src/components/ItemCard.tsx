@@ -44,8 +44,8 @@ export function ItemCard({
             aspectRatio === "square"
               ? "aspect-square"
               : aspectRatio === "2/3"
-              ? "aspect-2/3"
-              : "aspect-3/2"
+                ? "aspect-2/3"
+                : "aspect-3/2"
           } bg-base-300 rounded-md overflow-hidden`}
         >
           {primaryImageUrl ? (

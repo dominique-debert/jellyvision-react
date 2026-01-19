@@ -1,6 +1,7 @@
 import { Library } from "lucide-react";
-import { getImageUrl } from "@/lib/jellyfin/client";
+import { getImageUrl, useUserViewsQuery } from "@/lib/jellyfin/client";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface Library {
   Id?: string;
@@ -10,24 +11,19 @@ interface Library {
 }
 
 interface MyLibrarySectionProps {
-  libraries: Library[];
-  serverUrl: string;
-  loading: boolean;
   scrollRef: React.RefObject<HTMLDivElement>;
-  onScroll: (
-    ref: React.RefObject<HTMLDivElement | null>,
-    direction: "left" | "right"
-  ) => void;
 }
 
-export function MyLibrarySection({
-  libraries,
-  serverUrl,
-  loading,
-  scrollRef,
-}: MyLibrarySectionProps) {
+export function MyLibrarySection({ scrollRef }: MyLibrarySectionProps) {
   const navigate = useNavigate();
-  if (loading || libraries.length === 0) return null;
+  const { serverUrl, userId, accessToken } = useAuthStore();
+  const { data: libraries = [], isLoading } = useUserViewsQuery(
+    serverUrl!,
+    userId!,
+    accessToken!,
+  );
+
+  if (isLoading || libraries.length === 0) return null;
   return (
     <section className="mr-10">
       <div className="flex items-center ml-16">

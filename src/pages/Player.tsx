@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useQuery } from "@tanstack/react-query";
 import Hls from "hls.js";
 import {
   getItem,
@@ -21,8 +22,6 @@ import {
   Volume2,
 } from "lucide-react";
 
-import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-
 export default function Player() {
   const { itemId } = useParams<{ itemId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,8 +29,18 @@ export default function Player() {
   const { serverUrl, accessToken, userId } = useAuthStore();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const [item, setItem] = useState<BaseItemDto | null>(null);
-  const [loading, setLoading] = useState(true);
+  // --- TanStack Query for fetching item ---
+  const { data: item, isLoading: loading } = useQuery({
+    queryKey: ["playerItem", serverUrl, userId, accessToken, itemId],
+    queryFn: async () => {
+      if (!serverUrl || !userId || !accessToken || !itemId) return null;
+      const result = await getItem(serverUrl, userId, itemId, accessToken);
+      if (result.success && result.data) return result.data;
+      throw new Error("Not found");
+    },
+    enabled: !!serverUrl && !!userId && !!accessToken && !!itemId,
+  });
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -40,7 +49,7 @@ export default function Player() {
     { index: number; label: string }[]
   >([]);
   const [subtitleIndex, setSubtitleIndex] = useState<number | undefined>(
-    undefined
+    undefined,
   );
   const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -48,46 +57,33 @@ export default function Player() {
 
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
   const [playSessionId] = useState(
-    () => Date.now().toString() + Math.random().toString(36).substr(2, 9)
+    () => Date.now().toString() + Math.random().toString(36).substr(2, 9),
   );
 
+  // Update subtitle options when item changes
   useEffect(() => {
-    const fetchItem = async () => {
-      if (!serverUrl || !userId || !accessToken || !itemId) {
-        setLoading(false);
-        return;
+    if (item) {
+      const subs =
+        item.MediaStreams?.filter(
+          (s) => s.Type === "Subtitle" && s.Index !== undefined,
+        ) || [];
+      const options = subs.map((s) => ({
+        index: s.Index!,
+        label: s.Language || s.DisplayTitle || `Subtitle ${s.Index}`,
+      }));
+      setSubtitleOptions(options);
+      const initial = searchParams.get("subtitle");
+      if (initial) {
+        setSubtitleIndex(Number(initial));
+      } else if (options.length > 0) {
+        setSubtitleIndex(options[0].index);
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.set("subtitle", String(options[0].index));
+        setSearchParams(nextParams, { replace: true });
       }
-
-      setLoading(true);
-      const result = await getItem(serverUrl, userId, itemId, accessToken);
-
-      if (result.success && result.data) {
-        setItem(result.data);
-        const subs =
-          result.data.MediaStreams?.filter(
-            (s) => s.Type === "Subtitle" && s.Index !== undefined
-          ) || [];
-        const options = subs.map((s) => ({
-          index: s.Index!,
-          label: s.Language || s.DisplayTitle || `Subtitle ${s.Index}`,
-        }));
-        setSubtitleOptions(options);
-        const initial = searchParams.get("subtitle");
-        if (initial) {
-          setSubtitleIndex(Number(initial));
-        } else if (options.length > 0) {
-          setSubtitleIndex(options[0].index);
-          const nextParams = new URLSearchParams(searchParams);
-          nextParams.set("subtitle", String(options[0].index));
-          setSearchParams(nextParams, { replace: true });
-        }
-      }
-
-      setLoading(false);
-    };
-
-    fetchItem();
-  }, [serverUrl, userId, accessToken, itemId, searchParams, setSearchParams]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item]);
 
   // Build stream URL
   const buildStreamUrl = useCallback(
@@ -114,7 +110,7 @@ export default function Player() {
           : serverUrl;
       return `${baseUrl}/Videos/${itemId}/main.m3u8?${params.toString()}`;
     },
-    [serverUrl, itemId, accessToken, playSessionId]
+    [serverUrl, itemId, accessToken, playSessionId],
   );
 
   // Update stream URL state when buildStreamUrl changes
@@ -199,7 +195,7 @@ export default function Player() {
         if (track.kind === "subtitles") {
           // Remove associated track element
           const trackElement = Array.from(
-            videoRef.current!.querySelectorAll("track")
+            videoRef.current!.querySelectorAll("track"),
           ).find((t) => t.label === track.label);
           trackElement?.remove();
         }
@@ -225,7 +221,7 @@ export default function Player() {
                   SubtitleProfiles: [{ Format: "vtt", Method: "External" }],
                 },
               }),
-            }
+            },
           );
 
           if (!playbackInfoResponse.ok) {
@@ -244,7 +240,7 @@ export default function Player() {
 
               const playbackSubtitle = playbackMediaStreams.find(
                 (s: Record<string, unknown>) =>
-                  s.Type === "Subtitle" && s.Index === optionIndex
+                  s.Type === "Subtitle" && s.Index === optionIndex,
               );
 
               if (!playbackSubtitle?.DeliveryUrl) {
@@ -282,7 +278,7 @@ export default function Player() {
               // Create a track element for this subtitle
               const track = videoRef.current!.addTextTrack(
                 "subtitles",
-                optionLabel
+                optionLabel,
               );
 
               // Add cues from TrackEvents JSON (like jellyfin-web does)
@@ -455,7 +451,7 @@ export default function Player() {
         accessToken,
         positionTicks,
         !isPlaying,
-        playSessionId
+        playSessionId,
       );
     };
 
@@ -478,7 +474,7 @@ export default function Player() {
             accessToken,
             positionTicks,
             false,
-            playSessionId
+            playSessionId,
           );
         } catch {
           // Silent error
@@ -531,7 +527,7 @@ export default function Player() {
 
           // Find the subtitle option that matches this track's label
           const matchingOption = subtitleOptions.find(
-            (opt) => opt.label === track.label
+            (opt) => opt.label === track.label,
           );
 
           if (matchingOption?.index === index) {
@@ -573,7 +569,7 @@ export default function Player() {
         accessToken,
         positionTicks,
         false, // Don't mark as paused, just report the position
-        playSessionId
+        playSessionId,
       );
     }
 
