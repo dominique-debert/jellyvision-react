@@ -39,7 +39,7 @@ export default function NextUpPage() {
         case "ReleaseDate":
           return it.PremiereDate
             ? new Date(it.PremiereDate).getTime()
-            : it.ProductionYear ?? 0;
+            : (it.ProductionYear ?? 0);
         case "Name":
         default:
           return it.Name ?? "";
@@ -61,65 +61,61 @@ export default function NextUpPage() {
   }, [items, sortBy, sortOrder]);
 
   return (
-    <Layout>
-      <div>
-        <header className="border-b border-base-300 pb-0 pt-4">
-          <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-15">
-            Next Up
-          </h1>
-          <div className="mx-auto pl-15 pr-20 flex items-center justify-start">
-            <div className="flex items-center gap-4">
-              <button
-                className="btn btn-md btn-primary gap-2"
-                onClick={() => navigate(-1)}
-                type="button"
-              >
-                <ArrowLeft className="size-6" />
-                Back
-              </button>
-            </div>
-            <div className="flex items-center gap-4">
-              {MediaSortDropdown ? (
-                <MediaSortDropdown
-                  sortBy={sortBy}
-                  setSortBy={setSortBy}
-                  sortOrder={sortOrder}
-                  setSortOrder={setSortOrder}
-                  showDropdown={showDropdown}
-                  setShowDropdown={setShowDropdown}
-                />
-              ) : null}
-            </div>
+    <div>
+      <header className="border-b border-base-300 pb-0 pt-4">
+        <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-15">
+          Next Up
+        </h1>
+        <div className="mx-auto pl-15 pr-20 flex items-center justify-start">
+          <div className="flex items-center gap-4">
+            <button
+              className="btn btn-md btn-primary gap-2"
+              onClick={() => navigate(-1)}
+              type="button"
+            >
+              <ArrowLeft className="size-6" />
+              Back
+            </button>
           </div>
-        </header>
+          <div className="flex items-center gap-4">
+            {MediaSortDropdown ? (
+              <MediaSortDropdown
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
+                showDropdown={showDropdown}
+                setShowDropdown={setShowDropdown}
+              />
+            ) : null}
+          </div>
+        </div>
+      </header>
 
-        <main className="px-15 py-8 pt-4">
-          {/* NextUpSection-like layout */}
-          <section>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8 mt-6 pb-30">
-              {loading ? (
-                <div className="loading loading-bars loading-lg mx-auto my-10 col-span-full" />
-              ) : sortedItems.length === 0 ? (
-                <div className="text-zinc-400 text-lg mx-auto my-10 col-span-full">
-                  No items found.
+      <main className="px-15 py-8 pt-4">
+        {/* NextUpSection-like layout */}
+        <section>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8 mt-6 pb-30">
+            {loading ? (
+              <div className="loading loading-bars loading-lg mx-auto my-10 col-span-full" />
+            ) : sortedItems.length === 0 ? (
+              <div className="text-zinc-400 text-lg mx-auto my-10 col-span-full">
+                No items found.
+              </div>
+            ) : (
+              sortedItems.map((item) => (
+                <div key={item.Id} className="w-full">
+                  <ItemCard
+                    item={item}
+                    serverUrl={serverUrl ?? ""}
+                    onPlayClick={() => navigate(`/play/${item.Id}?from=nextup`)}
+                  />
                 </div>
-              ) : (
-                sortedItems.map((item) => (
-                  <div key={item.Id} className="w-full">
-                    <ItemCard
-                      item={item}
-                      serverUrl={serverUrl ?? ""}
-                      onPlayClick={() =>
-                        navigate(`/play/${item.Id}?from=nextup`)
-                      }
-                    />
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-        </main>
-      </div>
-    </Layout>
+              ))
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { MediaGrid } from "@/components/MediaGrid";
 import { MediaSortDropdown } from "@/components/MediaSortDropdown";
 import { useEffect, useMemo, useState } from "react";
@@ -38,7 +37,7 @@ export default function RecentlyAddedShowsPage() {
         case "ReleaseDate":
           return it.PremiereDate
             ? new Date(it.PremiereDate).getTime()
-            : it.ProductionYear ?? 0;
+            : (it.ProductionYear ?? 0);
         case "Name":
         default:
           return it.Name ?? "";
@@ -60,42 +59,40 @@ export default function RecentlyAddedShowsPage() {
   }, [items, sortBy, sortOrder]);
 
   return (
-    <Layout>
-      <div>
-        <header className="border-b border-base-300 pb-0 pt-4">
-          <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-14">
-            Recently Added TV Shows
-          </h1>
-          <div className="pl-15 mb-4 pr-4 flex items-center justify-start">
-            <div className="flex items-center gap-4">
-              <button
-                className="btn btn-md btn-primary gap-2"
-                onClick={() => navigate(-1)}
-                type="button"
-              >
-                <ArrowLeft className="size-6" />
-                Back
-              </button>
-            </div>
-            <div className="flex items-center gap-4">
-              {MediaSortDropdown ? (
-                <MediaSortDropdown
-                  sortBy={sortBy}
-                  setSortBy={setSortBy}
-                  sortOrder={sortOrder}
-                  setSortOrder={setSortOrder}
-                  showDropdown={showDropdown}
-                  setShowDropdown={setShowDropdown}
-                />
-              ) : null}
-            </div>
+    <div>
+      <header className="border-b border-base-300 pb-0 pt-4">
+        <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-14">
+          Recently Added TV Shows
+        </h1>
+        <div className="pl-15 mb-4 pr-4 flex items-center justify-start">
+          <div className="flex items-center gap-4">
+            <button
+              className="btn btn-md btn-primary gap-2"
+              onClick={() => navigate(-1)}
+              type="button"
+            >
+              <ArrowLeft className="size-6" />
+              Back
+            </button>
           </div>
-        </header>
+          <div className="flex items-center gap-4">
+            {MediaSortDropdown ? (
+              <MediaSortDropdown
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
+                showDropdown={showDropdown}
+                setShowDropdown={setShowDropdown}
+              />
+            ) : null}
+          </div>
+        </div>
+      </header>
 
-        <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-30">
-          <MediaGrid items={sortedItems} loading={loading} />
-        </main>
-      </div>
-    </Layout>
+      <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-30">
+        <MediaGrid items={sortedItems} loading={loading} />
+      </main>
+    </div>
   );
 }

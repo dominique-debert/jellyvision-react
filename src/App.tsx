@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
+import { Layout } from "@/components/Layout";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import LibraryDetail from "./pages/LibraryDetail";
@@ -22,25 +23,27 @@ function App() {
       />
       {isAuthenticated ? (
         <>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/library/:libraryId" element={<LibraryDetail />} />
-          <Route path="/item/:itemId" element={<ItemDetail />} />
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/library/:libraryId" element={<LibraryDetail />} />
+            <Route path="/item/:itemId" element={<ItemDetail />} />
+            <Route path="/next-up" element={<NextUpPage />} />
+            <Route
+              path="/recently-added/movies"
+              element={<RecentlyAddedMoviesPage />}
+            />
+            <Route
+              path="/recently-added/music"
+              element={<RecentlyAddedMusicPage />}
+            />
+            <Route
+              path="/recently-added/shows"
+              element={<RecentlyAddedShowsPage />}
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
           <Route path="/play/:itemId" element={<Player />} />
-          <Route path="/next-up" element={<NextUpPage />} />
-          <Route
-            path="/recently-added/movies"
-            element={<RecentlyAddedMoviesPage />}
-          />
-          <Route
-            path="/recently-added/music"
-            element={<RecentlyAddedMusicPage />}
-          />
-          <Route
-            path="/recently-added/shows"
-            element={<RecentlyAddedShowsPage />}
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </>
       ) : (
         <Route path="*" element={<Navigate to="/login" replace />} />

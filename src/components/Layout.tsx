@@ -1,16 +1,15 @@
-import { ReactNode, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Search, User, LogOut, Settings } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserById, getUserImageUrl } from "@/lib/jellyfin/client";
 
 interface LayoutProps {
-  children: ReactNode;
   backdropUrl?: string;
 }
 
-export function Layout({ children, backdropUrl }: LayoutProps) {
+export function Layout({ backdropUrl }: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const saved = localStorage.getItem("sidebarCollapsed");
     return saved ? JSON.parse(saved) : false;
@@ -33,7 +32,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
         const imageUrl = getUserImageUrl(
           serverUrl,
           { Id: userId, PrimaryImageTag: result.data.PrimaryImageTag },
-          accessToken
+          accessToken,
         );
         setUserImageUrl(imageUrl ?? null);
       }
@@ -56,7 +55,7 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
   };
 
   return (
-    <div className="h-screen text-base-content relative">
+    <div className="min-h-screen text-base-content relative">
       {backdropUrl && (
         <div
           className="fixed left-0 inset-0 z-0 opacity-10"
@@ -145,13 +144,13 @@ export function Layout({ children, backdropUrl }: LayoutProps) {
         </div>
       </header>
 
-      <div
-        className={`fixed h-full right-0 top-20 bottom-0 overflow-auto transition-all duration-300 z-10 ${
-          isCollapsed ? "left-20" : "left-64"
+      <main
+        className={`pt-20 transition-all duration-300 ${
+          isCollapsed ? "ml-20" : "ml-64"
         }`}
       >
-        {children}
-      </div>
+        <Outlet />
+      </main>
     </div>
   );
 }

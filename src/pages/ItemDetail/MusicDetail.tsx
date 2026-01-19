@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Layout } from "@/components/Layout";
 import { getItem, getAlbumTracks } from "@/lib/jellyfin/client";
 import { FloatingAudioBar } from "@/components/FloatingAudioBar";
 import EqualizerBars from "@/components/EqualizerBars";
@@ -146,7 +145,7 @@ export default function MusicDetail() {
         serverUrl,
         userId,
         itemId,
-        accessToken
+        accessToken,
       );
       if (cancelled) return;
       if (result.success && result.data) {
@@ -318,205 +317,199 @@ export default function MusicDetail() {
   const primaryImageUrl = getPrimaryImageUrl(serverUrl, item, "square");
 
   return (
-    <Layout>
-      <div className="min-h-screen relative">
-        <div className="mx-auto pr-10 pl-15 py-2 mb-30">
-          <div className="flex">
-            <button
-              onClick={() => navigate(-1)}
-              className="btn btn-primary mb-6 sticky"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </button>
-          </div>
-
-          <div className="flex gap-8">
-            {/* Left Column - Album Art */}
-            <div className="w-80 shrink-0">
-              <div className="group sticky">
-                {primaryImageUrl ? (
-                  <img
-                    src={primaryImageUrl}
-                    alt={item.Name || "Album"}
-                    className="w-full rounded-lg shadow-2xl"
-                  />
-                ) : (
-                  <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
-                    <span className="text-zinc-600">No Image</span>
-                  </div>
-                )}
-                {/* Play Overlay */}
-                {albumTracks.length > 0 && (
-                  <button
-                    onClick={() => {
-                      if (albumTracks[0].Id) {
-                        handlePlayTrack(albumTracks[0].Id);
-                      }
-                    }}
-                    className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <div className="bg-primary/40 hover:bg-amber-600 rounded-full p-4">
-                      <Play className="size-8 text-white fill-white" />
-                    </div>
-                  </button>
-                )}
-              </div>
-
-              {/* Album Info */}
-              <table className="w-full text-lg mt-4 mb-0">
-                <tbody>
-                  {item.AlbumArtist && (
-                    <tr>
-                      <td className="text-left text-sm text-zinc-400 w-25">
-                        Artist:
-                      </td>
-                      <td className="text-left text-md">{item.AlbumArtist}</td>
-                    </tr>
-                  )}
-                  {item.Name && (
-                    <tr>
-                      <td className="text-left text-sm text-zinc-400 w-25">
-                        Album:
-                      </td>
-                      <td className="text-left text-md">{item.Name}</td>
-                    </tr>
-                  )}
-                  {item.ProductionYear && (
-                    <tr>
-                      <td className="text-left text-sm text-zinc-400 w-25">
-                        Released:
-                      </td>
-                      <td className="text-left text-md">
-                        {item.ProductionYear}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Right Column - Details */}
-            <div className="flex-1 min-w-0 space-y-6">
-              {/* Tracks */}
-              <div className="mt-0">
-                {loadingTracks ? (
-                  <div className="animate-pulse space-y-4">
-                    <div className="h-10 w-full bg-base-300 rounded" />
-                    <div className="h-32 w-full bg-base-300 rounded" />
-                  </div>
-                ) : albumTracks.length === 0 ? (
-                  <div className="text-zinc-400">No tracks found.</div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    {Object.keys(tracksPerDisc).map((discNum) => (
-                      <div key={discNum} className="mb-6">
-                        {Object.keys(tracksPerDisc).length > 1 && (
-                          <div className="flex items-center gap-2 mb-2">
-                            <Disc className="h-4 w-4 text-zinc-400" />
-                            <span className="font-semibold">
-                              Disc {discNum}
-                            </span>
-                          </div>
-                        )}
-                        <table className="min-w-full text-sm border-separate border-spacing-y-1">
-                          <thead>
-                            <tr className="text-zinc-400">
-                              <th className="w-12 text-center"></th>
-                              <th className="w-10"></th>
-                              <th className="text-left"></th>
-                              <th className="w-16 text-center"></th>
-                              <th className="w-24 text-center"></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {tracksPerDisc[Number(discNum)].map((track) => (
-                              <tr
-                                key={track.Id}
-                                className={`group hover:bg-base-300 rounded cursor-pointer ${
-                                  track.Id === currentTrackId
-                                    ? "bg-primary/40/20"
-                                    : ""
-                                }`}
-                                onDoubleClick={() => {
-                                  if (track.Id) handlePlayTrack(track.Id);
-                                }}
-                              >
-                                <td className="text-center font-mono">
-                                  {track.IndexNumber}
-                                </td>
-                                <td className="text-center">
-                                  <button
-                                    className="opacity-0 btn btn-ghost group-hover:opacity-100 transition-opacity"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (track.Id) handlePlayTrack(track.Id);
-                                    }}
-                                  >
-                                    <Play className="size-5" />
-                                  </button>
-                                </td>
-                                <td className="text-left">
-                                  <span className="font-medium">
-                                    {track.Name}
-                                  </span>
-                                </td>
-                                <td className="text-center">
-                                  {track.Id === currentTrackId ? (
-                                    <EqualizerBars
-                                      getAnalyser={() => analyserRef.current}
-                                      isPlaying={isPlaying}
-                                      className="mx-auto"
-                                    />
-                                  ) : (
-                                    <div className="h-6 w-12" />
-                                  )}
-                                </td>
-                                <td className="text-center font-mono">
-                                  {formatTrackTime(track.RunTimeTicks)}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          {/* Floating Player - Bottom of Screen */}
-          {currentTrackId && (
-            <FloatingAudioBar
-              trackName={albumTracks[currentTrackIndex]?.Name || "Track name"}
-              currentTime={currentTime}
-              duration={duration}
-              isPlaying={isPlaying}
-              volume={volume}
-              repeatMode={repeatMode}
-              onSeek={(value) => handleSeek(value)}
-              onPlayPause={togglePlayPause}
-              onSkipBack={handleSkipBack}
-              onSkipForward={handleSkipForward}
-              onVolumeChange={handleVolumeChange}
-              onToggleRepeat={toggleRepeatMode}
-              onClose={() => setCurrentTrackId(null)}
-            />
-          )}
-
-          {/* Hidden Audio Element */}
-          <audio
-            ref={audioRef}
-            crossOrigin="anonymous"
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onEnded={handleEnded}
-          />
+    <div className="min-h-screen relative">
+      <div className="mx-auto pr-10 pl-15 py-2 mb-30">
+        <div className="flex">
+          <button
+            onClick={() => navigate(-1)}
+            className="btn btn-primary mb-6 sticky"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </button>
         </div>
+
+        <div className="flex gap-8">
+          {/* Left Column - Album Art */}
+          <div className="w-80 shrink-0">
+            <div className="group sticky">
+              {primaryImageUrl ? (
+                <img
+                  src={primaryImageUrl}
+                  alt={item.Name || "Album"}
+                  className="w-full rounded-lg shadow-2xl"
+                />
+              ) : (
+                <div className="w-full aspect-2/3 bg-base-300 rounded-lg flex items-center justify-center">
+                  <span className="text-zinc-600">No Image</span>
+                </div>
+              )}
+              {/* Play Overlay */}
+              {albumTracks.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (albumTracks[0].Id) {
+                      handlePlayTrack(albumTracks[0].Id);
+                    }
+                  }}
+                  className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <div className="bg-primary/40 hover:bg-amber-600 rounded-full p-4">
+                    <Play className="size-8 text-white fill-white" />
+                  </div>
+                </button>
+              )}
+            </div>
+
+            {/* Album Info */}
+            <table className="w-full text-lg mt-4 mb-0">
+              <tbody>
+                {item.AlbumArtist && (
+                  <tr>
+                    <td className="text-left text-sm text-zinc-400 w-25">
+                      Artist:
+                    </td>
+                    <td className="text-left text-md">{item.AlbumArtist}</td>
+                  </tr>
+                )}
+                {item.Name && (
+                  <tr>
+                    <td className="text-left text-sm text-zinc-400 w-25">
+                      Album:
+                    </td>
+                    <td className="text-left text-md">{item.Name}</td>
+                  </tr>
+                )}
+                {item.ProductionYear && (
+                  <tr>
+                    <td className="text-left text-sm text-zinc-400 w-25">
+                      Released:
+                    </td>
+                    <td className="text-left text-md">{item.ProductionYear}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Right Column - Details */}
+          <div className="flex-1 min-w-0 space-y-6">
+            {/* Tracks */}
+            <div className="mt-0">
+              {loadingTracks ? (
+                <div className="animate-pulse space-y-4">
+                  <div className="h-10 w-full bg-base-300 rounded" />
+                  <div className="h-32 w-full bg-base-300 rounded" />
+                </div>
+              ) : albumTracks.length === 0 ? (
+                <div className="text-zinc-400">No tracks found.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  {Object.keys(tracksPerDisc).map((discNum) => (
+                    <div key={discNum} className="mb-6">
+                      {Object.keys(tracksPerDisc).length > 1 && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <Disc className="h-4 w-4 text-zinc-400" />
+                          <span className="font-semibold">Disc {discNum}</span>
+                        </div>
+                      )}
+                      <table className="min-w-full text-sm border-separate border-spacing-y-1">
+                        <thead>
+                          <tr className="text-zinc-400">
+                            <th className="w-12 text-center"></th>
+                            <th className="w-10"></th>
+                            <th className="text-left"></th>
+                            <th className="w-16 text-center"></th>
+                            <th className="w-24 text-center"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tracksPerDisc[Number(discNum)].map((track) => (
+                            <tr
+                              key={track.Id}
+                              className={`group hover:bg-base-300 rounded cursor-pointer ${
+                                track.Id === currentTrackId
+                                  ? "bg-primary/40/20"
+                                  : ""
+                              }`}
+                              onDoubleClick={() => {
+                                if (track.Id) handlePlayTrack(track.Id);
+                              }}
+                            >
+                              <td className="text-center font-mono">
+                                {track.IndexNumber}
+                              </td>
+                              <td className="text-center">
+                                <button
+                                  className="opacity-0 btn btn-ghost group-hover:opacity-100 transition-opacity"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (track.Id) handlePlayTrack(track.Id);
+                                  }}
+                                >
+                                  <Play className="size-5" />
+                                </button>
+                              </td>
+                              <td className="text-left">
+                                <span className="font-medium">
+                                  {track.Name}
+                                </span>
+                              </td>
+                              <td className="text-center">
+                                {track.Id === currentTrackId ? (
+                                  <EqualizerBars
+                                    getAnalyser={() => analyserRef.current}
+                                    isPlaying={isPlaying}
+                                    className="mx-auto"
+                                  />
+                                ) : (
+                                  <div className="h-6 w-12" />
+                                )}
+                              </td>
+                              <td className="text-center font-mono">
+                                {formatTrackTime(track.RunTimeTicks)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        {/* Floating Player - Bottom of Screen */}
+        {currentTrackId && (
+          <FloatingAudioBar
+            trackName={albumTracks[currentTrackIndex]?.Name || "Track name"}
+            currentTime={currentTime}
+            duration={duration}
+            isPlaying={isPlaying}
+            volume={volume}
+            repeatMode={repeatMode}
+            onSeek={(value) => handleSeek(value)}
+            onPlayPause={togglePlayPause}
+            onSkipBack={handleSkipBack}
+            onSkipForward={handleSkipForward}
+            onVolumeChange={handleVolumeChange}
+            onToggleRepeat={toggleRepeatMode}
+            onClose={() => setCurrentTrackId(null)}
+          />
+        )}
+
+        {/* Hidden Audio Element */}
+        <audio
+          ref={audioRef}
+          crossOrigin="anonymous"
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onEnded={handleEnded}
+        />
       </div>
-    </Layout>
+    </div>
   );
 }

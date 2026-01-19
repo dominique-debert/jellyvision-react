@@ -6,7 +6,6 @@ import {
   getNextUpItems,
   getLatestMedia,
 } from "@/lib/jellyfin/client";
-import { Layout } from "@/components/Layout";
 import { MyLibrarySection } from "@/components/MyLibrarySection";
 import { ContinueWatchingSection } from "@/components/ContinueWatchingSection";
 import { NextUpSection } from "@/components/NextUpSection";
@@ -65,7 +64,7 @@ export default function Home() {
           userId,
           accessToken,
           movieLib.Id,
-          12
+          12,
         );
         if (movies.success) setRecentMovies(movies.data);
       }
@@ -75,7 +74,7 @@ export default function Home() {
           userId,
           accessToken,
           showLib.Id,
-          12
+          12,
         );
         if (shows.success) setRecentShows(shows.data);
       }
@@ -85,7 +84,7 @@ export default function Home() {
           userId,
           accessToken,
           musicLib.Id,
-          12
+          12,
         );
         if (music.success) setRecentMusic(music.data);
       }
@@ -103,7 +102,7 @@ export default function Home() {
 
   const scroll = (
     ref: React.RefObject<HTMLDivElement | null>,
-    direction: "left" | "right"
+    direction: "left" | "right",
   ) => {
     if (ref.current) {
       const scrollAmount = 800;
@@ -119,51 +118,49 @@ export default function Home() {
   };
 
   return (
-    <Layout>
-      <div className="flex flex-col gap-10 mt-10 mb-30">
-        <MyLibrarySection
-          libraries={libraries}
-          serverUrl={serverUrl!}
-          loading={loading}
-          scrollRef={libraryScrollRef as React.RefObject<HTMLDivElement>}
-          onScroll={scroll}
-        />
-        <ContinueWatchingSection
-          items={resumeItems}
-          serverUrl={serverUrl!}
-          loading={loading}
-          scrollRef={resumeScrollRef as React.RefObject<HTMLDivElement>}
-          onScroll={scroll}
-        />
-        <NextUpSection
-          items={nextUpItems}
-          serverUrl={serverUrl!}
-          loading={loading}
-          scrollRef={nextUpScrollRef as React.RefObject<HTMLDivElement>}
-          onScroll={scroll}
-        />
-        <RecentlyAddedMoviesSection
-          items={recentMovies}
-          serverUrl={serverUrl!}
-          loading={loading}
-          scrollRef={moviesScrollRef as React.RefObject<HTMLDivElement>}
-          onScroll={scroll}
-        />
-        <RecentlyAddedShowsSection
-          items={recentShows}
-          serverUrl={serverUrl!}
-          loading={loading}
-          scrollRef={showsScrollRef as React.RefObject<HTMLDivElement>}
-          onScroll={scroll}
-        />
-        <RecentlyAddedMusicSection
-          items={recentMusic}
-          serverUrl={serverUrl!}
-          loading={loading}
-          scrollRef={musicScrollRef as React.RefObject<HTMLDivElement>}
-          onScroll={scroll}
-        />
-      </div>
-    </Layout>
+    <div className="flex flex-col gap-10 mt-10 mb-30">
+      <MyLibrarySection
+        libraries={libraries}
+        serverUrl={serverUrl!}
+        loading={loading}
+        scrollRef={libraryScrollRef as React.RefObject<HTMLDivElement>}
+        onScroll={scroll}
+      />
+      <ContinueWatchingSection
+        items={resumeItems}
+        serverUrl={serverUrl!}
+        loading={loading}
+        scrollRef={resumeScrollRef as React.RefObject<HTMLDivElement>}
+        onScroll={scroll}
+      />
+      <NextUpSection
+        items={nextUpItems}
+        serverUrl={serverUrl!}
+        loading={loading}
+        scrollRef={nextUpScrollRef as React.RefObject<HTMLDivElement>}
+        onScroll={scroll}
+      />
+      <RecentlyAddedMoviesSection
+        items={recentMovies}
+        serverUrl={serverUrl!}
+        loading={loading}
+        scrollRef={moviesScrollRef as React.RefObject<HTMLDivElement>}
+        onScroll={scroll}
+      />
+      <RecentlyAddedShowsSection
+        items={recentShows}
+        serverUrl={serverUrl!}
+        loading={loading}
+        scrollRef={showsScrollRef as React.RefObject<HTMLDivElement>}
+        onScroll={scroll}
+      />
+      <RecentlyAddedMusicSection
+        items={recentMusic}
+        serverUrl={serverUrl!}
+        loading={loading}
+        scrollRef={musicScrollRef as React.RefObject<HTMLDivElement>}
+        onScroll={scroll}
+      />
+    </div>
   );
 }
