@@ -56,7 +56,7 @@ export default function NextUpPage() {
 
   return (
     <div>
-      <header className="border-b border-base-300 pb-0 pt-4">
+      <header className="border-b border-base-300 bg-transparent pb-0 pt-4 backdrop-blur-lg">
         <h1 className="text-4xl font-light w-full text-left mb-10 mt-6 ml-15">
           Next Up
         </h1>
@@ -86,8 +86,7 @@ export default function NextUpPage() {
         </div>
       </header>
 
-      <main className="px-15 py-8 pt-4">
-        {/* NextUpSection-like layout */}
+      <main className="ml-10 mr-10 px-4 py-8 pt-5 pb-45 overflow-y-auto h-screen [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <section>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8 mt-6 pb-30">
             {loading ? (

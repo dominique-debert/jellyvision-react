@@ -58,7 +58,7 @@ export function Layout({ backdropUrl }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen text-base-content relative">
+    <div className="min-h-screen h-screen text-base-content relative overflow-hidden">
       {backdropUrl && (
         <div
           className="fixed left-0 inset-0 z-0 opacity-10"

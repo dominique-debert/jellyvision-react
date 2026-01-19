@@ -99,7 +99,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col gap-10 mt-10 mb-30">
+    <main className="py-8 pt-0 pb-45 overflow-y-auto h-screen [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <MyLibrarySection
         items={libraries}
         serverUrl={serverUrl!}
@@ -142,6 +142,6 @@ export default function Home() {
         scrollRef={musicScrollRef as React.RefObject<HTMLDivElement>}
         onScroll={scroll}
       />
-    </div>
+    </main>
   );
 }

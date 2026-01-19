@@ -31,7 +31,7 @@ export function RecentlyAddedShowsSection({
 
   if (isLoading || items.length === 0) return null;
   return (
-    <section className="mr-10">
+    <section className="mr-10 mt-15">
       <div className="flex items-center justify-between ml-16">
         <button
           className="text-2xl font-light flex items-center gap-3 hover:text-primary cursor-pointer"

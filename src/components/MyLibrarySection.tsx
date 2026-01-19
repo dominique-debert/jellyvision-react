@@ -33,7 +33,7 @@ export function MyLibrarySection({ scrollRef }: MyLibrarySectionProps) {
 
   if (isLoading || libraries.length === 0) return null;
   return (
-    <section className="mr-10">
+    <section>
       <div className="flex items-center ml-16">
         <h2 className="text-2xl font-light flex items-center gap-3">
           <Library className="size-5 inline-block mr-2" /> My Library

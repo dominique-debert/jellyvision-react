@@ -28,7 +28,7 @@ export function NextUpSection({ scrollRef, onScroll }: NextUpSectionProps) {
 
   if (isLoading || items.length === 0) return null;
   return (
-    <section className="mr-10">
+    <section className="mt-15 mr-10">
       <div className="flex items-center justify-between ml-16">
         <button
           className="text-2xl font-light flex items-center gap-3 hover:text-primary cursor-pointer"

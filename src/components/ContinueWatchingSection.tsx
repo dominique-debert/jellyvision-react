@@ -31,7 +31,7 @@ export function ContinueWatchingSection({
 
   if (isLoading || items.length === 0) return null;
   return (
-    <section className="mr-10">
+    <section className="mt-15 mr-10">
       <div className="flex items-center justify-between ml-16">
         <h2 className="text-3xl font-light flex items-center gap-3">
           <CirclePause className="size-5 inline-block mr-2" /> Continue watching

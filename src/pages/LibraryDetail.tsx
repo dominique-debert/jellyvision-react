@@ -267,7 +267,7 @@ export default function LibraryDetail() {
         </div>
       </header>
 
-      <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-15">
+      <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-15 overflow-y-auto h-[calc(100vh-20rem)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center text-muted-foreground">

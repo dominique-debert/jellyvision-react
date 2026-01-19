@@ -86,7 +86,7 @@ export default function RecentlyAddedMoviesPage() {
         </div>
       </header>
 
-      <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-10">
+      <main className="ml-10 mr-10 px-4 py-8 pt-4 pb-55 overflow-y-auto h-screen [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <MediaGrid items={sortedItems} loading={loading} />
       </main>
     </div>

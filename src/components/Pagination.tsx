@@ -52,7 +52,7 @@ export function Pagination({
   }
 
   return (
-    <div className="mt-8 w-full flex items-center justify-center gap-2 sticky bottom-20 bg-transparent backdrop-blur-sm pt-3 pb-4">
+    <div className="mt-8 w-full flex items-center justify-center gap-2 sticky bottom-10 bg-transparent backdrop-blur-sm pt-3 pb-4">
       <Button
         onClick={() => onPageChange(1)}
         disabled={currentPage === 1 || loading}
