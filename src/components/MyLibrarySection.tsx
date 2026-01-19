@@ -2,16 +2,24 @@ import { Library } from "lucide-react";
 import { getImageUrl, useUserViewsQuery } from "@/lib/jellyfin/client";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
+import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+
+export interface MyLibrarySectionProps {
+  items: BaseItemDto[];
+  serverUrl: string;
+  loading: boolean;
+  scrollRef: React.RefObject<HTMLDivElement>;
+  onScroll: (
+    ref: React.RefObject<HTMLDivElement | null>,
+    direction: "left" | "right",
+  ) => void;
+}
 
 interface Library {
   Id?: string;
   Name?: string | null;
   CollectionType?: string | null;
   ImageTags?: { [key: string]: string } | null;
-}
-
-interface MyLibrarySectionProps {
-  scrollRef: React.RefObject<HTMLDivElement>;
 }
 
 export function MyLibrarySection({ scrollRef }: MyLibrarySectionProps) {

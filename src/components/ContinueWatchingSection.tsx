@@ -4,8 +4,12 @@ import { ItemCard } from "@/components/ItemCard";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useResumeItemsQuery } from "@/lib/jellyfin/client";
+import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
-interface ContinueWatchingSectionProps {
+export interface ContinueWatchingSectionProps {
+  items: BaseItemDto[];
+  serverUrl: string;
+  loading: boolean;
   scrollRef: React.RefObject<HTMLDivElement>;
   onScroll: (
     ref: React.RefObject<HTMLDivElement | null>,

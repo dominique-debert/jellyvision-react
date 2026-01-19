@@ -101,7 +101,7 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-10 mt-10 mb-30">
       <MyLibrarySection
-        libraries={libraries}
+        items={libraries}
         serverUrl={serverUrl!}
         loading={loading}
         scrollRef={libraryScrollRef as React.RefObject<HTMLDivElement>}

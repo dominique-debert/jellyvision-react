@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { ItemCard } from "@/components/ItemCard";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRecentlyAddedMoviesQuery } from "@/lib/jellyfin/extraMediaFetchers";
+import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
-interface RecentlyAddedMoviesSectionProps {
+export interface RecentlyAddedMoviesSectionProps {
+  items: BaseItemDto[];
+  serverUrl: string;
+  loading: boolean;
   scrollRef: React.RefObject<HTMLDivElement>;
   onScroll: (
     ref: React.RefObject<HTMLDivElement | null>,
