@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getItem } from "@/lib/jellyfin/client";
-import { LoadingState, NotFoundState } from "./ItemDetail/shared";
-import MovieDetail from "./ItemDetail/MovieDetail";
-import ShowDetail from "./ItemDetail/ShowDetail";
-import MusicDetail from "./ItemDetail/MusicDetail";
+import { LoadingState, NotFoundState } from "@/pages/ItemDetail/shared";
+import MovieDetail from "@/pages/ItemDetail/MovieDetail";
+import ShowDetail from "@/pages/ItemDetail/ShowDetail";
+import MusicDetail from "@/pages/ItemDetail/MusicDetail";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function ItemDetail() {

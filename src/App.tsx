@@ -1,16 +1,16 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuthStore } from "./store/useAuthStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Layout } from "@/components/Layout";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import LibraryDetail from "./pages/LibraryDetail";
+import Login from "@/pages/Login";
+import Home from "@/pages/Home";
+import LibraryDetail from "@/pages/LibraryDetail";
 import ItemDetail from "@/pages/ItemDetail";
 import Player from "@/pages/Player";
 import SearchResults from "@/pages/SearchResults";
-import NextUpPage from "./pages/NextUpPage";
-import RecentlyAddedMoviesPage from "./pages/RecentlyAddedMoviesPage";
-import RecentlyAddedMusicPage from "./pages/RecentlyAddedMusicPage";
-import RecentlyAddedShowsPage from "./pages/RecentlyAddedShowsPage";
+import NextUpPage from "@/pages/NextUpPage";
+import RecentlyAddedMoviesPage from "@/pages/RecentlyAddedMoviesPage";
+import RecentlyAddedMusicPage from "@/pages/RecentlyAddedMusicPage";
+import RecentlyAddedShowsPage from "@/pages/RecentlyAddedShowsPage";
 
 function App() {
   const { isAuthenticated } = useAuthStore();

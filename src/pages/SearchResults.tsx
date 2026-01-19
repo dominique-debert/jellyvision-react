@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Layout } from "@/components/Layout";
 import { ItemCard } from "@/components/ItemCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Film, Tv, Music } from "lucide-react";

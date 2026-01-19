@@ -1,9 +1,13 @@
-import { getNextUpItems, getLatestMedia, getUserViews } from "./client";
+import {
+  getNextUpItems,
+  getLatestMedia,
+  getUserViews,
+} from "@/lib/jellyfin/client";
 
 export async function fetchNextUp(
   serverUrl: string,
   userId: string,
-  accessToken: string
+  accessToken: string,
 ) {
   return getNextUpItems(serverUrl, userId, accessToken, 60);
 }
@@ -11,7 +15,7 @@ export async function fetchNextUp(
 export async function fetchRecentlyAddedMovies(
   serverUrl: string,
   userId: string,
-  accessToken: string
+  accessToken: string,
 ) {
   // Find the movies library
   const views = await getUserViews(serverUrl, userId, accessToken);
@@ -24,7 +28,7 @@ export async function fetchRecentlyAddedMovies(
 export async function fetchRecentlyAddedShows(
   serverUrl: string,
   userId: string,
-  accessToken: string
+  accessToken: string,
 ) {
   const views = await getUserViews(serverUrl, userId, accessToken);
   const showsLib =
@@ -37,7 +41,7 @@ export async function fetchRecentlyAddedShows(
 export async function fetchRecentlyAddedMusic(
   serverUrl: string,
   userId: string,
-  accessToken: string
+  accessToken: string,
 ) {
   const views = await getUserViews(serverUrl, userId, accessToken);
   const musicLib =

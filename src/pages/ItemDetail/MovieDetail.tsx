@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
-import { getItem, getImageUrl } from "@/lib/jellyfin/client";
+import { getItem } from "@/lib/jellyfin/client";
 import { ArrowLeft, Play } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import {
@@ -13,7 +13,7 @@ import {
   SynopsisSection,
   CastAndCrewSection,
   SubtitleSelector,
-} from "./shared";
+} from "@/pages/ItemDetail/shared";
 
 import { getPrimaryImageUrl } from "@/lib/utils";
 

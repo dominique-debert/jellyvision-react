@@ -7,7 +7,7 @@ import EqualizerBars from "@/components/EqualizerBars";
 import { Disc, Play, ArrowLeft } from "lucide-react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { getPrimaryImageUrl } from "@/lib/utils";
-import { LoadingState, NotFoundState } from "./shared";
+import { LoadingState, NotFoundState } from "@/pages/ItemDetail/shared";
 
 function formatTrackTime(ticks?: number | null) {
   if (!ticks) return "";
